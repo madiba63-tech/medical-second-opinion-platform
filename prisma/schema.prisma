@@ -1,0 +1,257 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id                    String   @id @default(cuid())
+  customerId            String   @unique @default(cuid())
+  
+  // Authentication
+  email                 String   @unique
+  passwordHash          String
+  isActive              Boolean  @default(true)
+  lastLoginAt           DateTime?
+  
+  // Personal Info
+  firstName             String
+  middleName            String?
+  lastName              String
+  dateOfBirth           DateTime
+  phone                 String?
+  
+  // Communication Preferences
+  preferredContact      String   @default("email") // email, sms, both
+  emailNotifications    Boolean  @default(true)
+  smsNotifications      Boolean  @default(false)
+  
+  // Timestamps
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  // Relations
+  cases                 Case[]
+  
+  @@map("customers")
+}
+
+model Case {
+  id                    String        @id @default(cuid())
+  caseNumber           String        @unique @default(cuid())
+  
+  // Customer Reference
+  customerId            String
+  customer              Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  // Personal Info (redundant for quick access)
+  firstName            String
+  middleName           String?
+  lastName             String
+  dateOfBirth          DateTime
+  email                String
+  phone                String?
+  
+  // Medical Context
+  ethnicity            String?
+  gender               String?
+  diseaseType          String?
+  isFirstOccurrence    Boolean?
+  geneticFamilyHistory String?       // JSON array as string
+  
+  // Process
+  paymentId            String?
+  consentAccepted      Boolean       @default(false)
+  status               String        @default("submitted") // submitted, processing, ai_analysis, assigned, under_review, peer_review, completed, delivered
+  
+  // Timestamps
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  
+  // Relations
+  uploadedFiles        UploadedFile[]
+  aiAnalysis           AIAnalysis?
+  caseAssignments      CaseAssignment[]
+  medicalOpinions      MedicalOpinion[]
+  
+  @@map("cases")
+}
+
+model UploadedFile {
+  id                   String   @id @default(cuid())
+  caseId               String
+  case                 Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
+  fileName             String
+  originalName         String
+  fileSize             Int
+  mimeType             String
+  category             String   // "Doctor's Letter", "Image", "Lab Report", "Other Document"
+  s3Key                String?  // S3 object key or local file path
+  uploadedAt           DateTime @default(now())
+  
+  @@map("uploaded_files")
+}
+
+model MedicalProfessional {
+  id                   String             @id @default(cuid())
+  professionalId       String             @unique @default(cuid())
+  
+  // Personal Info
+  firstName            String
+  lastName             String
+  email                String             @unique
+  phone                String?
+  
+  // Professional Info
+  licenseNumber        String
+  specialty            String
+  yearsExperience      Int
+  qualifications       String             // JSON array as string
+  
+  // Vetting Status
+  vettingStatus        String             @default("pending") // pending, approved, rejected, suspended
+  vettedBy             String?            // Admin ID who vetted
+  vettedAt             DateTime?
+  
+  // Timestamps
+  appliedAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  
+  // Relations
+  caseAssignments      CaseAssignment[]
+  primaryOpinions      MedicalOpinion[] @relation("PrimaryOpinions")
+  reviewedOpinions     MedicalOpinion[] @relation("ReviewedOpinions")
+  payments             ProfessionalPayment[]
+  
+  @@map("medical_professionals")
+}
+
+model CaseAssignment {
+  id                   String             @id @default(cuid())
+  
+  // References
+  caseId               String
+  case                 Case               @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  professionalId       String
+  professional         MedicalProfessional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  
+  // Assignment Details
+  assignedBy           String             // Admin ID
+  assignedAt           DateTime           @default(now())
+  status               String             @default("assigned") // assigned, in_progress, completed, cancelled
+  
+  // Timestamps
+  startedAt            DateTime?
+  completedAt          DateTime?
+  
+  @@map("case_assignments")
+}
+
+model AIAnalysis {
+  id                   String   @id @default(cuid())
+  caseId               String   @unique
+  case                 Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
+  // Analysis Details
+  analysisType         String   // "combined", "image", "text", "lab_results"
+  findings             String   // JSON object with analysis results
+  confidence           Float?   // 0.0 to 1.0 confidence score
+  
+  // Timestamps
+  initiatedAt          DateTime @default(now())
+  completedAt          DateTime?
+  
+  @@map("ai_analysis")
+}
+
+model MedicalOpinion {
+  id                   String             @id @default(cuid())
+  
+  // References
+  caseId               String
+  case                 Case               @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  primaryProfessionalId String
+  primaryProfessional  MedicalProfessional @relation("PrimaryOpinions", fields: [primaryProfessionalId], references: [id], onDelete: Cascade)
+  reviewerProfessionalId String?
+  reviewerProfessional MedicalProfessional? @relation("ReviewedOpinions", fields: [reviewerProfessionalId], references: [id], onDelete: SetNull)
+  
+  // Opinion Content
+  diagnosis            String?
+  recommendations      String
+  riskAssessment       String?
+  additionalTests      String?
+  notes                String?
+  
+  // Review Process
+  status               String   @default("draft") // draft, under_review, peer_reviewed, approved, delivered
+  peerReviewNotes      String?
+  
+  // Timestamps
+  createdAt            DateTime @default(now())
+  submittedAt          DateTime?
+  reviewedAt           DateTime?
+  approvedAt           DateTime?
+  deliveredAt          DateTime?
+  
+  @@map("medical_opinions")
+}
+
+model ProfessionalPayment {
+  id                   String             @id @default(cuid())
+  
+  // References
+  professionalId       String
+  professional         MedicalProfessional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  caseId               String?            // Optional case reference
+  
+  // Payment Details
+  amount               Float
+  currency             String             @default("USD")
+  paymentType          String             // "case_completion", "bonus", "adjustment"
+  paymentMethod        String             // "bank_transfer", "paypal", "check"
+  
+  // Status
+  status               String             @default("pending") // pending, processed, failed, cancelled
+  transactionId        String?
+  
+  // Timestamps
+  initiatedAt          DateTime           @default(now())
+  processedAt          DateTime?
+  
+  @@map("professional_payments")
+}
+
+model Admin {
+  id                   String   @id @default(cuid())
+  adminId              String   @unique @default(cuid())
+  
+  // Personal Info
+  firstName            String
+  lastName             String
+  email                String   @unique
+  
+  // Authentication
+  passwordHash         String
+  
+  // Permissions
+  role                 String   @default("admin") // admin, super_admin
+  permissions          String   // JSON array of permissions
+  
+  // Status
+  isActive             Boolean  @default(true)
+  lastLoginAt          DateTime?
+  
+  // Timestamps
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  
+  @@map("admins")
+}

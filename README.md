@@ -1,36 +1,263 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Medical Second Opinion Platform
 
-## Getting Started
+A secure, multi-role web application for medical second opinions with professional review capabilities, AI integration, and comprehensive case management.
 
-First, run the development server:
+## 🏥 Platform Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+The Medical Second Opinion Platform enables patients to submit medical cases for expert review by qualified medical professionals. The system features role-based access control, secure file handling, AI analysis integration, and comprehensive case management across multiple modules.
+
+## 🎯 Key Features
+
+### **Multi-Role System**
+- **Patient Portal**: Multi-step case submission with document upload
+- **Customer Portal**: Case tracking and opinion access
+- **Professional Portal**: Case review and medical opinion creation
+- **Admin Dashboard**: Professional management and case oversight
+
+### **Core Functionality**
+- ✅ Secure file upload and classification
+- ✅ Multi-step form with validation
+- ✅ AI analysis integration
+- ✅ Professional vetting and assignment
+- ✅ Peer review workflow
+- ✅ Payment processing
+- ✅ Email/SMS notifications
+- ✅ Case tracking and management
+
+## 🏗️ Architecture Documentation
+
+### **📊 System Architecture**
+- [Complete Architecture Overview](ARCHITECTURE.md) - System design, components, and technical stack
+- [Business Process Flowcharts](FLOWCHARTS.md) - Detailed process flows and decision trees
+
+### **🔧 Technical Stack**
+- **Frontend**: Next.js 15.4.7, React 18, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes, Prisma ORM, SQLite/PostgreSQL
+- **File Storage**: Local development + AWS S3 production
+- **Authentication**: JWT tokens, bcrypt password hashing
+- **Testing**: Jest, React Testing Library
+- **Validation**: Zod schema validation
+
+## 🚀 Quick Start
+
+### **Prerequisites**
+- Node.js 20+ 
+- npm or yarn
+- Git
+
+### **Installation**
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd second-opinion
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up the database**
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
+
+4. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## 🎮 How to Use
+
+### **Accessing Different Roles**
+
+The platform includes a **Role Navigation Menu** (red button in top-right corner) to switch between different user interfaces:
+
+- **🏥 Patient Portal**: `http://localhost:3000/` - Submit new cases
+- **👤 Customer Portal**: `http://localhost:3000/customer` - Track existing cases
+- **👨‍⚕️ Professional Portal**: `http://localhost:3000/professional` - Review assigned cases
+- **⚙️ Admin Dashboard**: `http://localhost:3000/admin` - Manage professionals and cases
+
+### **Patient Journey**
+1. **Personal Information** - Fill in basic details
+2. **Document Upload** - Upload and classify medical files
+3. **Medical Context** - Provide health background
+4. **Review** - Review all information
+5. **Payment** - Process payment
+6. **Consent** - Accept terms and conditions
+7. **Confirmation** - Receive case number and confirmation
+
+## 📁 Project Structure
+
+```
+second-opinion/
+├── src/
+│   ├── app/                    # Next.js app router
+│   │   ├── api/               # API routes
+│   │   ├── customer/          # Customer portal
+│   │   ├── professional/      # Professional portal
+│   │   ├── admin/             # Admin dashboard
+│   │   └── page.tsx           # Patient portal (main)
+│   ├── components/            # React components
+│   ├── lib/                   # Utilities and configurations
+│   └── types/                 # TypeScript type definitions
+├── prisma/                    # Database schema and migrations
+├── tests/                     # Test files
+├── docs/                      # Documentation
+└── .uploads/                  # Local file storage (development)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🧪 Testing
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Run the comprehensive test suite:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Run all tests
+npm test
 
-## Learn More
+# Run tests with coverage
+npm run test:coverage
 
-To learn more about Next.js, take a look at the following resources:
+# Run tests in watch mode
+npm run test:watch
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Run specific test categories
+npm run test:components
+npm run test:api
+npm run test:integration
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📊 Database Schema
 
-## Deploy on Vercel
+The platform uses a comprehensive database schema with the following main entities:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Customer** - Patient information and authentication
+- **Case** - Medical case records with unique case numbers
+- **UploadedFile** - Medical documents and files
+- **MedicalProfessional** - Qualified medical professionals
+- **CaseAssignment** - Professional-to-case assignments
+- **AIAnalysis** - AI analysis results
+- **MedicalOpinion** - Professional medical opinions
+- **ProfessionalPayment** - Payment records for professionals
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔐 Security Features
+
+- **Authentication**: JWT-based authentication with bcrypt password hashing
+- **Authorization**: Role-based access control (Patient, Customer, Professional, Admin)
+- **File Security**: Secure file upload with presigned URLs
+- **Data Protection**: Encrypted data storage and transmission
+- **Input Validation**: Comprehensive form validation with Zod schemas
+
+## 🌐 API Endpoints
+
+### **Core APIs**
+- `POST /api/presign-upload` - Generate secure upload URLs
+- `POST /api/upload-request` - Submit complete case data
+- `POST /api/acknowledgement` - Send confirmation emails
+- `POST /api/payment-confirmation` - Process payment confirmations
+
+### **Role-Specific APIs**
+- `GET /api/customer/dashboard` - Customer case data
+- `GET /api/professional/cases` - Professional assigned cases
+- `GET /api/admin/management` - Admin management data
+
+## 📈 Performance Features
+
+- **Code Splitting**: Automatic code splitting for optimal loading
+- **Image Optimization**: Next.js built-in image optimization
+- **Database Indexing**: Optimized database queries
+- **Caching**: Strategic caching for improved performance
+- **Parallel Uploads**: Concurrent file uploads for better UX
+
+## 🔧 Development
+
+### **Environment Variables**
+Create a `.env` file with the following variables:
+
+```env
+# Database
+DATABASE_URL="file:./dev.db"
+
+# File Storage (optional for production)
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+AWS_REGION=your_region
+AWS_S3_BUCKET=your_bucket_name
+
+# JWT Secret
+JWT_SECRET=your_jwt_secret
+```
+
+### **Available Scripts**
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run test` - Run test suite
+
+## 🚀 Deployment
+
+### **Vercel (Recommended)**
+1. Connect your GitHub repository to Vercel
+2. Configure environment variables
+3. Deploy automatically on push
+
+### **Other Platforms**
+- **Netlify**: Similar to Vercel deployment
+- **Railway**: Full-stack deployment platform
+- **Heroku**: Traditional cloud platform
+
+## 📋 Roadmap
+
+### **Phase 1 (Current)**
+- ✅ Multi-step patient submission
+- ✅ File upload and classification
+- ✅ Basic role-based access
+- ✅ Database schema implementation
+
+### **Phase 2 (Next)**
+- 🔄 Real-time notifications
+- 🔄 Advanced AI integration
+- 🔄 Mobile application
+- 🔄 Internationalization
+
+### **Phase 3 (Future)**
+- 📋 Microservices architecture
+- 📋 Advanced analytics
+- 📋 Machine learning features
+- 📋 Blockchain integration
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+For support and questions:
+- 📧 Email: support@medicalsecondopinion.com
+- 📖 Documentation: [ARCHITECTURE.md](ARCHITECTURE.md)
+- 🐛 Issues: [GitHub Issues](https://github.com/your-repo/issues)
+
+## 🙏 Acknowledgments
+
+- Next.js team for the amazing framework
+- Prisma team for the excellent ORM
+- Tailwind CSS for the utility-first styling
+- All contributors and testers
+
+---
+
+**🏥 Medical Second Opinion Platform** - Empowering patients with expert medical insights through secure, professional review processes.

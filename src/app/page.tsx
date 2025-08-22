@@ -1,103 +1,167 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import PatientInfoForm from '@/components/PatientInfoForm';
+import MedicalUploadForm from '@/components/MedicalUploadForm';
+import MedicalContextForm from '@/components/MedicalContextForm';
+import ReviewSubmission from '@/components/ReviewSubmission';
+import PaymentSection from '@/components/PaymentSection';
+import TermsConsent from '@/components/TermsConsent';
+import ConfirmationScreen from '@/components/ConfirmationScreen';
+import { FormData, StepFormProps } from '@/types/form';
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [currentStep, setCurrentStep] = useState(1);
+  const [caseId, setCaseId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<FormData>({
+    personalInfo: {
+      firstName: '',
+      middleName: '',
+      lastName: '',
+      dateOfBirth: '',
+      email: '',
+      phone: ''
+    },
+    medicalFiles: [],
+    contextInfo: {
+      ethnicity: '',
+      gender: '',
+      diseaseType: '',
+      isFirstOccurrence: null,
+      geneticFamilyHistory: []
+    },
+    paymentId: '',
+    consentAccepted: false
+  });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const updateFormData = (stepData: Partial<FormData>) => {
+    setFormData(prev => ({ ...prev, ...stepData }));
+  };
+
+  const nextStep = () => {
+    if (currentStep < 7) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const goToStep = (step: number) => {
+    setCurrentStep(step);
+  };
+
+  const renderStepIndicator = () => {
+    const steps = [
+      'Personal Info',
+      'Upload Documents', 
+      'Medical Context',
+      'Review',
+      'Payment',
+      'Consent',
+      'Confirmation'
+    ];
+
+    return (
+      <div className="mb-8">
+        <div className="flex justify-between items-center">
+          {steps.map((step, index) => {
+            const stepNumber = index + 1;
+            const isActive = stepNumber === currentStep;
+            const isCompleted = stepNumber < currentStep;
+            const isAccessible = stepNumber <= currentStep;
+
+            return (
+              <div key={stepNumber} className="flex flex-col items-center flex-1">
+                <button
+                  onClick={() => isAccessible && goToStep(stepNumber)}
+                  disabled={!isAccessible}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'bg-blue-600 text-white'
+                      : isCompleted
+                      ? 'bg-green-500 text-white cursor-pointer hover:bg-green-600'
+                      : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  {isCompleted ? '✓' : stepNumber}
+                </button>
+                <span className={`mt-2 text-xs text-center ${
+                  isActive ? 'text-blue-600 font-medium' : 'text-gray-500'
+                }`}>
+                  {step}
+                </span>
+                {index < steps.length - 1 && (
+                  <div className={`hidden sm:block absolute top-5 w-full h-0.5 -z-10 ${
+                    isCompleted ? 'bg-green-500' : 'bg-gray-200'
+                  }`} style={{ left: '50%', width: 'calc(100% - 2.5rem)' }} />
+                )}
+              </div>
+            );
+          })}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+    );
+  };
+
+  const stepFormProps: StepFormProps = {
+    formData,
+    updateFormData,
+    nextStep,
+    prevStep,
+    setCaseId,
+    goToStep
+  };
+
+  if (currentStep === 7 && caseId) {
+    const customerName = `${formData.personalInfo.firstName} ${formData.personalInfo.lastName}`.trim();
+    return <ConfirmationScreen caseId={caseId} customerName={customerName} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-6">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Medical Second Opinion Portal
+          </h1>
+          <p className="text-xl text-gray-600">
+            Submit your medical records for expert review by our qualified medical professionals
+          </p>
+        </div>
+
+        {/* Step Indicator */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          {renderStepIndicator()}
+        </div>
+
+        {/* Form Content */}
+        <div className="bg-white rounded-lg shadow-sm p-8">
+          {currentStep === 1 && (
+            <PatientInfoForm 
+              formData={formData}
+              updateFormData={updateFormData}
+              nextStep={nextStep}
+              prevStep={prevStep}
+              setCaseId={setCaseId}
+            />
+          )}
+          {currentStep === 2 && <MedicalUploadForm {...stepFormProps} />}
+          {currentStep === 3 && <MedicalContextForm {...stepFormProps} />}
+          {currentStep === 4 && <ReviewSubmission {...stepFormProps} />}
+          {currentStep === 5 && <PaymentSection {...stepFormProps} />}
+          {currentStep === 6 && <TermsConsent {...stepFormProps} />}
+        </div>
+
+        {/* Security Notice */}
+        <div className="mt-8 text-center text-sm text-gray-500">
+          <p>🔒 Your data is encrypted and securely stored. We comply with HIPAA regulations.</p>
+        </div>
+      </div>
     </div>
   );
 }
