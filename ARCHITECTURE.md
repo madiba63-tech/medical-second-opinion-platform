@@ -8,62 +8,85 @@ The Medical Second Opinion Platform is a secure, multi-role web application buil
 
 ```mermaid
 graph TB
-    subgraph "Frontend Layer"
-        A[Patient Portal] --> B[Multi-step Form]
-        C[Customer Portal] --> D[Case Dashboard]
-        E[Professional Portal] --> F[Case Review Interface]
-        G[Admin Dashboard] --> H[Management Interface]
+    subgraph "User Interface Layer"
+        subgraph "Patient Interface"
+            A[Patient Portal] --> B[Multi-step Form]
+        end
+        
+        subgraph "Customer Interface"
+            C[Customer Portal] --> D[Case Dashboard]
+        end
+        
+        subgraph "Professional Interface"
+            E[Professional Portal] --> F[Case Review Interface]
+            E --> G[Profile Management]
+            E --> H[Account Management]
+            E --> I[Application & Vetting Process]
+        end
+        
+        subgraph "Admin Interface"
+            J[Admin Portal] --> K[System Management Dashboard]
+            J --> L[Professional Vetting & Approval]
+            J --> M[Case Assignment & Monitoring]
+            J --> N[User Management]
+            J --> O[System Analytics & Reports]
+        end
     end
 
     subgraph "API Layer"
-        I[Next.js API Routes]
-        J[Authentication]
-        K[File Upload]
-        L[Case Management]
+        N[Next.js API Routes]
+        O[Authentication]
+        P[File Upload]
+        Q[Case Management]
+        R[Professional Application APIs]
     end
 
     subgraph "Business Logic Layer"
-        M[Repository Module]
-        N[Customer Lifecycle Module]
-        O[Invoicing & Accounting Module]
-        P[Professional Recruitment Module]
-        Q[Case Review Module]
+        S[Repository Module]
+        T[Customer Lifecycle Module]
+        U[Invoicing & Accounting Module]
+        V[Professional Recruitment Module]
+        W[Case Review Module]
     end
 
     subgraph "Data Layer"
-        R[(SQLite Database)]
-        S[Local File Storage]
-        T[External AI Analysis]
+        X[(SQLite Database)]
+        Y[Local File Storage]
+        Z[External AI Analysis]
     end
 
     subgraph "External Services"
-        U[Email Service]
-        V[SMS Service]
-        W[Payment Gateway]
+        AA[Email Service]
+        BB[SMS Service]
+        CC[Payment Gateway]
     end
 
-    A --> I
-    C --> I
-    E --> I
-    G --> I
+    %% User interfaces connect to API layer
+    A --> N
+    C --> N
+    E --> N
+    J --> N
     
-    I --> M
-    I --> N
-    I --> O
-    I --> P
-    I --> Q
-    
-    M --> R
-    M --> S
-    M --> T
-    N --> R
-    O --> R
-    P --> R
-    Q --> R
-    
+    %% API layer connects to business logic
+    N --> S
+    N --> T
     N --> U
     N --> V
-    O --> W
+    N --> W
+    
+    %% Business logic connects to data layer
+    S --> X
+    S --> Y
+    S --> Z
+    T --> X
+    U --> X
+    V --> X
+    W --> X
+    
+    %% Business logic connects to external services
+    T --> AA
+    T --> BB
+    U --> CC
 ```
 
 ## 🔄 System Flow Diagrams
@@ -169,7 +192,9 @@ graph TD
     subgraph "Role-Specific Pages"
         J[Customer Dashboard]
         K[Professional Dashboard]
-        L[Admin Dashboard]
+        L[Professional Profile Page]
+        M[Professional Account Page]
+        N[Admin Dashboard]
     end
     
     subgraph "Shared Components"
@@ -189,6 +214,8 @@ graph TD
     A --> J
     A --> K
     A --> L
+    A --> M
+    A --> N
     
     C --> M
     D --> M
@@ -218,7 +245,9 @@ graph TD
     subgraph "Role-Specific APIs"
         G[/api/customer/dashboard]
         H[/api/professional/cases]
-        I[/api/admin/management]
+        I[/api/professional/profile]
+        J[/api/professional/account]
+        K[/api/admin/management]
     end
     
     subgraph "Authentication APIs"
@@ -231,7 +260,9 @@ graph TD
     E --> F
     G --> H
     H --> I
+    I --> J
     J --> K
+    K --> L
 ```
 
 ## 🗄️ Database Schema Architecture
@@ -242,6 +273,8 @@ erDiagram
     Case ||--o{ UploadedFile : "contains"
     Case ||--o{ CaseAssignment : "assigned_to"
     MedicalProfessional ||--o{ CaseAssignment : "assigned"
+    MedicalProfessional ||--o{ ProfessionalProfile : "has"
+    MedicalProfessional ||--o{ ProfessionalAccount : "has"
     Case ||--o{ AIAnalysis : "analyzed_by"
     Case ||--o{ MedicalOpinion : "has"
     MedicalProfessional ||--o{ MedicalOpinion : "creates"
@@ -306,6 +339,30 @@ erDiagram
         string specialty
         string licenseNumber
         string status
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    ProfessionalProfile {
+        string id PK
+        string professionalId FK
+        string middleName
+        string phone
+        string preferredChannel
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    ProfessionalAccount {
+        string id PK
+        string professionalId FK
+        string accountId UK
+        string subscriptionPlan
+        string billingCycle
+        datetime nextBillingDate
+        decimal totalEarnings
+        int completedCases
+        int pendingCases
         datetime createdAt
         datetime updatedAt
     }

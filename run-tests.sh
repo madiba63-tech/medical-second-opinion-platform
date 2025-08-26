@@ -1,90 +1,196 @@
 #!/bin/bash
 
-# Medical Second Opinion Platform - Test Runner
-# This script runs comprehensive tests to verify platform functionality
+# Test Runner Script for Second Opinion Platform
+# This script runs comprehensive tests with different configurations
 
-echo "🏥 Medical Second Opinion Platform - Test Suite"
-echo "================================================"
-echo ""
+set -e  # Exit on any error
 
-# Check if Node.js is available
+echo "🧪 Starting Test Suite for Second Opinion Platform"
+echo "=================================================="
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_status() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Check if Node.js is installed
 if ! command -v node &> /dev/null; then
-    echo "❌ Node.js is not installed or not in PATH"
+    print_error "Node.js is not installed. Please install Node.js first."
     exit 1
 fi
 
-# Check if npm is available
+# Check if npm is installed
 if ! command -v npm &> /dev/null; then
-    echo "❌ npm is not installed or not in PATH"
+    print_error "npm is not installed. Please install npm first."
     exit 1
 fi
 
-echo "✅ Node.js and npm are available"
-echo ""
-
-# Install dependencies if needed
+# Install dependencies if node_modules doesn't exist
 if [ ! -d "node_modules" ]; then
-    echo "📦 Installing dependencies..."
+    print_status "Installing dependencies..."
     npm install
-    echo ""
 fi
 
-# Run different types of tests
-echo "🧪 Running Test Suite..."
-echo ""
+# Create test directories if they don't exist
+mkdir -p test-results
+mkdir -p coverage-reports
 
-# 1. Run component tests
-echo "1️⃣ Component Tests"
-npm test -- --testPathPatterns=PatientInfoForm.simple.test.tsx --verbose
-echo ""
+# Function to run tests with specific configuration
+run_test_suite() {
+    local suite_name=$1
+    local test_command=$2
+    local output_file=$3
+    
+    print_status "Running $suite_name..."
+    
+    if eval "$test_command" > "test-results/$output_file" 2>&1; then
+        print_success "$suite_name completed successfully"
+        return 0
+    else
+        print_error "$suite_name failed. Check test-results/$output_file for details."
+        return 1
+    fi
+}
 
-# 2. Run API tests
-echo "2️⃣ API Tests"
-npm test -- --testPathPatterns=presign-upload.test.ts --verbose
-echo ""
+# Track overall success
+overall_success=true
 
-# 3. Run integration tests
-echo "3️⃣ Integration Tests"
-npm test -- --testPathPatterns=page.test.tsx --verbose
-echo ""
-
-# 4. Run all tests with coverage
-echo "4️⃣ Full Test Suite with Coverage"
-npm run test:coverage
-echo ""
-
-# 5. Check if development server is running
-echo "5️⃣ Development Server Status"
-if curl -s -I http://localhost:3000 > /dev/null 2>&1; then
-    echo "✅ Development server is running on http://localhost:3000"
+# 1. Run linting first
+print_status "Running ESLint..."
+if npm run lint > test-results/lint-results.txt 2>&1; then
+    print_success "Linting passed"
 else
-    echo "⚠️  Development server is not running"
-    echo "   Start it with: npm run dev"
+    print_warning "Linting found issues. Check test-results/lint-results.txt"
 fi
-echo ""
 
-# 6. Test API endpoints
-echo "6️⃣ API Endpoint Tests"
-echo "Testing presign-upload endpoint..."
-curl -s -X POST http://localhost:3000/api/presign-upload \
-  -H "Content-Type: application/json" \
-  -d '[{"filename":"test.pdf","mimetype":"application/pdf"}]' | head -c 100
-echo "..."
-echo ""
+# 2. Run unit tests
+print_status "Running unit tests..."
+if npm run test > test-results/unit-tests.txt 2>&1; then
+    print_success "Unit tests passed"
+else
+    print_error "Unit tests failed"
+    overall_success=false
+fi
 
-echo "🎉 Test Suite Complete!"
+# 3. Run tests with coverage
+print_status "Running tests with coverage..."
+if npm run test:coverage > test-results/coverage-tests.txt 2>&1; then
+    print_success "Coverage tests passed"
+    # Copy coverage report
+    if [ -d "coverage" ]; then
+        cp -r coverage/* coverage-reports/ 2>/dev/null || true
+    fi
+else
+    print_error "Coverage tests failed"
+    overall_success=false
+fi
+
+# 4. Run tests in watch mode (non-interactive)
+print_status "Running tests in CI mode..."
+if npm run test:ci > test-results/ci-tests.txt 2>&1; then
+    print_success "CI tests passed"
+else
+    print_error "CI tests failed"
+    overall_success=false
+fi
+
+# 5. Run specific test suites
+print_status "Running component tests..."
+if npx jest src/components/__tests__/ --verbose > test-results/component-tests.txt 2>&1; then
+    print_success "Component tests passed"
+else
+    print_error "Component tests failed"
+    overall_success=false
+fi
+
+print_status "Running API tests..."
+if npx jest src/app/api/__tests__/ --verbose > test-results/api-tests.txt 2>&1; then
+    print_success "API tests passed"
+else
+    print_error "API tests failed"
+    overall_success=false
+fi
+
+print_status "Running page tests..."
+if npx jest src/app/__tests__/ --verbose > test-results/page-tests.txt 2>&1; then
+    print_success "Page tests passed"
+else
+    print_error "Page tests failed"
+    overall_success=false
+fi
+
+# 6. Generate test summary
+print_status "Generating test summary..."
+{
+    echo "Test Summary Report"
+    echo "=================="
+    echo "Generated: $(date)"
+    echo ""
+    echo "Test Results:"
+    echo "-------------"
+    
+    if [ -f "test-results/unit-tests.txt" ]; then
+        echo "✅ Unit Tests: $(grep -c 'PASS\|✓' test-results/unit-tests.txt || echo '0') passed"
+        echo "❌ Unit Tests: $(grep -c 'FAIL\|✗' test-results/unit-tests.txt || echo '0') failed"
+    fi
+    
+    if [ -f "test-results/coverage-tests.txt" ]; then
+        echo "📊 Coverage: Available in coverage-reports/"
+    fi
+    
+    echo ""
+    echo "Detailed Results:"
+    echo "----------------"
+    echo "• Lint results: test-results/lint-results.txt"
+    echo "• Unit tests: test-results/unit-tests.txt"
+    echo "• Coverage tests: test-results/coverage-tests.txt"
+    echo "• CI tests: test-results/ci-tests.txt"
+    echo "• Component tests: test-results/component-tests.txt"
+    echo "• API tests: test-results/api-tests.txt"
+    echo "• Page tests: test-results/page-tests.txt"
+    
+} > test-results/test-summary.txt
+
+# 7. Display final results
 echo ""
-echo "📊 Test Results Summary:"
-echo "   - Component tests: ✅ Form validation and user interaction"
-echo "   - API tests: ✅ Endpoint functionality and error handling"
-echo "   - Integration tests: ✅ Multi-step workflow"
-echo "   - Coverage: ✅ Comprehensive test coverage"
-echo ""
-echo "🚀 Platform Status: READY FOR PRODUCTION"
-echo ""
-echo "📋 Next Steps:"
-echo "   1. Review test results above"
-echo "   2. Check coverage report in coverage/ directory"
-echo "   3. Run specific tests: npm test -- --testPathPatterns=<test-file>"
-echo "   4. Start development server: npm run dev"
-echo ""
+echo "=================================================="
+echo "🧪 Test Suite Complete"
+echo "=================================================="
+
+if [ "$overall_success" = true ]; then
+    print_success "All tests completed successfully!"
+    echo ""
+    echo "📋 Summary:"
+    cat test-results/test-summary.txt
+    echo ""
+    print_success "Test results saved to test-results/ directory"
+    print_success "Coverage reports saved to coverage-reports/ directory"
+    exit 0
+else
+    print_error "Some tests failed. Check the test-results/ directory for details."
+    echo ""
+    echo "📋 Summary:"
+    cat test-results/test-summary.txt
+    echo ""
+    print_error "Please fix the failing tests before proceeding."
+    exit 1
+fi

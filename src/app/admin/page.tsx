@@ -1,104 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import Link from 'next/link';
 
-interface Professional {
-  id: string;
-  name: string;
-  specialty: string;
-  status: 'pending' | 'approved' | 'rejected';
-  applicationDate: string;
-  casesCompleted: number;
-  rating: number;
-}
-
-interface Case {
-  id: string;
-  caseNumber: string;
-  patientName: string;
-  diseaseType: string;
-  submittedDate: string;
-  status: 'unassigned' | 'assigned' | 'in_review' | 'completed';
-  assignedTo?: string;
-  priority: 'low' | 'medium' | 'high';
-}
-
-export default function AdminDashboard() {
-  const [professionals, setProfessionals] = useState<Professional[]>([]);
-  const [cases, setCases] = useState<Case[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'professionals' | 'cases'>('overview');
 
-  useEffect(() => {
-    // Mock data for demonstration
-    const mockProfessionals: Professional[] = [
-      {
-        id: '1',
-        name: 'Dr. Sarah Wilson',
-        specialty: 'Oncology',
-        status: 'approved',
-        applicationDate: '2024-01-10',
-        casesCompleted: 15,
-        rating: 4.8
-      },
-      {
-        id: '2',
-        name: 'Dr. Michael Chen',
-        specialty: 'Cardiology',
-        status: 'pending',
-        applicationDate: '2024-01-20',
-        casesCompleted: 0,
-        rating: 0
-      },
-      {
-        id: '3',
-        name: 'Dr. Emily Rodriguez',
-        specialty: 'Neurology',
-        status: 'approved',
-        applicationDate: '2024-01-05',
-        casesCompleted: 8,
-        rating: 4.6
-      }
-    ];
+  const mockProfessionals = [
+    { id: '1', name: 'Dr. Sarah Wilson', specialty: 'Oncology', status: 'approved', casesCompleted: 15, rating: 4.8 },
+    { id: '2', name: 'Dr. Michael Chen', specialty: 'Cardiology', status: 'pending', casesCompleted: 0, rating: 0 },
+    { id: '3', name: 'Dr. Emily Rodriguez', specialty: 'Neurology', status: 'approved', casesCompleted: 8, rating: 4.6 }
+  ];
 
-    const mockCases: Case[] = [
-      {
-        id: '1',
-        caseNumber: 'CASE-2024-001',
-        patientName: 'John Doe',
-        diseaseType: 'Lung Cancer',
-        submittedDate: '2024-01-15',
-        status: 'assigned',
-        assignedTo: 'Dr. Sarah Wilson',
-        priority: 'high'
-      },
-      {
-        id: '2',
-        caseNumber: 'CASE-2024-002',
-        patientName: 'Jane Smith',
-        diseaseType: 'Breast Cancer',
-        submittedDate: '2024-01-20',
-        status: 'in_review',
-        assignedTo: 'Dr. Sarah Wilson',
-        priority: 'medium'
-      },
-      {
-        id: '3',
-        caseNumber: 'CASE-2024-003',
-        patientName: 'Mike Johnson',
-        diseaseType: 'Prostate Cancer',
-        submittedDate: '2024-01-22',
-        status: 'unassigned',
-        priority: 'low'
-      }
-    ];
-    
-    setTimeout(() => {
-      setProfessionals(mockProfessionals);
-      setCases(mockCases);
-      setLoading(false);
-    }, 1000);
-  }, []);
+  const mockCases = [
+    { id: '1', caseNumber: 'CASE-2024-001', patientName: 'John Doe', diseaseType: 'Lung Cancer', status: 'assigned', assignedTo: 'Dr. Sarah Wilson', priority: 'high' },
+    { id: '2', caseNumber: 'CASE-2024-002', patientName: 'Jane Smith', diseaseType: 'Breast Cancer', status: 'in_review', assignedTo: 'Dr. Sarah Wilson', priority: 'medium' },
+    { id: '3', caseNumber: 'CASE-2024-003', patientName: 'Mike Johnson', diseaseType: 'Prostate Cancer', status: 'unassigned', priority: 'low' }
+  ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -122,17 +40,6 @@ export default function AdminDashboard() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading admin dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-6 py-8">
@@ -140,13 +47,40 @@ export default function AdminDashboard() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-gray-600 mt-2">Manage professionals and case assignments</p>
+              <h1 className="text-3xl font-bold text-gray-900">Admin Portal</h1>
+              <p className="text-gray-600 mt-2">Manage professionals, cases, and system settings</p>
             </div>
             <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4">
+                <Link
+                  href="/admin/dashboard"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  View Case Dashboard
+                </Link>
+                <Link
+                  href="/admin/customers"
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                >
+                  Customer Management
+                </Link>
+                <Link
+                  href="/admin/customer-lifecycle"
+                  className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+                >
+                  Lifecycle Dashboard
+                </Link>
+                <Link
+                  href="/admin/repository"
+                  className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors"
+                >
+                  Case Data Repository
+                </Link>
+              </div>
               <div className="text-right">
                 <p className="text-sm text-gray-600">Admin User</p>
                 <p className="text-sm text-gray-500">System Administrator</p>
+                <p className="text-xs text-gray-400">Full Customer Lifecycle Management Access</p>
               </div>
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
                 <span className="text-red-600 font-semibold">A</span>
@@ -205,7 +139,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">Total Cases</p>
-                    <p className="text-2xl font-semibold text-gray-900">{cases.length}</p>
+                    <p className="text-2xl font-semibold text-gray-900">{mockCases.length}</p>
                   </div>
                 </div>
               </div>
@@ -220,7 +154,7 @@ export default function AdminDashboard() {
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">Active Professionals</p>
                     <p className="text-2xl font-semibold text-gray-900">
-                      {professionals.filter(p => p.status === 'approved').length}
+                      {mockProfessionals.filter(p => p.status === 'approved').length}
                     </p>
                   </div>
                 </div>
@@ -236,7 +170,7 @@ export default function AdminDashboard() {
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">Pending Applications</p>
                     <p className="text-2xl font-semibold text-gray-900">
-                      {professionals.filter(p => p.status === 'pending').length}
+                      {mockProfessionals.filter(p => p.status === 'pending').length}
                     </p>
                   </div>
                 </div>
@@ -252,7 +186,7 @@ export default function AdminDashboard() {
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">Unassigned Cases</p>
                     <p className="text-2xl font-semibold text-gray-900">
-                      {cases.filter(c => c.status === 'unassigned').length}
+                      {mockCases.filter(c => c.status === 'unassigned').length}
                     </p>
                   </div>
                 </div>
@@ -267,7 +201,7 @@ export default function AdminDashboard() {
                 </div>
                 <div className="p-6">
                   <div className="space-y-4">
-                    {cases.slice(0, 5).map((caseItem) => (
+                    {mockCases.slice(0, 5).map((caseItem) => (
                       <div key={caseItem.id} className="flex items-center justify-between">
                         <div>
                           <p className="text-sm font-medium text-gray-900">{caseItem.caseNumber}</p>
@@ -288,7 +222,7 @@ export default function AdminDashboard() {
                 </div>
                 <div className="p-6">
                   <div className="space-y-4">
-                    {professionals.slice(0, 5).map((professional) => (
+                    {mockProfessionals.slice(0, 5).map((professional) => (
                       <div key={professional.id} className="flex items-center justify-between">
                         <div>
                           <p className="text-sm font-medium text-gray-900">{professional.name}</p>
@@ -326,11 +260,10 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {professionals.map((professional) => (
+                    {mockProfessionals.map((professional) => (
                       <tr key={professional.id}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">{professional.name}</div>
-                          <div className="text-sm text-gray-500">Applied: {new Date(professional.applicationDate).toLocaleDateString()}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{professional.specialty}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -383,7 +316,7 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {cases.map((caseItem) => (
+                    {mockCases.map((caseItem) => (
                       <tr key={caseItem.id}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{caseItem.caseNumber}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{caseItem.patientName}</td>
@@ -420,7 +353,7 @@ export default function AdminDashboard() {
 
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-gray-500">
-          <p>Admin Dashboard • Medical Second Opinion Platform</p>
+          <p>Admin Portal • Medical Second Opinion Platform</p>
         </div>
       </div>
     </div>

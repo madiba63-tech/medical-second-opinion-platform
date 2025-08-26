@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Props {
   formData: any;
@@ -21,7 +21,11 @@ export default function PaymentSection({ formData, updateFormData, nextStep, pre
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Generate mock payment ID
-      const paymentId = `txn_${Date.now()}${Math.floor(Math.random() * 1000)}`;
+      const [paymentId, setPaymentId] = useState<string>('');
+  
+  useEffect(() => {
+    setPaymentId(`txn_${Date.now()}${Math.floor(Math.random() * 1000)}`);
+  }, []);
       
       updateFormData({ paymentId });
       nextStep();

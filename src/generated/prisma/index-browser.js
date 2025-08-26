@@ -117,29 +117,38 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.UserScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  hashedPassword: 'hashedPassword',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.CustomerScalarFieldEnum = {
   id: 'id',
-  customerId: 'customerId',
-  email: 'email',
-  passwordHash: 'passwordHash',
-  isActive: 'isActive',
-  lastLoginAt: 'lastLoginAt',
   firstName: 'firstName',
   middleName: 'middleName',
   lastName: 'lastName',
   dateOfBirth: 'dateOfBirth',
+  email: 'email',
   phone: 'phone',
-  preferredContact: 'preferredContact',
-  emailNotifications: 'emailNotifications',
-  smsNotifications: 'smsNotifications',
+  preferredChannel: 'preferredChannel',
+  userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TempSubmissionScalarFieldEnum = {
+  id: 'id',
+  payload: 'payload',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.CaseScalarFieldEnum = {
   id: 'id',
   caseNumber: 'caseNumber',
-  customerId: 'customerId',
   firstName: 'firstName',
   middleName: 'middleName',
   lastName: 'lastName',
@@ -153,7 +162,7 @@ exports.Prisma.CaseScalarFieldEnum = {
   geneticFamilyHistory: 'geneticFamilyHistory',
   paymentId: 'paymentId',
   consentAccepted: 'consentAccepted',
-  status: 'status',
+  customerId: 'customerId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -161,41 +170,67 @@ exports.Prisma.CaseScalarFieldEnum = {
 exports.Prisma.UploadedFileScalarFieldEnum = {
   id: 'id',
   caseId: 'caseId',
-  fileName: 'fileName',
-  originalName: 'originalName',
-  fileSize: 'fileSize',
-  mimeType: 'mimeType',
-  category: 'category',
+  filename: 'filename',
   s3Key: 's3Key',
-  uploadedAt: 'uploadedAt'
+  mimetype: 'mimetype',
+  size: 'size',
+  category: 'category',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.MedicalProfessionalScalarFieldEnum = {
   id: 'id',
-  professionalId: 'professionalId',
+  proNumber: 'proNumber',
   firstName: 'firstName',
+  middleName: 'middleName',
   lastName: 'lastName',
+  dob: 'dob',
   email: 'email',
   phone: 'phone',
+  nationality: 'nationality',
   licenseNumber: 'licenseNumber',
-  specialty: 'specialty',
-  yearsExperience: 'yearsExperience',
-  qualifications: 'qualifications',
-  vettingStatus: 'vettingStatus',
-  vettedBy: 'vettedBy',
-  vettedAt: 'vettedAt',
-  appliedAt: 'appliedAt',
+  licenseCountry: 'licenseCountry',
+  licenseExpiry: 'licenseExpiry',
+  vetted: 'vetted',
+  level: 'level',
+  cvUrl: 'cvUrl',
+  documents: 'documents',
+  subspecialties: 'subspecialties',
+  yearsPractice: 'yearsPractice',
+  publications: 'publications',
+  trialInvolved: 'trialInvolved',
+  leadership: 'leadership',
+  societyMemberships: 'societyMemberships',
+  score: 'score',
+  hashedPassword: 'hashedPassword',
+  twoFactorMethod: 'twoFactorMethod',
+  twoFactorSecret: 'twoFactorSecret',
+  profileLastUpdated: 'profileLastUpdated',
+  codeOfConductAcknowledged: 'codeOfConductAcknowledged',
+  address: 'address',
+  billingAddress: 'billingAddress',
+  bankDetails: 'bankDetails',
+  vatNumber: 'vatNumber',
+  billingRate: 'billingRate',
+  createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ProfessionalSessionScalarFieldEnum = {
+  id: 'id',
+  professionalId: 'professionalId',
+  sessionToken: 'sessionToken',
+  twoFactorVerified: 'twoFactorVerified',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.CaseAssignmentScalarFieldEnum = {
   id: 'id',
   caseId: 'caseId',
   professionalId: 'professionalId',
-  assignedBy: 'assignedBy',
-  assignedAt: 'assignedAt',
   status: 'status',
-  startedAt: 'startedAt',
+  assignedAt: 'assignedAt',
   completedAt: 'completedAt'
 };
 
@@ -203,56 +238,34 @@ exports.Prisma.AIAnalysisScalarFieldEnum = {
   id: 'id',
   caseId: 'caseId',
   analysisType: 'analysisType',
-  findings: 'findings',
-  confidence: 'confidence',
-  initiatedAt: 'initiatedAt',
-  completedAt: 'completedAt'
+  results: 'results',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.MedicalOpinionScalarFieldEnum = {
   id: 'id',
   caseId: 'caseId',
-  primaryProfessionalId: 'primaryProfessionalId',
-  reviewerProfessionalId: 'reviewerProfessionalId',
-  diagnosis: 'diagnosis',
-  recommendations: 'recommendations',
-  riskAssessment: 'riskAssessment',
-  additionalTests: 'additionalTests',
-  notes: 'notes',
+  professionalId: 'professionalId',
+  content: 'content',
   status: 'status',
-  peerReviewNotes: 'peerReviewNotes',
   createdAt: 'createdAt',
-  submittedAt: 'submittedAt',
-  reviewedAt: 'reviewedAt',
-  approvedAt: 'approvedAt',
-  deliveredAt: 'deliveredAt'
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.ProfessionalPaymentScalarFieldEnum = {
   id: 'id',
-  professionalId: 'professionalId',
   caseId: 'caseId',
+  professionalId: 'professionalId',
   amount: 'amount',
-  currency: 'currency',
-  paymentType: 'paymentType',
-  paymentMethod: 'paymentMethod',
   status: 'status',
-  transactionId: 'transactionId',
-  initiatedAt: 'initiatedAt',
-  processedAt: 'processedAt'
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.AdminScalarFieldEnum = {
   id: 'id',
-  adminId: 'adminId',
-  firstName: 'firstName',
-  lastName: 'lastName',
   email: 'email',
-  passwordHash: 'passwordHash',
+  hashedPassword: 'hashedPassword',
   role: 'role',
-  permissions: 'permissions',
-  isActive: 'isActive',
-  lastLoginAt: 'lastLoginAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -262,17 +275,55 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
 
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+exports.CommunicationChannel = exports.$Enums.CommunicationChannel = {
+  EMAIL: 'EMAIL',
+  SMS: 'SMS'
+};
+
+exports.ProLevel = exports.$Enums.ProLevel = {
+  JUNIOR: 'JUNIOR',
+  SENIOR: 'SENIOR',
+  EXPERT: 'EXPERT',
+  DISTINGUISHED: 'DISTINGUISHED'
+};
+
+exports.TwoFactorMethod = exports.$Enums.TwoFactorMethod = {
+  EMAIL: 'EMAIL',
+  SMS: 'SMS'
+};
 
 exports.Prisma.ModelName = {
+  User: 'User',
   Customer: 'Customer',
+  TempSubmission: 'TempSubmission',
   Case: 'Case',
   UploadedFile: 'UploadedFile',
   MedicalProfessional: 'MedicalProfessional',
+  ProfessionalSession: 'ProfessionalSession',
   CaseAssignment: 'CaseAssignment',
   AIAnalysis: 'AIAnalysis',
   MedicalOpinion: 'MedicalOpinion',

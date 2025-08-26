@@ -14,10 +14,20 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
 
 
 /**
+ * Model User
+ * 
+ */
+export type User = $Result.DefaultSelection<Prisma.$UserPayload>
+/**
  * Model Customer
  * 
  */
 export type Customer = $Result.DefaultSelection<Prisma.$CustomerPayload>
+/**
+ * Model TempSubmission
+ * 
+ */
+export type TempSubmission = $Result.DefaultSelection<Prisma.$TempSubmissionPayload>
 /**
  * Model Case
  * 
@@ -33,6 +43,11 @@ export type UploadedFile = $Result.DefaultSelection<Prisma.$UploadedFilePayload>
  * 
  */
 export type MedicalProfessional = $Result.DefaultSelection<Prisma.$MedicalProfessionalPayload>
+/**
+ * Model ProfessionalSession
+ * 
+ */
+export type ProfessionalSession = $Result.DefaultSelection<Prisma.$ProfessionalSessionPayload>
 /**
  * Model CaseAssignment
  * 
@@ -60,14 +75,57 @@ export type ProfessionalPayment = $Result.DefaultSelection<Prisma.$ProfessionalP
 export type Admin = $Result.DefaultSelection<Prisma.$AdminPayload>
 
 /**
+ * Enums
+ */
+export namespace $Enums {
+  export const CommunicationChannel: {
+  EMAIL: 'EMAIL',
+  SMS: 'SMS'
+};
+
+export type CommunicationChannel = (typeof CommunicationChannel)[keyof typeof CommunicationChannel]
+
+
+export const ProLevel: {
+  JUNIOR: 'JUNIOR',
+  SENIOR: 'SENIOR',
+  EXPERT: 'EXPERT',
+  DISTINGUISHED: 'DISTINGUISHED'
+};
+
+export type ProLevel = (typeof ProLevel)[keyof typeof ProLevel]
+
+
+export const TwoFactorMethod: {
+  EMAIL: 'EMAIL',
+  SMS: 'SMS'
+};
+
+export type TwoFactorMethod = (typeof TwoFactorMethod)[keyof typeof TwoFactorMethod]
+
+}
+
+export type CommunicationChannel = $Enums.CommunicationChannel
+
+export const CommunicationChannel: typeof $Enums.CommunicationChannel
+
+export type ProLevel = $Enums.ProLevel
+
+export const ProLevel: typeof $Enums.ProLevel
+
+export type TwoFactorMethod = $Enums.TwoFactorMethod
+
+export const TwoFactorMethod: typeof $Enums.TwoFactorMethod
+
+/**
  * ##  Prisma Client ʲˢ
  *
  * Type-safe database client for TypeScript & Node.js
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more Customers
- * const customers = await prisma.customer.findMany()
+ * // Fetch zero or more Users
+ * const users = await prisma.user.findMany()
  * ```
  *
  *
@@ -87,8 +145,8 @@ export class PrismaClient<
    * @example
    * ```
    * const prisma = new PrismaClient()
-   * // Fetch zero or more Customers
-   * const customers = await prisma.customer.findMany()
+   * // Fetch zero or more Users
+   * const users = await prisma.user.findMany()
    * ```
    *
    *
@@ -178,6 +236,16 @@ export class PrismaClient<
   }>>
 
       /**
+   * `prisma.user`: Exposes CRUD operations for the **User** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Users
+    * const users = await prisma.user.findMany()
+    * ```
+    */
+  get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.customer`: Exposes CRUD operations for the **Customer** model.
     * Example usage:
     * ```ts
@@ -186,6 +254,16 @@ export class PrismaClient<
     * ```
     */
   get customer(): Prisma.CustomerDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.tempSubmission`: Exposes CRUD operations for the **TempSubmission** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TempSubmissions
+    * const tempSubmissions = await prisma.tempSubmission.findMany()
+    * ```
+    */
+  get tempSubmission(): Prisma.TempSubmissionDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.case`: Exposes CRUD operations for the **Case** model.
@@ -216,6 +294,16 @@ export class PrismaClient<
     * ```
     */
   get medicalProfessional(): Prisma.MedicalProfessionalDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.professionalSession`: Exposes CRUD operations for the **ProfessionalSession** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProfessionalSessions
+    * const professionalSessions = await prisma.professionalSession.findMany()
+    * ```
+    */
+  get professionalSession(): Prisma.ProfessionalSessionDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.caseAssignment`: Exposes CRUD operations for the **CaseAssignment** model.
@@ -706,10 +794,13 @@ export namespace Prisma {
 
 
   export const ModelName: {
+    User: 'User',
     Customer: 'Customer',
+    TempSubmission: 'TempSubmission',
     Case: 'Case',
     UploadedFile: 'UploadedFile',
     MedicalProfessional: 'MedicalProfessional',
+    ProfessionalSession: 'ProfessionalSession',
     CaseAssignment: 'CaseAssignment',
     AIAnalysis: 'AIAnalysis',
     MedicalOpinion: 'MedicalOpinion',
@@ -733,10 +824,84 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "customer" | "case" | "uploadedFile" | "medicalProfessional" | "caseAssignment" | "aIAnalysis" | "medicalOpinion" | "professionalPayment" | "admin"
+      modelProps: "user" | "customer" | "tempSubmission" | "case" | "uploadedFile" | "medicalProfessional" | "professionalSession" | "caseAssignment" | "aIAnalysis" | "medicalOpinion" | "professionalPayment" | "admin"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
+      User: {
+        payload: Prisma.$UserPayload<ExtArgs>
+        fields: Prisma.UserFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          findFirst: {
+            args: Prisma.UserFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          findMany: {
+            args: Prisma.UserFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>[]
+          }
+          create: {
+            args: Prisma.UserCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          createMany: {
+            args: Prisma.UserCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UserCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>[]
+          }
+          delete: {
+            args: Prisma.UserDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          update: {
+            args: Prisma.UserUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          deleteMany: {
+            args: Prisma.UserDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UserUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>[]
+          }
+          upsert: {
+            args: Prisma.UserUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>
+          }
+          aggregate: {
+            args: Prisma.UserAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUser>
+          }
+          groupBy: {
+            args: Prisma.UserGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserCountArgs<ExtArgs>
+            result: $Utils.Optional<UserCountAggregateOutputType> | number
+          }
+        }
+      }
       Customer: {
         payload: Prisma.$CustomerPayload<ExtArgs>
         fields: Prisma.CustomerFieldRefs
@@ -808,6 +973,80 @@ export namespace Prisma {
           count: {
             args: Prisma.CustomerCountArgs<ExtArgs>
             result: $Utils.Optional<CustomerCountAggregateOutputType> | number
+          }
+        }
+      }
+      TempSubmission: {
+        payload: Prisma.$TempSubmissionPayload<ExtArgs>
+        fields: Prisma.TempSubmissionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TempSubmissionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TempSubmissionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TempSubmissionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TempSubmissionPayload>
+          }
+          findFirst: {
+            args: Prisma.TempSubmissionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TempSubmissionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TempSubmissionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TempSubmissionPayload>
+          }
+          findMany: {
+            args: Prisma.TempSubmissionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TempSubmissionPayload>[]
+          }
+          create: {
+            args: Prisma.TempSubmissionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TempSubmissionPayload>
+          }
+          createMany: {
+            args: Prisma.TempSubmissionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TempSubmissionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TempSubmissionPayload>[]
+          }
+          delete: {
+            args: Prisma.TempSubmissionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TempSubmissionPayload>
+          }
+          update: {
+            args: Prisma.TempSubmissionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TempSubmissionPayload>
+          }
+          deleteMany: {
+            args: Prisma.TempSubmissionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TempSubmissionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TempSubmissionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TempSubmissionPayload>[]
+          }
+          upsert: {
+            args: Prisma.TempSubmissionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TempSubmissionPayload>
+          }
+          aggregate: {
+            args: Prisma.TempSubmissionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTempSubmission>
+          }
+          groupBy: {
+            args: Prisma.TempSubmissionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TempSubmissionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TempSubmissionCountArgs<ExtArgs>
+            result: $Utils.Optional<TempSubmissionCountAggregateOutputType> | number
           }
         }
       }
@@ -1030,6 +1269,80 @@ export namespace Prisma {
           count: {
             args: Prisma.MedicalProfessionalCountArgs<ExtArgs>
             result: $Utils.Optional<MedicalProfessionalCountAggregateOutputType> | number
+          }
+        }
+      }
+      ProfessionalSession: {
+        payload: Prisma.$ProfessionalSessionPayload<ExtArgs>
+        fields: Prisma.ProfessionalSessionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProfessionalSessionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProfessionalSessionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProfessionalSessionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProfessionalSessionPayload>
+          }
+          findFirst: {
+            args: Prisma.ProfessionalSessionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProfessionalSessionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProfessionalSessionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProfessionalSessionPayload>
+          }
+          findMany: {
+            args: Prisma.ProfessionalSessionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProfessionalSessionPayload>[]
+          }
+          create: {
+            args: Prisma.ProfessionalSessionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProfessionalSessionPayload>
+          }
+          createMany: {
+            args: Prisma.ProfessionalSessionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProfessionalSessionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProfessionalSessionPayload>[]
+          }
+          delete: {
+            args: Prisma.ProfessionalSessionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProfessionalSessionPayload>
+          }
+          update: {
+            args: Prisma.ProfessionalSessionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProfessionalSessionPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProfessionalSessionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProfessionalSessionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ProfessionalSessionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProfessionalSessionPayload>[]
+          }
+          upsert: {
+            args: Prisma.ProfessionalSessionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProfessionalSessionPayload>
+          }
+          aggregate: {
+            args: Prisma.ProfessionalSessionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProfessionalSession>
+          }
+          groupBy: {
+            args: Prisma.ProfessionalSessionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProfessionalSessionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProfessionalSessionCountArgs<ExtArgs>
+            result: $Utils.Optional<ProfessionalSessionCountAggregateOutputType> | number
           }
         }
       }
@@ -1495,10 +1808,13 @@ export namespace Prisma {
     omit?: Prisma.GlobalOmitConfig
   }
   export type GlobalOmitConfig = {
+    user?: UserOmit
     customer?: CustomerOmit
+    tempSubmission?: TempSubmissionOmit
     case?: CaseOmit
     uploadedFile?: UploadedFileOmit
     medicalProfessional?: MedicalProfessionalOmit
+    professionalSession?: ProfessionalSessionOmit
     caseAssignment?: CaseAssignmentOmit
     aIAnalysis?: AIAnalysisOmit
     medicalOpinion?: MedicalOpinionOmit
@@ -1617,13 +1933,17 @@ export namespace Prisma {
   export type CaseCountOutputType = {
     uploadedFiles: number
     caseAssignments: number
+    aiAnalyses: number
     medicalOpinions: number
+    professionalPayments: number
   }
 
   export type CaseCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     uploadedFiles?: boolean | CaseCountOutputTypeCountUploadedFilesArgs
     caseAssignments?: boolean | CaseCountOutputTypeCountCaseAssignmentsArgs
+    aiAnalyses?: boolean | CaseCountOutputTypeCountAiAnalysesArgs
     medicalOpinions?: boolean | CaseCountOutputTypeCountMedicalOpinionsArgs
+    professionalPayments?: boolean | CaseCountOutputTypeCountProfessionalPaymentsArgs
   }
 
   // Custom InputTypes
@@ -1654,8 +1974,22 @@ export namespace Prisma {
   /**
    * CaseCountOutputType without action
    */
+  export type CaseCountOutputTypeCountAiAnalysesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AIAnalysisWhereInput
+  }
+
+  /**
+   * CaseCountOutputType without action
+   */
   export type CaseCountOutputTypeCountMedicalOpinionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MedicalOpinionWhereInput
+  }
+
+  /**
+   * CaseCountOutputType without action
+   */
+  export type CaseCountOutputTypeCountProfessionalPaymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProfessionalPaymentWhereInput
   }
 
 
@@ -1665,16 +1999,16 @@ export namespace Prisma {
 
   export type MedicalProfessionalCountOutputType = {
     caseAssignments: number
-    primaryOpinions: number
-    reviewedOpinions: number
-    payments: number
+    medicalOpinions: number
+    professionalPayments: number
+    professionalSessions: number
   }
 
   export type MedicalProfessionalCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     caseAssignments?: boolean | MedicalProfessionalCountOutputTypeCountCaseAssignmentsArgs
-    primaryOpinions?: boolean | MedicalProfessionalCountOutputTypeCountPrimaryOpinionsArgs
-    reviewedOpinions?: boolean | MedicalProfessionalCountOutputTypeCountReviewedOpinionsArgs
-    payments?: boolean | MedicalProfessionalCountOutputTypeCountPaymentsArgs
+    medicalOpinions?: boolean | MedicalProfessionalCountOutputTypeCountMedicalOpinionsArgs
+    professionalPayments?: boolean | MedicalProfessionalCountOutputTypeCountProfessionalPaymentsArgs
+    professionalSessions?: boolean | MedicalProfessionalCountOutputTypeCountProfessionalSessionsArgs
   }
 
   // Custom InputTypes
@@ -1698,28 +2032,1089 @@ export namespace Prisma {
   /**
    * MedicalProfessionalCountOutputType without action
    */
-  export type MedicalProfessionalCountOutputTypeCountPrimaryOpinionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type MedicalProfessionalCountOutputTypeCountMedicalOpinionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MedicalOpinionWhereInput
   }
 
   /**
    * MedicalProfessionalCountOutputType without action
    */
-  export type MedicalProfessionalCountOutputTypeCountReviewedOpinionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: MedicalOpinionWhereInput
-  }
-
-  /**
-   * MedicalProfessionalCountOutputType without action
-   */
-  export type MedicalProfessionalCountOutputTypeCountPaymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type MedicalProfessionalCountOutputTypeCountProfessionalPaymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProfessionalPaymentWhereInput
+  }
+
+  /**
+   * MedicalProfessionalCountOutputType without action
+   */
+  export type MedicalProfessionalCountOutputTypeCountProfessionalSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProfessionalSessionWhereInput
   }
 
 
   /**
    * Models
    */
+
+  /**
+   * Model User
+   */
+
+  export type AggregateUser = {
+    _count: UserCountAggregateOutputType | null
+    _min: UserMinAggregateOutputType | null
+    _max: UserMaxAggregateOutputType | null
+  }
+
+  export type UserMinAggregateOutputType = {
+    id: string | null
+    email: string | null
+    hashedPassword: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UserMaxAggregateOutputType = {
+    id: string | null
+    email: string | null
+    hashedPassword: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UserCountAggregateOutputType = {
+    id: number
+    email: number
+    hashedPassword: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type UserMinAggregateInputType = {
+    id?: true
+    email?: true
+    hashedPassword?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type UserMaxAggregateInputType = {
+    id?: true
+    email?: true
+    hashedPassword?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type UserCountAggregateInputType = {
+    id?: true
+    email?: true
+    hashedPassword?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type UserAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which User to aggregate.
+     */
+    where?: UserWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Users to fetch.
+     */
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Users from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Users.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Users
+    **/
+    _count?: true | UserCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserMaxAggregateInputType
+  }
+
+  export type GetUserAggregateType<T extends UserAggregateArgs> = {
+        [P in keyof T & keyof AggregateUser]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUser[P]>
+      : GetScalarType<T[P], AggregateUser[P]>
+  }
+
+
+
+
+  export type UserGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserWhereInput
+    orderBy?: UserOrderByWithAggregationInput | UserOrderByWithAggregationInput[]
+    by: UserScalarFieldEnum[] | UserScalarFieldEnum
+    having?: UserScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserCountAggregateInputType | true
+    _min?: UserMinAggregateInputType
+    _max?: UserMaxAggregateInputType
+  }
+
+  export type UserGroupByOutputType = {
+    id: string
+    email: string
+    hashedPassword: string
+    createdAt: Date
+    updatedAt: Date
+    _count: UserCountAggregateOutputType | null
+    _min: UserMinAggregateOutputType | null
+    _max: UserMaxAggregateOutputType | null
+  }
+
+  type GetUserGroupByPayload<T extends UserGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserGroupByOutputType[P]>
+            : GetScalarType<T[P], UserGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    email?: boolean
+    hashedPassword?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    customer?: boolean | User$customerArgs<ExtArgs>
+  }, ExtArgs["result"]["user"]>
+
+  export type UserSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    email?: boolean
+    hashedPassword?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["user"]>
+
+  export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    email?: boolean
+    hashedPassword?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["user"]>
+
+  export type UserSelectScalar = {
+    id?: boolean
+    email?: boolean
+    hashedPassword?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "hashedPassword" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    customer?: boolean | User$customerArgs<ExtArgs>
+  }
+  export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type UserIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "User"
+    objects: {
+      customer: Prisma.$CustomerPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      email: string
+      hashedPassword: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["user"]>
+    composites: {}
+  }
+
+  type UserGetPayload<S extends boolean | null | undefined | UserDefaultArgs> = $Result.GetResult<Prisma.$UserPayload, S>
+
+  type UserCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserCountAggregateInputType | true
+    }
+
+  export interface UserDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['User'], meta: { name: 'User' } }
+    /**
+     * Find zero or one User that matches the filter.
+     * @param {UserFindUniqueArgs} args - Arguments to find a User
+     * @example
+     * // Get one User
+     * const user = await prisma.user.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserFindUniqueArgs>(args: SelectSubset<T, UserFindUniqueArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one User that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserFindUniqueOrThrowArgs} args - Arguments to find a User
+     * @example
+     * // Get one User
+     * const user = await prisma.user.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserFindUniqueOrThrowArgs>(args: SelectSubset<T, UserFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first User that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserFindFirstArgs} args - Arguments to find a User
+     * @example
+     * // Get one User
+     * const user = await prisma.user.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserFindFirstArgs>(args?: SelectSubset<T, UserFindFirstArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first User that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserFindFirstOrThrowArgs} args - Arguments to find a User
+     * @example
+     * // Get one User
+     * const user = await prisma.user.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserFindFirstOrThrowArgs>(args?: SelectSubset<T, UserFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Users that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Users
+     * const users = await prisma.user.findMany()
+     * 
+     * // Get first 10 Users
+     * const users = await prisma.user.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userWithIdOnly = await prisma.user.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserFindManyArgs>(args?: SelectSubset<T, UserFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a User.
+     * @param {UserCreateArgs} args - Arguments to create a User.
+     * @example
+     * // Create one User
+     * const User = await prisma.user.create({
+     *   data: {
+     *     // ... data to create a User
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserCreateArgs>(args: SelectSubset<T, UserCreateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Users.
+     * @param {UserCreateManyArgs} args - Arguments to create many Users.
+     * @example
+     * // Create many Users
+     * const user = await prisma.user.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserCreateManyArgs>(args?: SelectSubset<T, UserCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Users and returns the data saved in the database.
+     * @param {UserCreateManyAndReturnArgs} args - Arguments to create many Users.
+     * @example
+     * // Create many Users
+     * const user = await prisma.user.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Users and only return the `id`
+     * const userWithIdOnly = await prisma.user.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserCreateManyAndReturnArgs>(args?: SelectSubset<T, UserCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a User.
+     * @param {UserDeleteArgs} args - Arguments to delete one User.
+     * @example
+     * // Delete one User
+     * const User = await prisma.user.delete({
+     *   where: {
+     *     // ... filter to delete one User
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserDeleteArgs>(args: SelectSubset<T, UserDeleteArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one User.
+     * @param {UserUpdateArgs} args - Arguments to update one User.
+     * @example
+     * // Update one User
+     * const user = await prisma.user.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserUpdateArgs>(args: SelectSubset<T, UserUpdateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Users.
+     * @param {UserDeleteManyArgs} args - Arguments to filter Users to delete.
+     * @example
+     * // Delete a few Users
+     * const { count } = await prisma.user.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserDeleteManyArgs>(args?: SelectSubset<T, UserDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Users.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Users
+     * const user = await prisma.user.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserUpdateManyArgs>(args: SelectSubset<T, UserUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Users and returns the data updated in the database.
+     * @param {UserUpdateManyAndReturnArgs} args - Arguments to update many Users.
+     * @example
+     * // Update many Users
+     * const user = await prisma.user.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Users and only return the `id`
+     * const userWithIdOnly = await prisma.user.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserUpdateManyAndReturnArgs>(args: SelectSubset<T, UserUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one User.
+     * @param {UserUpsertArgs} args - Arguments to update or create a User.
+     * @example
+     * // Update or create a User
+     * const user = await prisma.user.upsert({
+     *   create: {
+     *     // ... data to create a User
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the User we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserUpsertArgs>(args: SelectSubset<T, UserUpsertArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Users.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserCountArgs} args - Arguments to filter Users to count.
+     * @example
+     * // Count the number of Users
+     * const count = await prisma.user.count({
+     *   where: {
+     *     // ... the filter for the Users we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserCountArgs>(
+      args?: Subset<T, UserCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a User.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserAggregateArgs>(args: Subset<T, UserAggregateArgs>): Prisma.PrismaPromise<GetUserAggregateType<T>>
+
+    /**
+     * Group by User.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserGroupByArgs['orderBy'] }
+        : { orderBy?: UserGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the User model
+   */
+  readonly fields: UserFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for User.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    customer<T extends User$customerArgs<ExtArgs> = {}>(args?: Subset<T, User$customerArgs<ExtArgs>>): Prisma__CustomerClient<$Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the User model
+   */
+  interface UserFieldRefs {
+    readonly id: FieldRef<"User", 'String'>
+    readonly email: FieldRef<"User", 'String'>
+    readonly hashedPassword: FieldRef<"User", 'String'>
+    readonly createdAt: FieldRef<"User", 'DateTime'>
+    readonly updatedAt: FieldRef<"User", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * User findUnique
+   */
+  export type UserFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter, which User to fetch.
+     */
+    where: UserWhereUniqueInput
+  }
+
+  /**
+   * User findUniqueOrThrow
+   */
+  export type UserFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter, which User to fetch.
+     */
+    where: UserWhereUniqueInput
+  }
+
+  /**
+   * User findFirst
+   */
+  export type UserFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter, which User to fetch.
+     */
+    where?: UserWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Users to fetch.
+     */
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Users.
+     */
+    cursor?: UserWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Users from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Users.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Users.
+     */
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * User findFirstOrThrow
+   */
+  export type UserFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter, which User to fetch.
+     */
+    where?: UserWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Users to fetch.
+     */
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Users.
+     */
+    cursor?: UserWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Users from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Users.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Users.
+     */
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * User findMany
+   */
+  export type UserFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter, which Users to fetch.
+     */
+    where?: UserWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Users to fetch.
+     */
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Users.
+     */
+    cursor?: UserWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Users from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Users.
+     */
+    skip?: number
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * User create
+   */
+  export type UserCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * The data needed to create a User.
+     */
+    data: XOR<UserCreateInput, UserUncheckedCreateInput>
+  }
+
+  /**
+   * User createMany
+   */
+  export type UserCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Users.
+     */
+    data: UserCreateManyInput | UserCreateManyInput[]
+  }
+
+  /**
+   * User createManyAndReturn
+   */
+  export type UserCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * The data used to create many Users.
+     */
+    data: UserCreateManyInput | UserCreateManyInput[]
+  }
+
+  /**
+   * User update
+   */
+  export type UserUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * The data needed to update a User.
+     */
+    data: XOR<UserUpdateInput, UserUncheckedUpdateInput>
+    /**
+     * Choose, which User to update.
+     */
+    where: UserWhereUniqueInput
+  }
+
+  /**
+   * User updateMany
+   */
+  export type UserUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Users.
+     */
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyInput>
+    /**
+     * Filter which Users to update
+     */
+    where?: UserWhereInput
+    /**
+     * Limit how many Users to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * User updateManyAndReturn
+   */
+  export type UserUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * The data used to update Users.
+     */
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyInput>
+    /**
+     * Filter which Users to update
+     */
+    where?: UserWhereInput
+    /**
+     * Limit how many Users to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * User upsert
+   */
+  export type UserUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * The filter to search for the User to update in case it exists.
+     */
+    where: UserWhereUniqueInput
+    /**
+     * In case the User found by the `where` argument doesn't exist, create a new User with this data.
+     */
+    create: XOR<UserCreateInput, UserUncheckedCreateInput>
+    /**
+     * In case the User was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserUpdateInput, UserUncheckedUpdateInput>
+  }
+
+  /**
+   * User delete
+   */
+  export type UserDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
+     * Filter which User to delete.
+     */
+    where: UserWhereUniqueInput
+  }
+
+  /**
+   * User deleteMany
+   */
+  export type UserDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Users to delete
+     */
+    where?: UserWhereInput
+    /**
+     * Limit how many Users to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * User.customer
+   */
+  export type User$customerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Customer
+     */
+    select?: CustomerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Customer
+     */
+    omit?: CustomerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerInclude<ExtArgs> | null
+    where?: CustomerWhereInput
+  }
+
+  /**
+   * User without action
+   */
+  export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+  }
+
 
   /**
    * Model Customer
@@ -1733,57 +3128,42 @@ export namespace Prisma {
 
   export type CustomerMinAggregateOutputType = {
     id: string | null
-    customerId: string | null
-    email: string | null
-    passwordHash: string | null
-    isActive: boolean | null
-    lastLoginAt: Date | null
     firstName: string | null
     middleName: string | null
     lastName: string | null
     dateOfBirth: Date | null
+    email: string | null
     phone: string | null
-    preferredContact: string | null
-    emailNotifications: boolean | null
-    smsNotifications: boolean | null
+    preferredChannel: $Enums.CommunicationChannel | null
+    userId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
   export type CustomerMaxAggregateOutputType = {
     id: string | null
-    customerId: string | null
-    email: string | null
-    passwordHash: string | null
-    isActive: boolean | null
-    lastLoginAt: Date | null
     firstName: string | null
     middleName: string | null
     lastName: string | null
     dateOfBirth: Date | null
+    email: string | null
     phone: string | null
-    preferredContact: string | null
-    emailNotifications: boolean | null
-    smsNotifications: boolean | null
+    preferredChannel: $Enums.CommunicationChannel | null
+    userId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
   export type CustomerCountAggregateOutputType = {
     id: number
-    customerId: number
-    email: number
-    passwordHash: number
-    isActive: number
-    lastLoginAt: number
     firstName: number
     middleName: number
     lastName: number
     dateOfBirth: number
+    email: number
     phone: number
-    preferredContact: number
-    emailNotifications: number
-    smsNotifications: number
+    preferredChannel: number
+    userId: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -1792,57 +3172,42 @@ export namespace Prisma {
 
   export type CustomerMinAggregateInputType = {
     id?: true
-    customerId?: true
-    email?: true
-    passwordHash?: true
-    isActive?: true
-    lastLoginAt?: true
     firstName?: true
     middleName?: true
     lastName?: true
     dateOfBirth?: true
+    email?: true
     phone?: true
-    preferredContact?: true
-    emailNotifications?: true
-    smsNotifications?: true
+    preferredChannel?: true
+    userId?: true
     createdAt?: true
     updatedAt?: true
   }
 
   export type CustomerMaxAggregateInputType = {
     id?: true
-    customerId?: true
-    email?: true
-    passwordHash?: true
-    isActive?: true
-    lastLoginAt?: true
     firstName?: true
     middleName?: true
     lastName?: true
     dateOfBirth?: true
+    email?: true
     phone?: true
-    preferredContact?: true
-    emailNotifications?: true
-    smsNotifications?: true
+    preferredChannel?: true
+    userId?: true
     createdAt?: true
     updatedAt?: true
   }
 
   export type CustomerCountAggregateInputType = {
     id?: true
-    customerId?: true
-    email?: true
-    passwordHash?: true
-    isActive?: true
-    lastLoginAt?: true
     firstName?: true
     middleName?: true
     lastName?: true
     dateOfBirth?: true
+    email?: true
     phone?: true
-    preferredContact?: true
-    emailNotifications?: true
-    smsNotifications?: true
+    preferredChannel?: true
+    userId?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -1922,19 +3287,14 @@ export namespace Prisma {
 
   export type CustomerGroupByOutputType = {
     id: string
-    customerId: string
-    email: string
-    passwordHash: string
-    isActive: boolean
-    lastLoginAt: Date | null
     firstName: string
     middleName: string | null
     lastName: string
     dateOfBirth: Date
+    email: string
     phone: string | null
-    preferredContact: string
-    emailNotifications: boolean
-    smsNotifications: boolean
+    preferredChannel: $Enums.CommunicationChannel
+    userId: string | null
     createdAt: Date
     updatedAt: Date
     _count: CustomerCountAggregateOutputType | null
@@ -1958,110 +3318,94 @@ export namespace Prisma {
 
   export type CustomerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    customerId?: boolean
-    email?: boolean
-    passwordHash?: boolean
-    isActive?: boolean
-    lastLoginAt?: boolean
     firstName?: boolean
     middleName?: boolean
     lastName?: boolean
     dateOfBirth?: boolean
+    email?: boolean
     phone?: boolean
-    preferredContact?: boolean
-    emailNotifications?: boolean
-    smsNotifications?: boolean
+    preferredChannel?: boolean
+    userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    user?: boolean | Customer$userArgs<ExtArgs>
     cases?: boolean | Customer$casesArgs<ExtArgs>
     _count?: boolean | CustomerCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["customer"]>
 
   export type CustomerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    customerId?: boolean
-    email?: boolean
-    passwordHash?: boolean
-    isActive?: boolean
-    lastLoginAt?: boolean
     firstName?: boolean
     middleName?: boolean
     lastName?: boolean
     dateOfBirth?: boolean
+    email?: boolean
     phone?: boolean
-    preferredContact?: boolean
-    emailNotifications?: boolean
-    smsNotifications?: boolean
+    preferredChannel?: boolean
+    userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    user?: boolean | Customer$userArgs<ExtArgs>
   }, ExtArgs["result"]["customer"]>
 
   export type CustomerSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    customerId?: boolean
-    email?: boolean
-    passwordHash?: boolean
-    isActive?: boolean
-    lastLoginAt?: boolean
     firstName?: boolean
     middleName?: boolean
     lastName?: boolean
     dateOfBirth?: boolean
+    email?: boolean
     phone?: boolean
-    preferredContact?: boolean
-    emailNotifications?: boolean
-    smsNotifications?: boolean
+    preferredChannel?: boolean
+    userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    user?: boolean | Customer$userArgs<ExtArgs>
   }, ExtArgs["result"]["customer"]>
 
   export type CustomerSelectScalar = {
     id?: boolean
-    customerId?: boolean
-    email?: boolean
-    passwordHash?: boolean
-    isActive?: boolean
-    lastLoginAt?: boolean
     firstName?: boolean
     middleName?: boolean
     lastName?: boolean
     dateOfBirth?: boolean
+    email?: boolean
     phone?: boolean
-    preferredContact?: boolean
-    emailNotifications?: boolean
-    smsNotifications?: boolean
+    preferredChannel?: boolean
+    userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CustomerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "customerId" | "email" | "passwordHash" | "isActive" | "lastLoginAt" | "firstName" | "middleName" | "lastName" | "dateOfBirth" | "phone" | "preferredContact" | "emailNotifications" | "smsNotifications" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
+  export type CustomerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "firstName" | "middleName" | "lastName" | "dateOfBirth" | "email" | "phone" | "preferredChannel" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
   export type CustomerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | Customer$userArgs<ExtArgs>
     cases?: boolean | Customer$casesArgs<ExtArgs>
     _count?: boolean | CustomerCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type CustomerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-  export type CustomerIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type CustomerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | Customer$userArgs<ExtArgs>
+  }
+  export type CustomerIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | Customer$userArgs<ExtArgs>
+  }
 
   export type $CustomerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Customer"
     objects: {
+      user: Prisma.$UserPayload<ExtArgs> | null
       cases: Prisma.$CasePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      customerId: string
-      email: string
-      passwordHash: string
-      isActive: boolean
-      lastLoginAt: Date | null
       firstName: string
       middleName: string | null
       lastName: string
       dateOfBirth: Date
+      email: string
       phone: string | null
-      preferredContact: string
-      emailNotifications: boolean
-      smsNotifications: boolean
+      preferredChannel: $Enums.CommunicationChannel
+      userId: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["customer"]>
@@ -2458,6 +3802,7 @@ export namespace Prisma {
    */
   export interface Prisma__CustomerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends Customer$userArgs<ExtArgs> = {}>(args?: Subset<T, Customer$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     cases<T extends Customer$casesArgs<ExtArgs> = {}>(args?: Subset<T, Customer$casesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2489,19 +3834,14 @@ export namespace Prisma {
    */
   interface CustomerFieldRefs {
     readonly id: FieldRef<"Customer", 'String'>
-    readonly customerId: FieldRef<"Customer", 'String'>
-    readonly email: FieldRef<"Customer", 'String'>
-    readonly passwordHash: FieldRef<"Customer", 'String'>
-    readonly isActive: FieldRef<"Customer", 'Boolean'>
-    readonly lastLoginAt: FieldRef<"Customer", 'DateTime'>
     readonly firstName: FieldRef<"Customer", 'String'>
     readonly middleName: FieldRef<"Customer", 'String'>
     readonly lastName: FieldRef<"Customer", 'String'>
     readonly dateOfBirth: FieldRef<"Customer", 'DateTime'>
+    readonly email: FieldRef<"Customer", 'String'>
     readonly phone: FieldRef<"Customer", 'String'>
-    readonly preferredContact: FieldRef<"Customer", 'String'>
-    readonly emailNotifications: FieldRef<"Customer", 'Boolean'>
-    readonly smsNotifications: FieldRef<"Customer", 'Boolean'>
+    readonly preferredChannel: FieldRef<"Customer", 'CommunicationChannel'>
+    readonly userId: FieldRef<"Customer", 'String'>
     readonly createdAt: FieldRef<"Customer", 'DateTime'>
     readonly updatedAt: FieldRef<"Customer", 'DateTime'>
   }
@@ -2751,6 +4091,10 @@ export namespace Prisma {
      * The data used to create many Customers.
      */
     data: CustomerCreateManyInput | CustomerCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -2821,6 +4165,10 @@ export namespace Prisma {
      * Limit how many Customers to update.
      */
     limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CustomerIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -2890,6 +4238,25 @@ export namespace Prisma {
   }
 
   /**
+   * Customer.user
+   */
+  export type Customer$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
    * Customer.cases
    */
   export type Customer$casesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2933,6 +4300,982 @@ export namespace Prisma {
 
 
   /**
+   * Model TempSubmission
+   */
+
+  export type AggregateTempSubmission = {
+    _count: TempSubmissionCountAggregateOutputType | null
+    _min: TempSubmissionMinAggregateOutputType | null
+    _max: TempSubmissionMaxAggregateOutputType | null
+  }
+
+  export type TempSubmissionMinAggregateOutputType = {
+    id: string | null
+    expiresAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type TempSubmissionMaxAggregateOutputType = {
+    id: string | null
+    expiresAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type TempSubmissionCountAggregateOutputType = {
+    id: number
+    payload: number
+    expiresAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type TempSubmissionMinAggregateInputType = {
+    id?: true
+    expiresAt?: true
+    createdAt?: true
+  }
+
+  export type TempSubmissionMaxAggregateInputType = {
+    id?: true
+    expiresAt?: true
+    createdAt?: true
+  }
+
+  export type TempSubmissionCountAggregateInputType = {
+    id?: true
+    payload?: true
+    expiresAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type TempSubmissionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TempSubmission to aggregate.
+     */
+    where?: TempSubmissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TempSubmissions to fetch.
+     */
+    orderBy?: TempSubmissionOrderByWithRelationInput | TempSubmissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TempSubmissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TempSubmissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TempSubmissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TempSubmissions
+    **/
+    _count?: true | TempSubmissionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TempSubmissionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TempSubmissionMaxAggregateInputType
+  }
+
+  export type GetTempSubmissionAggregateType<T extends TempSubmissionAggregateArgs> = {
+        [P in keyof T & keyof AggregateTempSubmission]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTempSubmission[P]>
+      : GetScalarType<T[P], AggregateTempSubmission[P]>
+  }
+
+
+
+
+  export type TempSubmissionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TempSubmissionWhereInput
+    orderBy?: TempSubmissionOrderByWithAggregationInput | TempSubmissionOrderByWithAggregationInput[]
+    by: TempSubmissionScalarFieldEnum[] | TempSubmissionScalarFieldEnum
+    having?: TempSubmissionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TempSubmissionCountAggregateInputType | true
+    _min?: TempSubmissionMinAggregateInputType
+    _max?: TempSubmissionMaxAggregateInputType
+  }
+
+  export type TempSubmissionGroupByOutputType = {
+    id: string
+    payload: JsonValue
+    expiresAt: Date
+    createdAt: Date
+    _count: TempSubmissionCountAggregateOutputType | null
+    _min: TempSubmissionMinAggregateOutputType | null
+    _max: TempSubmissionMaxAggregateOutputType | null
+  }
+
+  type GetTempSubmissionGroupByPayload<T extends TempSubmissionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TempSubmissionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TempSubmissionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TempSubmissionGroupByOutputType[P]>
+            : GetScalarType<T[P], TempSubmissionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TempSubmissionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    payload?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["tempSubmission"]>
+
+  export type TempSubmissionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    payload?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["tempSubmission"]>
+
+  export type TempSubmissionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    payload?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["tempSubmission"]>
+
+  export type TempSubmissionSelectScalar = {
+    id?: boolean
+    payload?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type TempSubmissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "payload" | "expiresAt" | "createdAt", ExtArgs["result"]["tempSubmission"]>
+
+  export type $TempSubmissionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TempSubmission"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      payload: Prisma.JsonValue
+      expiresAt: Date
+      createdAt: Date
+    }, ExtArgs["result"]["tempSubmission"]>
+    composites: {}
+  }
+
+  type TempSubmissionGetPayload<S extends boolean | null | undefined | TempSubmissionDefaultArgs> = $Result.GetResult<Prisma.$TempSubmissionPayload, S>
+
+  type TempSubmissionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TempSubmissionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TempSubmissionCountAggregateInputType | true
+    }
+
+  export interface TempSubmissionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TempSubmission'], meta: { name: 'TempSubmission' } }
+    /**
+     * Find zero or one TempSubmission that matches the filter.
+     * @param {TempSubmissionFindUniqueArgs} args - Arguments to find a TempSubmission
+     * @example
+     * // Get one TempSubmission
+     * const tempSubmission = await prisma.tempSubmission.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TempSubmissionFindUniqueArgs>(args: SelectSubset<T, TempSubmissionFindUniqueArgs<ExtArgs>>): Prisma__TempSubmissionClient<$Result.GetResult<Prisma.$TempSubmissionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TempSubmission that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TempSubmissionFindUniqueOrThrowArgs} args - Arguments to find a TempSubmission
+     * @example
+     * // Get one TempSubmission
+     * const tempSubmission = await prisma.tempSubmission.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TempSubmissionFindUniqueOrThrowArgs>(args: SelectSubset<T, TempSubmissionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TempSubmissionClient<$Result.GetResult<Prisma.$TempSubmissionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TempSubmission that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TempSubmissionFindFirstArgs} args - Arguments to find a TempSubmission
+     * @example
+     * // Get one TempSubmission
+     * const tempSubmission = await prisma.tempSubmission.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TempSubmissionFindFirstArgs>(args?: SelectSubset<T, TempSubmissionFindFirstArgs<ExtArgs>>): Prisma__TempSubmissionClient<$Result.GetResult<Prisma.$TempSubmissionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TempSubmission that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TempSubmissionFindFirstOrThrowArgs} args - Arguments to find a TempSubmission
+     * @example
+     * // Get one TempSubmission
+     * const tempSubmission = await prisma.tempSubmission.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TempSubmissionFindFirstOrThrowArgs>(args?: SelectSubset<T, TempSubmissionFindFirstOrThrowArgs<ExtArgs>>): Prisma__TempSubmissionClient<$Result.GetResult<Prisma.$TempSubmissionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TempSubmissions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TempSubmissionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TempSubmissions
+     * const tempSubmissions = await prisma.tempSubmission.findMany()
+     * 
+     * // Get first 10 TempSubmissions
+     * const tempSubmissions = await prisma.tempSubmission.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const tempSubmissionWithIdOnly = await prisma.tempSubmission.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TempSubmissionFindManyArgs>(args?: SelectSubset<T, TempSubmissionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TempSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TempSubmission.
+     * @param {TempSubmissionCreateArgs} args - Arguments to create a TempSubmission.
+     * @example
+     * // Create one TempSubmission
+     * const TempSubmission = await prisma.tempSubmission.create({
+     *   data: {
+     *     // ... data to create a TempSubmission
+     *   }
+     * })
+     * 
+     */
+    create<T extends TempSubmissionCreateArgs>(args: SelectSubset<T, TempSubmissionCreateArgs<ExtArgs>>): Prisma__TempSubmissionClient<$Result.GetResult<Prisma.$TempSubmissionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TempSubmissions.
+     * @param {TempSubmissionCreateManyArgs} args - Arguments to create many TempSubmissions.
+     * @example
+     * // Create many TempSubmissions
+     * const tempSubmission = await prisma.tempSubmission.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TempSubmissionCreateManyArgs>(args?: SelectSubset<T, TempSubmissionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TempSubmissions and returns the data saved in the database.
+     * @param {TempSubmissionCreateManyAndReturnArgs} args - Arguments to create many TempSubmissions.
+     * @example
+     * // Create many TempSubmissions
+     * const tempSubmission = await prisma.tempSubmission.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TempSubmissions and only return the `id`
+     * const tempSubmissionWithIdOnly = await prisma.tempSubmission.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TempSubmissionCreateManyAndReturnArgs>(args?: SelectSubset<T, TempSubmissionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TempSubmissionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TempSubmission.
+     * @param {TempSubmissionDeleteArgs} args - Arguments to delete one TempSubmission.
+     * @example
+     * // Delete one TempSubmission
+     * const TempSubmission = await prisma.tempSubmission.delete({
+     *   where: {
+     *     // ... filter to delete one TempSubmission
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TempSubmissionDeleteArgs>(args: SelectSubset<T, TempSubmissionDeleteArgs<ExtArgs>>): Prisma__TempSubmissionClient<$Result.GetResult<Prisma.$TempSubmissionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TempSubmission.
+     * @param {TempSubmissionUpdateArgs} args - Arguments to update one TempSubmission.
+     * @example
+     * // Update one TempSubmission
+     * const tempSubmission = await prisma.tempSubmission.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TempSubmissionUpdateArgs>(args: SelectSubset<T, TempSubmissionUpdateArgs<ExtArgs>>): Prisma__TempSubmissionClient<$Result.GetResult<Prisma.$TempSubmissionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TempSubmissions.
+     * @param {TempSubmissionDeleteManyArgs} args - Arguments to filter TempSubmissions to delete.
+     * @example
+     * // Delete a few TempSubmissions
+     * const { count } = await prisma.tempSubmission.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TempSubmissionDeleteManyArgs>(args?: SelectSubset<T, TempSubmissionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TempSubmissions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TempSubmissionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TempSubmissions
+     * const tempSubmission = await prisma.tempSubmission.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TempSubmissionUpdateManyArgs>(args: SelectSubset<T, TempSubmissionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TempSubmissions and returns the data updated in the database.
+     * @param {TempSubmissionUpdateManyAndReturnArgs} args - Arguments to update many TempSubmissions.
+     * @example
+     * // Update many TempSubmissions
+     * const tempSubmission = await prisma.tempSubmission.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TempSubmissions and only return the `id`
+     * const tempSubmissionWithIdOnly = await prisma.tempSubmission.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TempSubmissionUpdateManyAndReturnArgs>(args: SelectSubset<T, TempSubmissionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TempSubmissionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TempSubmission.
+     * @param {TempSubmissionUpsertArgs} args - Arguments to update or create a TempSubmission.
+     * @example
+     * // Update or create a TempSubmission
+     * const tempSubmission = await prisma.tempSubmission.upsert({
+     *   create: {
+     *     // ... data to create a TempSubmission
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TempSubmission we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TempSubmissionUpsertArgs>(args: SelectSubset<T, TempSubmissionUpsertArgs<ExtArgs>>): Prisma__TempSubmissionClient<$Result.GetResult<Prisma.$TempSubmissionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TempSubmissions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TempSubmissionCountArgs} args - Arguments to filter TempSubmissions to count.
+     * @example
+     * // Count the number of TempSubmissions
+     * const count = await prisma.tempSubmission.count({
+     *   where: {
+     *     // ... the filter for the TempSubmissions we want to count
+     *   }
+     * })
+    **/
+    count<T extends TempSubmissionCountArgs>(
+      args?: Subset<T, TempSubmissionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TempSubmissionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TempSubmission.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TempSubmissionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TempSubmissionAggregateArgs>(args: Subset<T, TempSubmissionAggregateArgs>): Prisma.PrismaPromise<GetTempSubmissionAggregateType<T>>
+
+    /**
+     * Group by TempSubmission.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TempSubmissionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TempSubmissionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TempSubmissionGroupByArgs['orderBy'] }
+        : { orderBy?: TempSubmissionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TempSubmissionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTempSubmissionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TempSubmission model
+   */
+  readonly fields: TempSubmissionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TempSubmission.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TempSubmissionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TempSubmission model
+   */
+  interface TempSubmissionFieldRefs {
+    readonly id: FieldRef<"TempSubmission", 'String'>
+    readonly payload: FieldRef<"TempSubmission", 'Json'>
+    readonly expiresAt: FieldRef<"TempSubmission", 'DateTime'>
+    readonly createdAt: FieldRef<"TempSubmission", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TempSubmission findUnique
+   */
+  export type TempSubmissionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TempSubmission
+     */
+    select?: TempSubmissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TempSubmission
+     */
+    omit?: TempSubmissionOmit<ExtArgs> | null
+    /**
+     * Filter, which TempSubmission to fetch.
+     */
+    where: TempSubmissionWhereUniqueInput
+  }
+
+  /**
+   * TempSubmission findUniqueOrThrow
+   */
+  export type TempSubmissionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TempSubmission
+     */
+    select?: TempSubmissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TempSubmission
+     */
+    omit?: TempSubmissionOmit<ExtArgs> | null
+    /**
+     * Filter, which TempSubmission to fetch.
+     */
+    where: TempSubmissionWhereUniqueInput
+  }
+
+  /**
+   * TempSubmission findFirst
+   */
+  export type TempSubmissionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TempSubmission
+     */
+    select?: TempSubmissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TempSubmission
+     */
+    omit?: TempSubmissionOmit<ExtArgs> | null
+    /**
+     * Filter, which TempSubmission to fetch.
+     */
+    where?: TempSubmissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TempSubmissions to fetch.
+     */
+    orderBy?: TempSubmissionOrderByWithRelationInput | TempSubmissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TempSubmissions.
+     */
+    cursor?: TempSubmissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TempSubmissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TempSubmissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TempSubmissions.
+     */
+    distinct?: TempSubmissionScalarFieldEnum | TempSubmissionScalarFieldEnum[]
+  }
+
+  /**
+   * TempSubmission findFirstOrThrow
+   */
+  export type TempSubmissionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TempSubmission
+     */
+    select?: TempSubmissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TempSubmission
+     */
+    omit?: TempSubmissionOmit<ExtArgs> | null
+    /**
+     * Filter, which TempSubmission to fetch.
+     */
+    where?: TempSubmissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TempSubmissions to fetch.
+     */
+    orderBy?: TempSubmissionOrderByWithRelationInput | TempSubmissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TempSubmissions.
+     */
+    cursor?: TempSubmissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TempSubmissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TempSubmissions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TempSubmissions.
+     */
+    distinct?: TempSubmissionScalarFieldEnum | TempSubmissionScalarFieldEnum[]
+  }
+
+  /**
+   * TempSubmission findMany
+   */
+  export type TempSubmissionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TempSubmission
+     */
+    select?: TempSubmissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TempSubmission
+     */
+    omit?: TempSubmissionOmit<ExtArgs> | null
+    /**
+     * Filter, which TempSubmissions to fetch.
+     */
+    where?: TempSubmissionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TempSubmissions to fetch.
+     */
+    orderBy?: TempSubmissionOrderByWithRelationInput | TempSubmissionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TempSubmissions.
+     */
+    cursor?: TempSubmissionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TempSubmissions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TempSubmissions.
+     */
+    skip?: number
+    distinct?: TempSubmissionScalarFieldEnum | TempSubmissionScalarFieldEnum[]
+  }
+
+  /**
+   * TempSubmission create
+   */
+  export type TempSubmissionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TempSubmission
+     */
+    select?: TempSubmissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TempSubmission
+     */
+    omit?: TempSubmissionOmit<ExtArgs> | null
+    /**
+     * The data needed to create a TempSubmission.
+     */
+    data: XOR<TempSubmissionCreateInput, TempSubmissionUncheckedCreateInput>
+  }
+
+  /**
+   * TempSubmission createMany
+   */
+  export type TempSubmissionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TempSubmissions.
+     */
+    data: TempSubmissionCreateManyInput | TempSubmissionCreateManyInput[]
+  }
+
+  /**
+   * TempSubmission createManyAndReturn
+   */
+  export type TempSubmissionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TempSubmission
+     */
+    select?: TempSubmissionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TempSubmission
+     */
+    omit?: TempSubmissionOmit<ExtArgs> | null
+    /**
+     * The data used to create many TempSubmissions.
+     */
+    data: TempSubmissionCreateManyInput | TempSubmissionCreateManyInput[]
+  }
+
+  /**
+   * TempSubmission update
+   */
+  export type TempSubmissionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TempSubmission
+     */
+    select?: TempSubmissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TempSubmission
+     */
+    omit?: TempSubmissionOmit<ExtArgs> | null
+    /**
+     * The data needed to update a TempSubmission.
+     */
+    data: XOR<TempSubmissionUpdateInput, TempSubmissionUncheckedUpdateInput>
+    /**
+     * Choose, which TempSubmission to update.
+     */
+    where: TempSubmissionWhereUniqueInput
+  }
+
+  /**
+   * TempSubmission updateMany
+   */
+  export type TempSubmissionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TempSubmissions.
+     */
+    data: XOR<TempSubmissionUpdateManyMutationInput, TempSubmissionUncheckedUpdateManyInput>
+    /**
+     * Filter which TempSubmissions to update
+     */
+    where?: TempSubmissionWhereInput
+    /**
+     * Limit how many TempSubmissions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TempSubmission updateManyAndReturn
+   */
+  export type TempSubmissionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TempSubmission
+     */
+    select?: TempSubmissionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TempSubmission
+     */
+    omit?: TempSubmissionOmit<ExtArgs> | null
+    /**
+     * The data used to update TempSubmissions.
+     */
+    data: XOR<TempSubmissionUpdateManyMutationInput, TempSubmissionUncheckedUpdateManyInput>
+    /**
+     * Filter which TempSubmissions to update
+     */
+    where?: TempSubmissionWhereInput
+    /**
+     * Limit how many TempSubmissions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TempSubmission upsert
+   */
+  export type TempSubmissionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TempSubmission
+     */
+    select?: TempSubmissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TempSubmission
+     */
+    omit?: TempSubmissionOmit<ExtArgs> | null
+    /**
+     * The filter to search for the TempSubmission to update in case it exists.
+     */
+    where: TempSubmissionWhereUniqueInput
+    /**
+     * In case the TempSubmission found by the `where` argument doesn't exist, create a new TempSubmission with this data.
+     */
+    create: XOR<TempSubmissionCreateInput, TempSubmissionUncheckedCreateInput>
+    /**
+     * In case the TempSubmission was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TempSubmissionUpdateInput, TempSubmissionUncheckedUpdateInput>
+  }
+
+  /**
+   * TempSubmission delete
+   */
+  export type TempSubmissionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TempSubmission
+     */
+    select?: TempSubmissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TempSubmission
+     */
+    omit?: TempSubmissionOmit<ExtArgs> | null
+    /**
+     * Filter which TempSubmission to delete.
+     */
+    where: TempSubmissionWhereUniqueInput
+  }
+
+  /**
+   * TempSubmission deleteMany
+   */
+  export type TempSubmissionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TempSubmissions to delete
+     */
+    where?: TempSubmissionWhereInput
+    /**
+     * Limit how many TempSubmissions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TempSubmission without action
+   */
+  export type TempSubmissionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TempSubmission
+     */
+    select?: TempSubmissionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TempSubmission
+     */
+    omit?: TempSubmissionOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model Case
    */
 
@@ -2945,7 +5288,6 @@ export namespace Prisma {
   export type CaseMinAggregateOutputType = {
     id: string | null
     caseNumber: string | null
-    customerId: string | null
     firstName: string | null
     middleName: string | null
     lastName: string | null
@@ -2959,7 +5301,7 @@ export namespace Prisma {
     geneticFamilyHistory: string | null
     paymentId: string | null
     consentAccepted: boolean | null
-    status: string | null
+    customerId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2967,7 +5309,6 @@ export namespace Prisma {
   export type CaseMaxAggregateOutputType = {
     id: string | null
     caseNumber: string | null
-    customerId: string | null
     firstName: string | null
     middleName: string | null
     lastName: string | null
@@ -2981,7 +5322,7 @@ export namespace Prisma {
     geneticFamilyHistory: string | null
     paymentId: string | null
     consentAccepted: boolean | null
-    status: string | null
+    customerId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2989,7 +5330,6 @@ export namespace Prisma {
   export type CaseCountAggregateOutputType = {
     id: number
     caseNumber: number
-    customerId: number
     firstName: number
     middleName: number
     lastName: number
@@ -3003,7 +5343,7 @@ export namespace Prisma {
     geneticFamilyHistory: number
     paymentId: number
     consentAccepted: number
-    status: number
+    customerId: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -3013,7 +5353,6 @@ export namespace Prisma {
   export type CaseMinAggregateInputType = {
     id?: true
     caseNumber?: true
-    customerId?: true
     firstName?: true
     middleName?: true
     lastName?: true
@@ -3027,7 +5366,7 @@ export namespace Prisma {
     geneticFamilyHistory?: true
     paymentId?: true
     consentAccepted?: true
-    status?: true
+    customerId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -3035,7 +5374,6 @@ export namespace Prisma {
   export type CaseMaxAggregateInputType = {
     id?: true
     caseNumber?: true
-    customerId?: true
     firstName?: true
     middleName?: true
     lastName?: true
@@ -3049,7 +5387,7 @@ export namespace Prisma {
     geneticFamilyHistory?: true
     paymentId?: true
     consentAccepted?: true
-    status?: true
+    customerId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -3057,7 +5395,6 @@ export namespace Prisma {
   export type CaseCountAggregateInputType = {
     id?: true
     caseNumber?: true
-    customerId?: true
     firstName?: true
     middleName?: true
     lastName?: true
@@ -3071,7 +5408,7 @@ export namespace Prisma {
     geneticFamilyHistory?: true
     paymentId?: true
     consentAccepted?: true
-    status?: true
+    customerId?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -3152,7 +5489,6 @@ export namespace Prisma {
   export type CaseGroupByOutputType = {
     id: string
     caseNumber: string
-    customerId: string
     firstName: string
     middleName: string | null
     lastName: string
@@ -3166,7 +5502,7 @@ export namespace Prisma {
     geneticFamilyHistory: string | null
     paymentId: string | null
     consentAccepted: boolean
-    status: string
+    customerId: string
     createdAt: Date
     updatedAt: Date
     _count: CaseCountAggregateOutputType | null
@@ -3191,7 +5527,6 @@ export namespace Prisma {
   export type CaseSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     caseNumber?: boolean
-    customerId?: boolean
     firstName?: boolean
     middleName?: boolean
     lastName?: boolean
@@ -3205,21 +5540,21 @@ export namespace Prisma {
     geneticFamilyHistory?: boolean
     paymentId?: boolean
     consentAccepted?: boolean
-    status?: boolean
+    customerId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     customer?: boolean | CustomerDefaultArgs<ExtArgs>
     uploadedFiles?: boolean | Case$uploadedFilesArgs<ExtArgs>
-    aiAnalysis?: boolean | Case$aiAnalysisArgs<ExtArgs>
     caseAssignments?: boolean | Case$caseAssignmentsArgs<ExtArgs>
+    aiAnalyses?: boolean | Case$aiAnalysesArgs<ExtArgs>
     medicalOpinions?: boolean | Case$medicalOpinionsArgs<ExtArgs>
+    professionalPayments?: boolean | Case$professionalPaymentsArgs<ExtArgs>
     _count?: boolean | CaseCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["case"]>
 
   export type CaseSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     caseNumber?: boolean
-    customerId?: boolean
     firstName?: boolean
     middleName?: boolean
     lastName?: boolean
@@ -3233,7 +5568,7 @@ export namespace Prisma {
     geneticFamilyHistory?: boolean
     paymentId?: boolean
     consentAccepted?: boolean
-    status?: boolean
+    customerId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     customer?: boolean | CustomerDefaultArgs<ExtArgs>
@@ -3242,7 +5577,6 @@ export namespace Prisma {
   export type CaseSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     caseNumber?: boolean
-    customerId?: boolean
     firstName?: boolean
     middleName?: boolean
     lastName?: boolean
@@ -3256,7 +5590,7 @@ export namespace Prisma {
     geneticFamilyHistory?: boolean
     paymentId?: boolean
     consentAccepted?: boolean
-    status?: boolean
+    customerId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     customer?: boolean | CustomerDefaultArgs<ExtArgs>
@@ -3265,7 +5599,6 @@ export namespace Prisma {
   export type CaseSelectScalar = {
     id?: boolean
     caseNumber?: boolean
-    customerId?: boolean
     firstName?: boolean
     middleName?: boolean
     lastName?: boolean
@@ -3279,18 +5612,19 @@ export namespace Prisma {
     geneticFamilyHistory?: boolean
     paymentId?: boolean
     consentAccepted?: boolean
-    status?: boolean
+    customerId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CaseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "caseNumber" | "customerId" | "firstName" | "middleName" | "lastName" | "dateOfBirth" | "email" | "phone" | "ethnicity" | "gender" | "diseaseType" | "isFirstOccurrence" | "geneticFamilyHistory" | "paymentId" | "consentAccepted" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["case"]>
+  export type CaseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "caseNumber" | "firstName" | "middleName" | "lastName" | "dateOfBirth" | "email" | "phone" | "ethnicity" | "gender" | "diseaseType" | "isFirstOccurrence" | "geneticFamilyHistory" | "paymentId" | "consentAccepted" | "customerId" | "createdAt" | "updatedAt", ExtArgs["result"]["case"]>
   export type CaseInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     customer?: boolean | CustomerDefaultArgs<ExtArgs>
     uploadedFiles?: boolean | Case$uploadedFilesArgs<ExtArgs>
-    aiAnalysis?: boolean | Case$aiAnalysisArgs<ExtArgs>
     caseAssignments?: boolean | Case$caseAssignmentsArgs<ExtArgs>
+    aiAnalyses?: boolean | Case$aiAnalysesArgs<ExtArgs>
     medicalOpinions?: boolean | Case$medicalOpinionsArgs<ExtArgs>
+    professionalPayments?: boolean | Case$professionalPaymentsArgs<ExtArgs>
     _count?: boolean | CaseCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CaseIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3305,14 +5639,14 @@ export namespace Prisma {
     objects: {
       customer: Prisma.$CustomerPayload<ExtArgs>
       uploadedFiles: Prisma.$UploadedFilePayload<ExtArgs>[]
-      aiAnalysis: Prisma.$AIAnalysisPayload<ExtArgs> | null
       caseAssignments: Prisma.$CaseAssignmentPayload<ExtArgs>[]
+      aiAnalyses: Prisma.$AIAnalysisPayload<ExtArgs>[]
       medicalOpinions: Prisma.$MedicalOpinionPayload<ExtArgs>[]
+      professionalPayments: Prisma.$ProfessionalPaymentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       caseNumber: string
-      customerId: string
       firstName: string
       middleName: string | null
       lastName: string
@@ -3326,7 +5660,7 @@ export namespace Prisma {
       geneticFamilyHistory: string | null
       paymentId: string | null
       consentAccepted: boolean
-      status: string
+      customerId: string
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["case"]>
@@ -3725,9 +6059,10 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     customer<T extends CustomerDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CustomerDefaultArgs<ExtArgs>>): Prisma__CustomerClient<$Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     uploadedFiles<T extends Case$uploadedFilesArgs<ExtArgs> = {}>(args?: Subset<T, Case$uploadedFilesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UploadedFilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    aiAnalysis<T extends Case$aiAnalysisArgs<ExtArgs> = {}>(args?: Subset<T, Case$aiAnalysisArgs<ExtArgs>>): Prisma__AIAnalysisClient<$Result.GetResult<Prisma.$AIAnalysisPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     caseAssignments<T extends Case$caseAssignmentsArgs<ExtArgs> = {}>(args?: Subset<T, Case$caseAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CaseAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    aiAnalyses<T extends Case$aiAnalysesArgs<ExtArgs> = {}>(args?: Subset<T, Case$aiAnalysesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AIAnalysisPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     medicalOpinions<T extends Case$medicalOpinionsArgs<ExtArgs> = {}>(args?: Subset<T, Case$medicalOpinionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MedicalOpinionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    professionalPayments<T extends Case$professionalPaymentsArgs<ExtArgs> = {}>(args?: Subset<T, Case$professionalPaymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProfessionalPaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3759,7 +6094,6 @@ export namespace Prisma {
   interface CaseFieldRefs {
     readonly id: FieldRef<"Case", 'String'>
     readonly caseNumber: FieldRef<"Case", 'String'>
-    readonly customerId: FieldRef<"Case", 'String'>
     readonly firstName: FieldRef<"Case", 'String'>
     readonly middleName: FieldRef<"Case", 'String'>
     readonly lastName: FieldRef<"Case", 'String'>
@@ -3773,7 +6107,7 @@ export namespace Prisma {
     readonly geneticFamilyHistory: FieldRef<"Case", 'String'>
     readonly paymentId: FieldRef<"Case", 'String'>
     readonly consentAccepted: FieldRef<"Case", 'Boolean'>
-    readonly status: FieldRef<"Case", 'String'>
+    readonly customerId: FieldRef<"Case", 'String'>
     readonly createdAt: FieldRef<"Case", 'DateTime'>
     readonly updatedAt: FieldRef<"Case", 'DateTime'>
   }
@@ -4194,25 +6528,6 @@ export namespace Prisma {
   }
 
   /**
-   * Case.aiAnalysis
-   */
-  export type Case$aiAnalysisArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the AIAnalysis
-     */
-    select?: AIAnalysisSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the AIAnalysis
-     */
-    omit?: AIAnalysisOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: AIAnalysisInclude<ExtArgs> | null
-    where?: AIAnalysisWhereInput
-  }
-
-  /**
    * Case.caseAssignments
    */
   export type Case$caseAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4237,6 +6552,30 @@ export namespace Prisma {
   }
 
   /**
+   * Case.aiAnalyses
+   */
+  export type Case$aiAnalysesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AIAnalysis
+     */
+    select?: AIAnalysisSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AIAnalysis
+     */
+    omit?: AIAnalysisOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AIAnalysisInclude<ExtArgs> | null
+    where?: AIAnalysisWhereInput
+    orderBy?: AIAnalysisOrderByWithRelationInput | AIAnalysisOrderByWithRelationInput[]
+    cursor?: AIAnalysisWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AIAnalysisScalarFieldEnum | AIAnalysisScalarFieldEnum[]
+  }
+
+  /**
    * Case.medicalOpinions
    */
   export type Case$medicalOpinionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4258,6 +6597,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MedicalOpinionScalarFieldEnum | MedicalOpinionScalarFieldEnum[]
+  }
+
+  /**
+   * Case.professionalPayments
+   */
+  export type Case$professionalPaymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProfessionalPayment
+     */
+    select?: ProfessionalPaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProfessionalPayment
+     */
+    omit?: ProfessionalPaymentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProfessionalPaymentInclude<ExtArgs> | null
+    where?: ProfessionalPaymentWhereInput
+    orderBy?: ProfessionalPaymentOrderByWithRelationInput | ProfessionalPaymentOrderByWithRelationInput[]
+    cursor?: ProfessionalPaymentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProfessionalPaymentScalarFieldEnum | ProfessionalPaymentScalarFieldEnum[]
   }
 
   /**
@@ -4292,93 +6655,87 @@ export namespace Prisma {
   }
 
   export type UploadedFileAvgAggregateOutputType = {
-    fileSize: number | null
+    size: number | null
   }
 
   export type UploadedFileSumAggregateOutputType = {
-    fileSize: number | null
+    size: number | null
   }
 
   export type UploadedFileMinAggregateOutputType = {
     id: string | null
     caseId: string | null
-    fileName: string | null
-    originalName: string | null
-    fileSize: number | null
-    mimeType: string | null
-    category: string | null
+    filename: string | null
     s3Key: string | null
-    uploadedAt: Date | null
+    mimetype: string | null
+    size: number | null
+    category: string | null
+    createdAt: Date | null
   }
 
   export type UploadedFileMaxAggregateOutputType = {
     id: string | null
     caseId: string | null
-    fileName: string | null
-    originalName: string | null
-    fileSize: number | null
-    mimeType: string | null
-    category: string | null
+    filename: string | null
     s3Key: string | null
-    uploadedAt: Date | null
+    mimetype: string | null
+    size: number | null
+    category: string | null
+    createdAt: Date | null
   }
 
   export type UploadedFileCountAggregateOutputType = {
     id: number
     caseId: number
-    fileName: number
-    originalName: number
-    fileSize: number
-    mimeType: number
-    category: number
+    filename: number
     s3Key: number
-    uploadedAt: number
+    mimetype: number
+    size: number
+    category: number
+    createdAt: number
     _all: number
   }
 
 
   export type UploadedFileAvgAggregateInputType = {
-    fileSize?: true
+    size?: true
   }
 
   export type UploadedFileSumAggregateInputType = {
-    fileSize?: true
+    size?: true
   }
 
   export type UploadedFileMinAggregateInputType = {
     id?: true
     caseId?: true
-    fileName?: true
-    originalName?: true
-    fileSize?: true
-    mimeType?: true
-    category?: true
+    filename?: true
     s3Key?: true
-    uploadedAt?: true
+    mimetype?: true
+    size?: true
+    category?: true
+    createdAt?: true
   }
 
   export type UploadedFileMaxAggregateInputType = {
     id?: true
     caseId?: true
-    fileName?: true
-    originalName?: true
-    fileSize?: true
-    mimeType?: true
-    category?: true
+    filename?: true
     s3Key?: true
-    uploadedAt?: true
+    mimetype?: true
+    size?: true
+    category?: true
+    createdAt?: true
   }
 
   export type UploadedFileCountAggregateInputType = {
     id?: true
     caseId?: true
-    fileName?: true
-    originalName?: true
-    fileSize?: true
-    mimeType?: true
-    category?: true
+    filename?: true
     s3Key?: true
-    uploadedAt?: true
+    mimetype?: true
+    size?: true
+    category?: true
+    createdAt?: true
     _all?: true
   }
 
@@ -4471,13 +6828,12 @@ export namespace Prisma {
   export type UploadedFileGroupByOutputType = {
     id: string
     caseId: string
-    fileName: string
-    originalName: string
-    fileSize: number
-    mimeType: string
+    filename: string
+    s3Key: string
+    mimetype: string
+    size: number
     category: string
-    s3Key: string | null
-    uploadedAt: Date
+    createdAt: Date
     _count: UploadedFileCountAggregateOutputType | null
     _avg: UploadedFileAvgAggregateOutputType | null
     _sum: UploadedFileSumAggregateOutputType | null
@@ -4502,55 +6858,51 @@ export namespace Prisma {
   export type UploadedFileSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     caseId?: boolean
-    fileName?: boolean
-    originalName?: boolean
-    fileSize?: boolean
-    mimeType?: boolean
-    category?: boolean
+    filename?: boolean
     s3Key?: boolean
-    uploadedAt?: boolean
+    mimetype?: boolean
+    size?: boolean
+    category?: boolean
+    createdAt?: boolean
     case?: boolean | CaseDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["uploadedFile"]>
 
   export type UploadedFileSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     caseId?: boolean
-    fileName?: boolean
-    originalName?: boolean
-    fileSize?: boolean
-    mimeType?: boolean
-    category?: boolean
+    filename?: boolean
     s3Key?: boolean
-    uploadedAt?: boolean
+    mimetype?: boolean
+    size?: boolean
+    category?: boolean
+    createdAt?: boolean
     case?: boolean | CaseDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["uploadedFile"]>
 
   export type UploadedFileSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     caseId?: boolean
-    fileName?: boolean
-    originalName?: boolean
-    fileSize?: boolean
-    mimeType?: boolean
-    category?: boolean
+    filename?: boolean
     s3Key?: boolean
-    uploadedAt?: boolean
+    mimetype?: boolean
+    size?: boolean
+    category?: boolean
+    createdAt?: boolean
     case?: boolean | CaseDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["uploadedFile"]>
 
   export type UploadedFileSelectScalar = {
     id?: boolean
     caseId?: boolean
-    fileName?: boolean
-    originalName?: boolean
-    fileSize?: boolean
-    mimeType?: boolean
-    category?: boolean
+    filename?: boolean
     s3Key?: boolean
-    uploadedAt?: boolean
+    mimetype?: boolean
+    size?: boolean
+    category?: boolean
+    createdAt?: boolean
   }
 
-  export type UploadedFileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "caseId" | "fileName" | "originalName" | "fileSize" | "mimeType" | "category" | "s3Key" | "uploadedAt", ExtArgs["result"]["uploadedFile"]>
+  export type UploadedFileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "caseId" | "filename" | "s3Key" | "mimetype" | "size" | "category" | "createdAt", ExtArgs["result"]["uploadedFile"]>
   export type UploadedFileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     case?: boolean | CaseDefaultArgs<ExtArgs>
   }
@@ -4569,13 +6921,12 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       caseId: string
-      fileName: string
-      originalName: string
-      fileSize: number
-      mimeType: string
+      filename: string
+      s3Key: string
+      mimetype: string
+      size: number
       category: string
-      s3Key: string | null
-      uploadedAt: Date
+      createdAt: Date
     }, ExtArgs["result"]["uploadedFile"]>
     composites: {}
   }
@@ -5002,13 +7353,12 @@ export namespace Prisma {
   interface UploadedFileFieldRefs {
     readonly id: FieldRef<"UploadedFile", 'String'>
     readonly caseId: FieldRef<"UploadedFile", 'String'>
-    readonly fileName: FieldRef<"UploadedFile", 'String'>
-    readonly originalName: FieldRef<"UploadedFile", 'String'>
-    readonly fileSize: FieldRef<"UploadedFile", 'Int'>
-    readonly mimeType: FieldRef<"UploadedFile", 'String'>
-    readonly category: FieldRef<"UploadedFile", 'String'>
+    readonly filename: FieldRef<"UploadedFile", 'String'>
     readonly s3Key: FieldRef<"UploadedFile", 'String'>
-    readonly uploadedAt: FieldRef<"UploadedFile", 'DateTime'>
+    readonly mimetype: FieldRef<"UploadedFile", 'String'>
+    readonly size: FieldRef<"UploadedFile", 'Int'>
+    readonly category: FieldRef<"UploadedFile", 'String'>
+    readonly createdAt: FieldRef<"UploadedFile", 'DateTime'>
   }
     
 
@@ -5434,128 +7784,252 @@ export namespace Prisma {
   }
 
   export type MedicalProfessionalAvgAggregateOutputType = {
-    yearsExperience: number | null
+    yearsPractice: number | null
+    publications: number | null
+    score: number | null
+    billingRate: number | null
   }
 
   export type MedicalProfessionalSumAggregateOutputType = {
-    yearsExperience: number | null
+    yearsPractice: number | null
+    publications: number | null
+    score: number | null
+    billingRate: number | null
   }
 
   export type MedicalProfessionalMinAggregateOutputType = {
     id: string | null
-    professionalId: string | null
+    proNumber: string | null
     firstName: string | null
+    middleName: string | null
     lastName: string | null
+    dob: Date | null
     email: string | null
     phone: string | null
+    nationality: string | null
     licenseNumber: string | null
-    specialty: string | null
-    yearsExperience: number | null
-    qualifications: string | null
-    vettingStatus: string | null
-    vettedBy: string | null
-    vettedAt: Date | null
-    appliedAt: Date | null
+    licenseCountry: string | null
+    licenseExpiry: Date | null
+    vetted: boolean | null
+    level: $Enums.ProLevel | null
+    cvUrl: string | null
+    subspecialties: string | null
+    yearsPractice: number | null
+    publications: number | null
+    trialInvolved: boolean | null
+    leadership: string | null
+    societyMemberships: string | null
+    score: number | null
+    hashedPassword: string | null
+    twoFactorMethod: $Enums.TwoFactorMethod | null
+    twoFactorSecret: string | null
+    profileLastUpdated: Date | null
+    codeOfConductAcknowledged: Date | null
+    address: string | null
+    billingAddress: string | null
+    vatNumber: string | null
+    billingRate: number | null
+    createdAt: Date | null
     updatedAt: Date | null
   }
 
   export type MedicalProfessionalMaxAggregateOutputType = {
     id: string | null
-    professionalId: string | null
+    proNumber: string | null
     firstName: string | null
+    middleName: string | null
     lastName: string | null
+    dob: Date | null
     email: string | null
     phone: string | null
+    nationality: string | null
     licenseNumber: string | null
-    specialty: string | null
-    yearsExperience: number | null
-    qualifications: string | null
-    vettingStatus: string | null
-    vettedBy: string | null
-    vettedAt: Date | null
-    appliedAt: Date | null
+    licenseCountry: string | null
+    licenseExpiry: Date | null
+    vetted: boolean | null
+    level: $Enums.ProLevel | null
+    cvUrl: string | null
+    subspecialties: string | null
+    yearsPractice: number | null
+    publications: number | null
+    trialInvolved: boolean | null
+    leadership: string | null
+    societyMemberships: string | null
+    score: number | null
+    hashedPassword: string | null
+    twoFactorMethod: $Enums.TwoFactorMethod | null
+    twoFactorSecret: string | null
+    profileLastUpdated: Date | null
+    codeOfConductAcknowledged: Date | null
+    address: string | null
+    billingAddress: string | null
+    vatNumber: string | null
+    billingRate: number | null
+    createdAt: Date | null
     updatedAt: Date | null
   }
 
   export type MedicalProfessionalCountAggregateOutputType = {
     id: number
-    professionalId: number
+    proNumber: number
     firstName: number
+    middleName: number
     lastName: number
+    dob: number
     email: number
     phone: number
+    nationality: number
     licenseNumber: number
-    specialty: number
-    yearsExperience: number
-    qualifications: number
-    vettingStatus: number
-    vettedBy: number
-    vettedAt: number
-    appliedAt: number
+    licenseCountry: number
+    licenseExpiry: number
+    vetted: number
+    level: number
+    cvUrl: number
+    documents: number
+    subspecialties: number
+    yearsPractice: number
+    publications: number
+    trialInvolved: number
+    leadership: number
+    societyMemberships: number
+    score: number
+    hashedPassword: number
+    twoFactorMethod: number
+    twoFactorSecret: number
+    profileLastUpdated: number
+    codeOfConductAcknowledged: number
+    address: number
+    billingAddress: number
+    bankDetails: number
+    vatNumber: number
+    billingRate: number
+    createdAt: number
     updatedAt: number
     _all: number
   }
 
 
   export type MedicalProfessionalAvgAggregateInputType = {
-    yearsExperience?: true
+    yearsPractice?: true
+    publications?: true
+    score?: true
+    billingRate?: true
   }
 
   export type MedicalProfessionalSumAggregateInputType = {
-    yearsExperience?: true
+    yearsPractice?: true
+    publications?: true
+    score?: true
+    billingRate?: true
   }
 
   export type MedicalProfessionalMinAggregateInputType = {
     id?: true
-    professionalId?: true
+    proNumber?: true
     firstName?: true
+    middleName?: true
     lastName?: true
+    dob?: true
     email?: true
     phone?: true
+    nationality?: true
     licenseNumber?: true
-    specialty?: true
-    yearsExperience?: true
-    qualifications?: true
-    vettingStatus?: true
-    vettedBy?: true
-    vettedAt?: true
-    appliedAt?: true
+    licenseCountry?: true
+    licenseExpiry?: true
+    vetted?: true
+    level?: true
+    cvUrl?: true
+    subspecialties?: true
+    yearsPractice?: true
+    publications?: true
+    trialInvolved?: true
+    leadership?: true
+    societyMemberships?: true
+    score?: true
+    hashedPassword?: true
+    twoFactorMethod?: true
+    twoFactorSecret?: true
+    profileLastUpdated?: true
+    codeOfConductAcknowledged?: true
+    address?: true
+    billingAddress?: true
+    vatNumber?: true
+    billingRate?: true
+    createdAt?: true
     updatedAt?: true
   }
 
   export type MedicalProfessionalMaxAggregateInputType = {
     id?: true
-    professionalId?: true
+    proNumber?: true
     firstName?: true
+    middleName?: true
     lastName?: true
+    dob?: true
     email?: true
     phone?: true
+    nationality?: true
     licenseNumber?: true
-    specialty?: true
-    yearsExperience?: true
-    qualifications?: true
-    vettingStatus?: true
-    vettedBy?: true
-    vettedAt?: true
-    appliedAt?: true
+    licenseCountry?: true
+    licenseExpiry?: true
+    vetted?: true
+    level?: true
+    cvUrl?: true
+    subspecialties?: true
+    yearsPractice?: true
+    publications?: true
+    trialInvolved?: true
+    leadership?: true
+    societyMemberships?: true
+    score?: true
+    hashedPassword?: true
+    twoFactorMethod?: true
+    twoFactorSecret?: true
+    profileLastUpdated?: true
+    codeOfConductAcknowledged?: true
+    address?: true
+    billingAddress?: true
+    vatNumber?: true
+    billingRate?: true
+    createdAt?: true
     updatedAt?: true
   }
 
   export type MedicalProfessionalCountAggregateInputType = {
     id?: true
-    professionalId?: true
+    proNumber?: true
     firstName?: true
+    middleName?: true
     lastName?: true
+    dob?: true
     email?: true
     phone?: true
+    nationality?: true
     licenseNumber?: true
-    specialty?: true
-    yearsExperience?: true
-    qualifications?: true
-    vettingStatus?: true
-    vettedBy?: true
-    vettedAt?: true
-    appliedAt?: true
+    licenseCountry?: true
+    licenseExpiry?: true
+    vetted?: true
+    level?: true
+    cvUrl?: true
+    documents?: true
+    subspecialties?: true
+    yearsPractice?: true
+    publications?: true
+    trialInvolved?: true
+    leadership?: true
+    societyMemberships?: true
+    score?: true
+    hashedPassword?: true
+    twoFactorMethod?: true
+    twoFactorSecret?: true
+    profileLastUpdated?: true
+    codeOfConductAcknowledged?: true
+    address?: true
+    billingAddress?: true
+    bankDetails?: true
+    vatNumber?: true
+    billingRate?: true
+    createdAt?: true
     updatedAt?: true
     _all?: true
   }
@@ -5648,19 +8122,39 @@ export namespace Prisma {
 
   export type MedicalProfessionalGroupByOutputType = {
     id: string
-    professionalId: string
+    proNumber: string
     firstName: string
+    middleName: string | null
     lastName: string
+    dob: Date
     email: string
     phone: string | null
+    nationality: string | null
     licenseNumber: string
-    specialty: string
-    yearsExperience: number
-    qualifications: string
-    vettingStatus: string
-    vettedBy: string | null
-    vettedAt: Date | null
-    appliedAt: Date
+    licenseCountry: string
+    licenseExpiry: Date
+    vetted: boolean
+    level: $Enums.ProLevel
+    cvUrl: string | null
+    documents: JsonValue | null
+    subspecialties: string | null
+    yearsPractice: number
+    publications: number
+    trialInvolved: boolean
+    leadership: string | null
+    societyMemberships: string | null
+    score: number | null
+    hashedPassword: string | null
+    twoFactorMethod: $Enums.TwoFactorMethod
+    twoFactorSecret: string | null
+    profileLastUpdated: Date | null
+    codeOfConductAcknowledged: Date | null
+    address: string | null
+    billingAddress: string | null
+    bankDetails: JsonValue | null
+    vatNumber: string | null
+    billingRate: number | null
+    createdAt: Date
     updatedAt: Date
     _count: MedicalProfessionalCountAggregateOutputType | null
     _avg: MedicalProfessionalAvgAggregateOutputType | null
@@ -5685,87 +8179,167 @@ export namespace Prisma {
 
   export type MedicalProfessionalSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    professionalId?: boolean
+    proNumber?: boolean
     firstName?: boolean
+    middleName?: boolean
     lastName?: boolean
+    dob?: boolean
     email?: boolean
     phone?: boolean
+    nationality?: boolean
     licenseNumber?: boolean
-    specialty?: boolean
-    yearsExperience?: boolean
-    qualifications?: boolean
-    vettingStatus?: boolean
-    vettedBy?: boolean
-    vettedAt?: boolean
-    appliedAt?: boolean
+    licenseCountry?: boolean
+    licenseExpiry?: boolean
+    vetted?: boolean
+    level?: boolean
+    cvUrl?: boolean
+    documents?: boolean
+    subspecialties?: boolean
+    yearsPractice?: boolean
+    publications?: boolean
+    trialInvolved?: boolean
+    leadership?: boolean
+    societyMemberships?: boolean
+    score?: boolean
+    hashedPassword?: boolean
+    twoFactorMethod?: boolean
+    twoFactorSecret?: boolean
+    profileLastUpdated?: boolean
+    codeOfConductAcknowledged?: boolean
+    address?: boolean
+    billingAddress?: boolean
+    bankDetails?: boolean
+    vatNumber?: boolean
+    billingRate?: boolean
+    createdAt?: boolean
     updatedAt?: boolean
     caseAssignments?: boolean | MedicalProfessional$caseAssignmentsArgs<ExtArgs>
-    primaryOpinions?: boolean | MedicalProfessional$primaryOpinionsArgs<ExtArgs>
-    reviewedOpinions?: boolean | MedicalProfessional$reviewedOpinionsArgs<ExtArgs>
-    payments?: boolean | MedicalProfessional$paymentsArgs<ExtArgs>
+    medicalOpinions?: boolean | MedicalProfessional$medicalOpinionsArgs<ExtArgs>
+    professionalPayments?: boolean | MedicalProfessional$professionalPaymentsArgs<ExtArgs>
+    professionalSessions?: boolean | MedicalProfessional$professionalSessionsArgs<ExtArgs>
     _count?: boolean | MedicalProfessionalCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["medicalProfessional"]>
 
   export type MedicalProfessionalSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    professionalId?: boolean
+    proNumber?: boolean
     firstName?: boolean
+    middleName?: boolean
     lastName?: boolean
+    dob?: boolean
     email?: boolean
     phone?: boolean
+    nationality?: boolean
     licenseNumber?: boolean
-    specialty?: boolean
-    yearsExperience?: boolean
-    qualifications?: boolean
-    vettingStatus?: boolean
-    vettedBy?: boolean
-    vettedAt?: boolean
-    appliedAt?: boolean
+    licenseCountry?: boolean
+    licenseExpiry?: boolean
+    vetted?: boolean
+    level?: boolean
+    cvUrl?: boolean
+    documents?: boolean
+    subspecialties?: boolean
+    yearsPractice?: boolean
+    publications?: boolean
+    trialInvolved?: boolean
+    leadership?: boolean
+    societyMemberships?: boolean
+    score?: boolean
+    hashedPassword?: boolean
+    twoFactorMethod?: boolean
+    twoFactorSecret?: boolean
+    profileLastUpdated?: boolean
+    codeOfConductAcknowledged?: boolean
+    address?: boolean
+    billingAddress?: boolean
+    bankDetails?: boolean
+    vatNumber?: boolean
+    billingRate?: boolean
+    createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["medicalProfessional"]>
 
   export type MedicalProfessionalSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    professionalId?: boolean
+    proNumber?: boolean
     firstName?: boolean
+    middleName?: boolean
     lastName?: boolean
+    dob?: boolean
     email?: boolean
     phone?: boolean
+    nationality?: boolean
     licenseNumber?: boolean
-    specialty?: boolean
-    yearsExperience?: boolean
-    qualifications?: boolean
-    vettingStatus?: boolean
-    vettedBy?: boolean
-    vettedAt?: boolean
-    appliedAt?: boolean
+    licenseCountry?: boolean
+    licenseExpiry?: boolean
+    vetted?: boolean
+    level?: boolean
+    cvUrl?: boolean
+    documents?: boolean
+    subspecialties?: boolean
+    yearsPractice?: boolean
+    publications?: boolean
+    trialInvolved?: boolean
+    leadership?: boolean
+    societyMemberships?: boolean
+    score?: boolean
+    hashedPassword?: boolean
+    twoFactorMethod?: boolean
+    twoFactorSecret?: boolean
+    profileLastUpdated?: boolean
+    codeOfConductAcknowledged?: boolean
+    address?: boolean
+    billingAddress?: boolean
+    bankDetails?: boolean
+    vatNumber?: boolean
+    billingRate?: boolean
+    createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["medicalProfessional"]>
 
   export type MedicalProfessionalSelectScalar = {
     id?: boolean
-    professionalId?: boolean
+    proNumber?: boolean
     firstName?: boolean
+    middleName?: boolean
     lastName?: boolean
+    dob?: boolean
     email?: boolean
     phone?: boolean
+    nationality?: boolean
     licenseNumber?: boolean
-    specialty?: boolean
-    yearsExperience?: boolean
-    qualifications?: boolean
-    vettingStatus?: boolean
-    vettedBy?: boolean
-    vettedAt?: boolean
-    appliedAt?: boolean
+    licenseCountry?: boolean
+    licenseExpiry?: boolean
+    vetted?: boolean
+    level?: boolean
+    cvUrl?: boolean
+    documents?: boolean
+    subspecialties?: boolean
+    yearsPractice?: boolean
+    publications?: boolean
+    trialInvolved?: boolean
+    leadership?: boolean
+    societyMemberships?: boolean
+    score?: boolean
+    hashedPassword?: boolean
+    twoFactorMethod?: boolean
+    twoFactorSecret?: boolean
+    profileLastUpdated?: boolean
+    codeOfConductAcknowledged?: boolean
+    address?: boolean
+    billingAddress?: boolean
+    bankDetails?: boolean
+    vatNumber?: boolean
+    billingRate?: boolean
+    createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type MedicalProfessionalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "professionalId" | "firstName" | "lastName" | "email" | "phone" | "licenseNumber" | "specialty" | "yearsExperience" | "qualifications" | "vettingStatus" | "vettedBy" | "vettedAt" | "appliedAt" | "updatedAt", ExtArgs["result"]["medicalProfessional"]>
+  export type MedicalProfessionalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "proNumber" | "firstName" | "middleName" | "lastName" | "dob" | "email" | "phone" | "nationality" | "licenseNumber" | "licenseCountry" | "licenseExpiry" | "vetted" | "level" | "cvUrl" | "documents" | "subspecialties" | "yearsPractice" | "publications" | "trialInvolved" | "leadership" | "societyMemberships" | "score" | "hashedPassword" | "twoFactorMethod" | "twoFactorSecret" | "profileLastUpdated" | "codeOfConductAcknowledged" | "address" | "billingAddress" | "bankDetails" | "vatNumber" | "billingRate" | "createdAt" | "updatedAt", ExtArgs["result"]["medicalProfessional"]>
   export type MedicalProfessionalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     caseAssignments?: boolean | MedicalProfessional$caseAssignmentsArgs<ExtArgs>
-    primaryOpinions?: boolean | MedicalProfessional$primaryOpinionsArgs<ExtArgs>
-    reviewedOpinions?: boolean | MedicalProfessional$reviewedOpinionsArgs<ExtArgs>
-    payments?: boolean | MedicalProfessional$paymentsArgs<ExtArgs>
+    medicalOpinions?: boolean | MedicalProfessional$medicalOpinionsArgs<ExtArgs>
+    professionalPayments?: boolean | MedicalProfessional$professionalPaymentsArgs<ExtArgs>
+    professionalSessions?: boolean | MedicalProfessional$professionalSessionsArgs<ExtArgs>
     _count?: boolean | MedicalProfessionalCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type MedicalProfessionalIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -5775,25 +8349,45 @@ export namespace Prisma {
     name: "MedicalProfessional"
     objects: {
       caseAssignments: Prisma.$CaseAssignmentPayload<ExtArgs>[]
-      primaryOpinions: Prisma.$MedicalOpinionPayload<ExtArgs>[]
-      reviewedOpinions: Prisma.$MedicalOpinionPayload<ExtArgs>[]
-      payments: Prisma.$ProfessionalPaymentPayload<ExtArgs>[]
+      medicalOpinions: Prisma.$MedicalOpinionPayload<ExtArgs>[]
+      professionalPayments: Prisma.$ProfessionalPaymentPayload<ExtArgs>[]
+      professionalSessions: Prisma.$ProfessionalSessionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      professionalId: string
+      proNumber: string
       firstName: string
+      middleName: string | null
       lastName: string
+      dob: Date
       email: string
       phone: string | null
+      nationality: string | null
       licenseNumber: string
-      specialty: string
-      yearsExperience: number
-      qualifications: string
-      vettingStatus: string
-      vettedBy: string | null
-      vettedAt: Date | null
-      appliedAt: Date
+      licenseCountry: string
+      licenseExpiry: Date
+      vetted: boolean
+      level: $Enums.ProLevel
+      cvUrl: string | null
+      documents: Prisma.JsonValue | null
+      subspecialties: string | null
+      yearsPractice: number
+      publications: number
+      trialInvolved: boolean
+      leadership: string | null
+      societyMemberships: string | null
+      score: number | null
+      hashedPassword: string | null
+      twoFactorMethod: $Enums.TwoFactorMethod
+      twoFactorSecret: string | null
+      profileLastUpdated: Date | null
+      codeOfConductAcknowledged: Date | null
+      address: string | null
+      billingAddress: string | null
+      bankDetails: Prisma.JsonValue | null
+      vatNumber: string | null
+      billingRate: number | null
+      createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["medicalProfessional"]>
     composites: {}
@@ -6190,9 +8784,9 @@ export namespace Prisma {
   export interface Prisma__MedicalProfessionalClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     caseAssignments<T extends MedicalProfessional$caseAssignmentsArgs<ExtArgs> = {}>(args?: Subset<T, MedicalProfessional$caseAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CaseAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    primaryOpinions<T extends MedicalProfessional$primaryOpinionsArgs<ExtArgs> = {}>(args?: Subset<T, MedicalProfessional$primaryOpinionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MedicalOpinionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    reviewedOpinions<T extends MedicalProfessional$reviewedOpinionsArgs<ExtArgs> = {}>(args?: Subset<T, MedicalProfessional$reviewedOpinionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MedicalOpinionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    payments<T extends MedicalProfessional$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, MedicalProfessional$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProfessionalPaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    medicalOpinions<T extends MedicalProfessional$medicalOpinionsArgs<ExtArgs> = {}>(args?: Subset<T, MedicalProfessional$medicalOpinionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MedicalOpinionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    professionalPayments<T extends MedicalProfessional$professionalPaymentsArgs<ExtArgs> = {}>(args?: Subset<T, MedicalProfessional$professionalPaymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProfessionalPaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    professionalSessions<T extends MedicalProfessional$professionalSessionsArgs<ExtArgs> = {}>(args?: Subset<T, MedicalProfessional$professionalSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProfessionalSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6223,19 +8817,39 @@ export namespace Prisma {
    */
   interface MedicalProfessionalFieldRefs {
     readonly id: FieldRef<"MedicalProfessional", 'String'>
-    readonly professionalId: FieldRef<"MedicalProfessional", 'String'>
+    readonly proNumber: FieldRef<"MedicalProfessional", 'String'>
     readonly firstName: FieldRef<"MedicalProfessional", 'String'>
+    readonly middleName: FieldRef<"MedicalProfessional", 'String'>
     readonly lastName: FieldRef<"MedicalProfessional", 'String'>
+    readonly dob: FieldRef<"MedicalProfessional", 'DateTime'>
     readonly email: FieldRef<"MedicalProfessional", 'String'>
     readonly phone: FieldRef<"MedicalProfessional", 'String'>
+    readonly nationality: FieldRef<"MedicalProfessional", 'String'>
     readonly licenseNumber: FieldRef<"MedicalProfessional", 'String'>
-    readonly specialty: FieldRef<"MedicalProfessional", 'String'>
-    readonly yearsExperience: FieldRef<"MedicalProfessional", 'Int'>
-    readonly qualifications: FieldRef<"MedicalProfessional", 'String'>
-    readonly vettingStatus: FieldRef<"MedicalProfessional", 'String'>
-    readonly vettedBy: FieldRef<"MedicalProfessional", 'String'>
-    readonly vettedAt: FieldRef<"MedicalProfessional", 'DateTime'>
-    readonly appliedAt: FieldRef<"MedicalProfessional", 'DateTime'>
+    readonly licenseCountry: FieldRef<"MedicalProfessional", 'String'>
+    readonly licenseExpiry: FieldRef<"MedicalProfessional", 'DateTime'>
+    readonly vetted: FieldRef<"MedicalProfessional", 'Boolean'>
+    readonly level: FieldRef<"MedicalProfessional", 'ProLevel'>
+    readonly cvUrl: FieldRef<"MedicalProfessional", 'String'>
+    readonly documents: FieldRef<"MedicalProfessional", 'Json'>
+    readonly subspecialties: FieldRef<"MedicalProfessional", 'String'>
+    readonly yearsPractice: FieldRef<"MedicalProfessional", 'Int'>
+    readonly publications: FieldRef<"MedicalProfessional", 'Int'>
+    readonly trialInvolved: FieldRef<"MedicalProfessional", 'Boolean'>
+    readonly leadership: FieldRef<"MedicalProfessional", 'String'>
+    readonly societyMemberships: FieldRef<"MedicalProfessional", 'String'>
+    readonly score: FieldRef<"MedicalProfessional", 'Int'>
+    readonly hashedPassword: FieldRef<"MedicalProfessional", 'String'>
+    readonly twoFactorMethod: FieldRef<"MedicalProfessional", 'TwoFactorMethod'>
+    readonly twoFactorSecret: FieldRef<"MedicalProfessional", 'String'>
+    readonly profileLastUpdated: FieldRef<"MedicalProfessional", 'DateTime'>
+    readonly codeOfConductAcknowledged: FieldRef<"MedicalProfessional", 'DateTime'>
+    readonly address: FieldRef<"MedicalProfessional", 'String'>
+    readonly billingAddress: FieldRef<"MedicalProfessional", 'String'>
+    readonly bankDetails: FieldRef<"MedicalProfessional", 'Json'>
+    readonly vatNumber: FieldRef<"MedicalProfessional", 'String'>
+    readonly billingRate: FieldRef<"MedicalProfessional", 'Float'>
+    readonly createdAt: FieldRef<"MedicalProfessional", 'DateTime'>
     readonly updatedAt: FieldRef<"MedicalProfessional", 'DateTime'>
   }
     
@@ -6647,9 +9261,9 @@ export namespace Prisma {
   }
 
   /**
-   * MedicalProfessional.primaryOpinions
+   * MedicalProfessional.medicalOpinions
    */
-  export type MedicalProfessional$primaryOpinionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type MedicalProfessional$medicalOpinionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the MedicalOpinion
      */
@@ -6671,33 +9285,9 @@ export namespace Prisma {
   }
 
   /**
-   * MedicalProfessional.reviewedOpinions
+   * MedicalProfessional.professionalPayments
    */
-  export type MedicalProfessional$reviewedOpinionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MedicalOpinion
-     */
-    select?: MedicalOpinionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the MedicalOpinion
-     */
-    omit?: MedicalOpinionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MedicalOpinionInclude<ExtArgs> | null
-    where?: MedicalOpinionWhereInput
-    orderBy?: MedicalOpinionOrderByWithRelationInput | MedicalOpinionOrderByWithRelationInput[]
-    cursor?: MedicalOpinionWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: MedicalOpinionScalarFieldEnum | MedicalOpinionScalarFieldEnum[]
-  }
-
-  /**
-   * MedicalProfessional.payments
-   */
-  export type MedicalProfessional$paymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type MedicalProfessional$professionalPaymentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the ProfessionalPayment
      */
@@ -6716,6 +9306,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProfessionalPaymentScalarFieldEnum | ProfessionalPaymentScalarFieldEnum[]
+  }
+
+  /**
+   * MedicalProfessional.professionalSessions
+   */
+  export type MedicalProfessional$professionalSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProfessionalSession
+     */
+    select?: ProfessionalSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProfessionalSession
+     */
+    omit?: ProfessionalSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProfessionalSessionInclude<ExtArgs> | null
+    where?: ProfessionalSessionWhereInput
+    orderBy?: ProfessionalSessionOrderByWithRelationInput | ProfessionalSessionOrderByWithRelationInput[]
+    cursor?: ProfessionalSessionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProfessionalSessionScalarFieldEnum | ProfessionalSessionScalarFieldEnum[]
   }
 
   /**
@@ -6738,6 +9352,1075 @@ export namespace Prisma {
 
 
   /**
+   * Model ProfessionalSession
+   */
+
+  export type AggregateProfessionalSession = {
+    _count: ProfessionalSessionCountAggregateOutputType | null
+    _min: ProfessionalSessionMinAggregateOutputType | null
+    _max: ProfessionalSessionMaxAggregateOutputType | null
+  }
+
+  export type ProfessionalSessionMinAggregateOutputType = {
+    id: string | null
+    professionalId: string | null
+    sessionToken: string | null
+    twoFactorVerified: boolean | null
+    expiresAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type ProfessionalSessionMaxAggregateOutputType = {
+    id: string | null
+    professionalId: string | null
+    sessionToken: string | null
+    twoFactorVerified: boolean | null
+    expiresAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type ProfessionalSessionCountAggregateOutputType = {
+    id: number
+    professionalId: number
+    sessionToken: number
+    twoFactorVerified: number
+    expiresAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ProfessionalSessionMinAggregateInputType = {
+    id?: true
+    professionalId?: true
+    sessionToken?: true
+    twoFactorVerified?: true
+    expiresAt?: true
+    createdAt?: true
+  }
+
+  export type ProfessionalSessionMaxAggregateInputType = {
+    id?: true
+    professionalId?: true
+    sessionToken?: true
+    twoFactorVerified?: true
+    expiresAt?: true
+    createdAt?: true
+  }
+
+  export type ProfessionalSessionCountAggregateInputType = {
+    id?: true
+    professionalId?: true
+    sessionToken?: true
+    twoFactorVerified?: true
+    expiresAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ProfessionalSessionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProfessionalSession to aggregate.
+     */
+    where?: ProfessionalSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProfessionalSessions to fetch.
+     */
+    orderBy?: ProfessionalSessionOrderByWithRelationInput | ProfessionalSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProfessionalSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProfessionalSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProfessionalSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProfessionalSessions
+    **/
+    _count?: true | ProfessionalSessionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProfessionalSessionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProfessionalSessionMaxAggregateInputType
+  }
+
+  export type GetProfessionalSessionAggregateType<T extends ProfessionalSessionAggregateArgs> = {
+        [P in keyof T & keyof AggregateProfessionalSession]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProfessionalSession[P]>
+      : GetScalarType<T[P], AggregateProfessionalSession[P]>
+  }
+
+
+
+
+  export type ProfessionalSessionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProfessionalSessionWhereInput
+    orderBy?: ProfessionalSessionOrderByWithAggregationInput | ProfessionalSessionOrderByWithAggregationInput[]
+    by: ProfessionalSessionScalarFieldEnum[] | ProfessionalSessionScalarFieldEnum
+    having?: ProfessionalSessionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProfessionalSessionCountAggregateInputType | true
+    _min?: ProfessionalSessionMinAggregateInputType
+    _max?: ProfessionalSessionMaxAggregateInputType
+  }
+
+  export type ProfessionalSessionGroupByOutputType = {
+    id: string
+    professionalId: string
+    sessionToken: string
+    twoFactorVerified: boolean
+    expiresAt: Date
+    createdAt: Date
+    _count: ProfessionalSessionCountAggregateOutputType | null
+    _min: ProfessionalSessionMinAggregateOutputType | null
+    _max: ProfessionalSessionMaxAggregateOutputType | null
+  }
+
+  type GetProfessionalSessionGroupByPayload<T extends ProfessionalSessionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProfessionalSessionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProfessionalSessionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProfessionalSessionGroupByOutputType[P]>
+            : GetScalarType<T[P], ProfessionalSessionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProfessionalSessionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    professionalId?: boolean
+    sessionToken?: boolean
+    twoFactorVerified?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["professionalSession"]>
+
+  export type ProfessionalSessionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    professionalId?: boolean
+    sessionToken?: boolean
+    twoFactorVerified?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["professionalSession"]>
+
+  export type ProfessionalSessionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    professionalId?: boolean
+    sessionToken?: boolean
+    twoFactorVerified?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["professionalSession"]>
+
+  export type ProfessionalSessionSelectScalar = {
+    id?: boolean
+    professionalId?: boolean
+    sessionToken?: boolean
+    twoFactorVerified?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type ProfessionalSessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "professionalId" | "sessionToken" | "twoFactorVerified" | "expiresAt" | "createdAt", ExtArgs["result"]["professionalSession"]>
+  export type ProfessionalSessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
+  }
+  export type ProfessionalSessionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
+  }
+  export type ProfessionalSessionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
+  }
+
+  export type $ProfessionalSessionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProfessionalSession"
+    objects: {
+      professional: Prisma.$MedicalProfessionalPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      professionalId: string
+      sessionToken: string
+      twoFactorVerified: boolean
+      expiresAt: Date
+      createdAt: Date
+    }, ExtArgs["result"]["professionalSession"]>
+    composites: {}
+  }
+
+  type ProfessionalSessionGetPayload<S extends boolean | null | undefined | ProfessionalSessionDefaultArgs> = $Result.GetResult<Prisma.$ProfessionalSessionPayload, S>
+
+  type ProfessionalSessionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProfessionalSessionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProfessionalSessionCountAggregateInputType | true
+    }
+
+  export interface ProfessionalSessionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProfessionalSession'], meta: { name: 'ProfessionalSession' } }
+    /**
+     * Find zero or one ProfessionalSession that matches the filter.
+     * @param {ProfessionalSessionFindUniqueArgs} args - Arguments to find a ProfessionalSession
+     * @example
+     * // Get one ProfessionalSession
+     * const professionalSession = await prisma.professionalSession.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProfessionalSessionFindUniqueArgs>(args: SelectSubset<T, ProfessionalSessionFindUniqueArgs<ExtArgs>>): Prisma__ProfessionalSessionClient<$Result.GetResult<Prisma.$ProfessionalSessionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProfessionalSession that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProfessionalSessionFindUniqueOrThrowArgs} args - Arguments to find a ProfessionalSession
+     * @example
+     * // Get one ProfessionalSession
+     * const professionalSession = await prisma.professionalSession.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProfessionalSessionFindUniqueOrThrowArgs>(args: SelectSubset<T, ProfessionalSessionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProfessionalSessionClient<$Result.GetResult<Prisma.$ProfessionalSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProfessionalSession that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProfessionalSessionFindFirstArgs} args - Arguments to find a ProfessionalSession
+     * @example
+     * // Get one ProfessionalSession
+     * const professionalSession = await prisma.professionalSession.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProfessionalSessionFindFirstArgs>(args?: SelectSubset<T, ProfessionalSessionFindFirstArgs<ExtArgs>>): Prisma__ProfessionalSessionClient<$Result.GetResult<Prisma.$ProfessionalSessionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProfessionalSession that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProfessionalSessionFindFirstOrThrowArgs} args - Arguments to find a ProfessionalSession
+     * @example
+     * // Get one ProfessionalSession
+     * const professionalSession = await prisma.professionalSession.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProfessionalSessionFindFirstOrThrowArgs>(args?: SelectSubset<T, ProfessionalSessionFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProfessionalSessionClient<$Result.GetResult<Prisma.$ProfessionalSessionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProfessionalSessions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProfessionalSessionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProfessionalSessions
+     * const professionalSessions = await prisma.professionalSession.findMany()
+     * 
+     * // Get first 10 ProfessionalSessions
+     * const professionalSessions = await prisma.professionalSession.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const professionalSessionWithIdOnly = await prisma.professionalSession.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProfessionalSessionFindManyArgs>(args?: SelectSubset<T, ProfessionalSessionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProfessionalSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProfessionalSession.
+     * @param {ProfessionalSessionCreateArgs} args - Arguments to create a ProfessionalSession.
+     * @example
+     * // Create one ProfessionalSession
+     * const ProfessionalSession = await prisma.professionalSession.create({
+     *   data: {
+     *     // ... data to create a ProfessionalSession
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProfessionalSessionCreateArgs>(args: SelectSubset<T, ProfessionalSessionCreateArgs<ExtArgs>>): Prisma__ProfessionalSessionClient<$Result.GetResult<Prisma.$ProfessionalSessionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProfessionalSessions.
+     * @param {ProfessionalSessionCreateManyArgs} args - Arguments to create many ProfessionalSessions.
+     * @example
+     * // Create many ProfessionalSessions
+     * const professionalSession = await prisma.professionalSession.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProfessionalSessionCreateManyArgs>(args?: SelectSubset<T, ProfessionalSessionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProfessionalSessions and returns the data saved in the database.
+     * @param {ProfessionalSessionCreateManyAndReturnArgs} args - Arguments to create many ProfessionalSessions.
+     * @example
+     * // Create many ProfessionalSessions
+     * const professionalSession = await prisma.professionalSession.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProfessionalSessions and only return the `id`
+     * const professionalSessionWithIdOnly = await prisma.professionalSession.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProfessionalSessionCreateManyAndReturnArgs>(args?: SelectSubset<T, ProfessionalSessionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProfessionalSessionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ProfessionalSession.
+     * @param {ProfessionalSessionDeleteArgs} args - Arguments to delete one ProfessionalSession.
+     * @example
+     * // Delete one ProfessionalSession
+     * const ProfessionalSession = await prisma.professionalSession.delete({
+     *   where: {
+     *     // ... filter to delete one ProfessionalSession
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProfessionalSessionDeleteArgs>(args: SelectSubset<T, ProfessionalSessionDeleteArgs<ExtArgs>>): Prisma__ProfessionalSessionClient<$Result.GetResult<Prisma.$ProfessionalSessionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProfessionalSession.
+     * @param {ProfessionalSessionUpdateArgs} args - Arguments to update one ProfessionalSession.
+     * @example
+     * // Update one ProfessionalSession
+     * const professionalSession = await prisma.professionalSession.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProfessionalSessionUpdateArgs>(args: SelectSubset<T, ProfessionalSessionUpdateArgs<ExtArgs>>): Prisma__ProfessionalSessionClient<$Result.GetResult<Prisma.$ProfessionalSessionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProfessionalSessions.
+     * @param {ProfessionalSessionDeleteManyArgs} args - Arguments to filter ProfessionalSessions to delete.
+     * @example
+     * // Delete a few ProfessionalSessions
+     * const { count } = await prisma.professionalSession.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProfessionalSessionDeleteManyArgs>(args?: SelectSubset<T, ProfessionalSessionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProfessionalSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProfessionalSessionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProfessionalSessions
+     * const professionalSession = await prisma.professionalSession.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProfessionalSessionUpdateManyArgs>(args: SelectSubset<T, ProfessionalSessionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProfessionalSessions and returns the data updated in the database.
+     * @param {ProfessionalSessionUpdateManyAndReturnArgs} args - Arguments to update many ProfessionalSessions.
+     * @example
+     * // Update many ProfessionalSessions
+     * const professionalSession = await prisma.professionalSession.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ProfessionalSessions and only return the `id`
+     * const professionalSessionWithIdOnly = await prisma.professionalSession.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ProfessionalSessionUpdateManyAndReturnArgs>(args: SelectSubset<T, ProfessionalSessionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProfessionalSessionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ProfessionalSession.
+     * @param {ProfessionalSessionUpsertArgs} args - Arguments to update or create a ProfessionalSession.
+     * @example
+     * // Update or create a ProfessionalSession
+     * const professionalSession = await prisma.professionalSession.upsert({
+     *   create: {
+     *     // ... data to create a ProfessionalSession
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProfessionalSession we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProfessionalSessionUpsertArgs>(args: SelectSubset<T, ProfessionalSessionUpsertArgs<ExtArgs>>): Prisma__ProfessionalSessionClient<$Result.GetResult<Prisma.$ProfessionalSessionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ProfessionalSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProfessionalSessionCountArgs} args - Arguments to filter ProfessionalSessions to count.
+     * @example
+     * // Count the number of ProfessionalSessions
+     * const count = await prisma.professionalSession.count({
+     *   where: {
+     *     // ... the filter for the ProfessionalSessions we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProfessionalSessionCountArgs>(
+      args?: Subset<T, ProfessionalSessionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProfessionalSessionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProfessionalSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProfessionalSessionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProfessionalSessionAggregateArgs>(args: Subset<T, ProfessionalSessionAggregateArgs>): Prisma.PrismaPromise<GetProfessionalSessionAggregateType<T>>
+
+    /**
+     * Group by ProfessionalSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProfessionalSessionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProfessionalSessionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProfessionalSessionGroupByArgs['orderBy'] }
+        : { orderBy?: ProfessionalSessionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProfessionalSessionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProfessionalSessionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProfessionalSession model
+   */
+  readonly fields: ProfessionalSessionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProfessionalSession.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProfessionalSessionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    professional<T extends MedicalProfessionalDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MedicalProfessionalDefaultArgs<ExtArgs>>): Prisma__MedicalProfessionalClient<$Result.GetResult<Prisma.$MedicalProfessionalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProfessionalSession model
+   */
+  interface ProfessionalSessionFieldRefs {
+    readonly id: FieldRef<"ProfessionalSession", 'String'>
+    readonly professionalId: FieldRef<"ProfessionalSession", 'String'>
+    readonly sessionToken: FieldRef<"ProfessionalSession", 'String'>
+    readonly twoFactorVerified: FieldRef<"ProfessionalSession", 'Boolean'>
+    readonly expiresAt: FieldRef<"ProfessionalSession", 'DateTime'>
+    readonly createdAt: FieldRef<"ProfessionalSession", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProfessionalSession findUnique
+   */
+  export type ProfessionalSessionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProfessionalSession
+     */
+    select?: ProfessionalSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProfessionalSession
+     */
+    omit?: ProfessionalSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProfessionalSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which ProfessionalSession to fetch.
+     */
+    where: ProfessionalSessionWhereUniqueInput
+  }
+
+  /**
+   * ProfessionalSession findUniqueOrThrow
+   */
+  export type ProfessionalSessionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProfessionalSession
+     */
+    select?: ProfessionalSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProfessionalSession
+     */
+    omit?: ProfessionalSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProfessionalSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which ProfessionalSession to fetch.
+     */
+    where: ProfessionalSessionWhereUniqueInput
+  }
+
+  /**
+   * ProfessionalSession findFirst
+   */
+  export type ProfessionalSessionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProfessionalSession
+     */
+    select?: ProfessionalSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProfessionalSession
+     */
+    omit?: ProfessionalSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProfessionalSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which ProfessionalSession to fetch.
+     */
+    where?: ProfessionalSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProfessionalSessions to fetch.
+     */
+    orderBy?: ProfessionalSessionOrderByWithRelationInput | ProfessionalSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProfessionalSessions.
+     */
+    cursor?: ProfessionalSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProfessionalSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProfessionalSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProfessionalSessions.
+     */
+    distinct?: ProfessionalSessionScalarFieldEnum | ProfessionalSessionScalarFieldEnum[]
+  }
+
+  /**
+   * ProfessionalSession findFirstOrThrow
+   */
+  export type ProfessionalSessionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProfessionalSession
+     */
+    select?: ProfessionalSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProfessionalSession
+     */
+    omit?: ProfessionalSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProfessionalSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which ProfessionalSession to fetch.
+     */
+    where?: ProfessionalSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProfessionalSessions to fetch.
+     */
+    orderBy?: ProfessionalSessionOrderByWithRelationInput | ProfessionalSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProfessionalSessions.
+     */
+    cursor?: ProfessionalSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProfessionalSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProfessionalSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProfessionalSessions.
+     */
+    distinct?: ProfessionalSessionScalarFieldEnum | ProfessionalSessionScalarFieldEnum[]
+  }
+
+  /**
+   * ProfessionalSession findMany
+   */
+  export type ProfessionalSessionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProfessionalSession
+     */
+    select?: ProfessionalSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProfessionalSession
+     */
+    omit?: ProfessionalSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProfessionalSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which ProfessionalSessions to fetch.
+     */
+    where?: ProfessionalSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProfessionalSessions to fetch.
+     */
+    orderBy?: ProfessionalSessionOrderByWithRelationInput | ProfessionalSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProfessionalSessions.
+     */
+    cursor?: ProfessionalSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProfessionalSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProfessionalSessions.
+     */
+    skip?: number
+    distinct?: ProfessionalSessionScalarFieldEnum | ProfessionalSessionScalarFieldEnum[]
+  }
+
+  /**
+   * ProfessionalSession create
+   */
+  export type ProfessionalSessionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProfessionalSession
+     */
+    select?: ProfessionalSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProfessionalSession
+     */
+    omit?: ProfessionalSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProfessionalSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ProfessionalSession.
+     */
+    data: XOR<ProfessionalSessionCreateInput, ProfessionalSessionUncheckedCreateInput>
+  }
+
+  /**
+   * ProfessionalSession createMany
+   */
+  export type ProfessionalSessionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProfessionalSessions.
+     */
+    data: ProfessionalSessionCreateManyInput | ProfessionalSessionCreateManyInput[]
+  }
+
+  /**
+   * ProfessionalSession createManyAndReturn
+   */
+  export type ProfessionalSessionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProfessionalSession
+     */
+    select?: ProfessionalSessionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProfessionalSession
+     */
+    omit?: ProfessionalSessionOmit<ExtArgs> | null
+    /**
+     * The data used to create many ProfessionalSessions.
+     */
+    data: ProfessionalSessionCreateManyInput | ProfessionalSessionCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProfessionalSessionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProfessionalSession update
+   */
+  export type ProfessionalSessionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProfessionalSession
+     */
+    select?: ProfessionalSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProfessionalSession
+     */
+    omit?: ProfessionalSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProfessionalSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ProfessionalSession.
+     */
+    data: XOR<ProfessionalSessionUpdateInput, ProfessionalSessionUncheckedUpdateInput>
+    /**
+     * Choose, which ProfessionalSession to update.
+     */
+    where: ProfessionalSessionWhereUniqueInput
+  }
+
+  /**
+   * ProfessionalSession updateMany
+   */
+  export type ProfessionalSessionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProfessionalSessions.
+     */
+    data: XOR<ProfessionalSessionUpdateManyMutationInput, ProfessionalSessionUncheckedUpdateManyInput>
+    /**
+     * Filter which ProfessionalSessions to update
+     */
+    where?: ProfessionalSessionWhereInput
+    /**
+     * Limit how many ProfessionalSessions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProfessionalSession updateManyAndReturn
+   */
+  export type ProfessionalSessionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProfessionalSession
+     */
+    select?: ProfessionalSessionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProfessionalSession
+     */
+    omit?: ProfessionalSessionOmit<ExtArgs> | null
+    /**
+     * The data used to update ProfessionalSessions.
+     */
+    data: XOR<ProfessionalSessionUpdateManyMutationInput, ProfessionalSessionUncheckedUpdateManyInput>
+    /**
+     * Filter which ProfessionalSessions to update
+     */
+    where?: ProfessionalSessionWhereInput
+    /**
+     * Limit how many ProfessionalSessions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProfessionalSessionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProfessionalSession upsert
+   */
+  export type ProfessionalSessionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProfessionalSession
+     */
+    select?: ProfessionalSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProfessionalSession
+     */
+    omit?: ProfessionalSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProfessionalSessionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ProfessionalSession to update in case it exists.
+     */
+    where: ProfessionalSessionWhereUniqueInput
+    /**
+     * In case the ProfessionalSession found by the `where` argument doesn't exist, create a new ProfessionalSession with this data.
+     */
+    create: XOR<ProfessionalSessionCreateInput, ProfessionalSessionUncheckedCreateInput>
+    /**
+     * In case the ProfessionalSession was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProfessionalSessionUpdateInput, ProfessionalSessionUncheckedUpdateInput>
+  }
+
+  /**
+   * ProfessionalSession delete
+   */
+  export type ProfessionalSessionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProfessionalSession
+     */
+    select?: ProfessionalSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProfessionalSession
+     */
+    omit?: ProfessionalSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProfessionalSessionInclude<ExtArgs> | null
+    /**
+     * Filter which ProfessionalSession to delete.
+     */
+    where: ProfessionalSessionWhereUniqueInput
+  }
+
+  /**
+   * ProfessionalSession deleteMany
+   */
+  export type ProfessionalSessionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProfessionalSessions to delete
+     */
+    where?: ProfessionalSessionWhereInput
+    /**
+     * Limit how many ProfessionalSessions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProfessionalSession without action
+   */
+  export type ProfessionalSessionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProfessionalSession
+     */
+    select?: ProfessionalSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProfessionalSession
+     */
+    omit?: ProfessionalSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProfessionalSessionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model CaseAssignment
    */
 
@@ -6751,10 +10434,8 @@ export namespace Prisma {
     id: string | null
     caseId: string | null
     professionalId: string | null
-    assignedBy: string | null
-    assignedAt: Date | null
     status: string | null
-    startedAt: Date | null
+    assignedAt: Date | null
     completedAt: Date | null
   }
 
@@ -6762,10 +10443,8 @@ export namespace Prisma {
     id: string | null
     caseId: string | null
     professionalId: string | null
-    assignedBy: string | null
-    assignedAt: Date | null
     status: string | null
-    startedAt: Date | null
+    assignedAt: Date | null
     completedAt: Date | null
   }
 
@@ -6773,10 +10452,8 @@ export namespace Prisma {
     id: number
     caseId: number
     professionalId: number
-    assignedBy: number
-    assignedAt: number
     status: number
-    startedAt: number
+    assignedAt: number
     completedAt: number
     _all: number
   }
@@ -6786,10 +10463,8 @@ export namespace Prisma {
     id?: true
     caseId?: true
     professionalId?: true
-    assignedBy?: true
-    assignedAt?: true
     status?: true
-    startedAt?: true
+    assignedAt?: true
     completedAt?: true
   }
 
@@ -6797,10 +10472,8 @@ export namespace Prisma {
     id?: true
     caseId?: true
     professionalId?: true
-    assignedBy?: true
-    assignedAt?: true
     status?: true
-    startedAt?: true
+    assignedAt?: true
     completedAt?: true
   }
 
@@ -6808,10 +10481,8 @@ export namespace Prisma {
     id?: true
     caseId?: true
     professionalId?: true
-    assignedBy?: true
-    assignedAt?: true
     status?: true
-    startedAt?: true
+    assignedAt?: true
     completedAt?: true
     _all?: true
   }
@@ -6892,10 +10563,8 @@ export namespace Prisma {
     id: string
     caseId: string
     professionalId: string
-    assignedBy: string
-    assignedAt: Date
     status: string
-    startedAt: Date | null
+    assignedAt: Date
     completedAt: Date | null
     _count: CaseAssignmentCountAggregateOutputType | null
     _min: CaseAssignmentMinAggregateOutputType | null
@@ -6920,10 +10589,8 @@ export namespace Prisma {
     id?: boolean
     caseId?: boolean
     professionalId?: boolean
-    assignedBy?: boolean
-    assignedAt?: boolean
     status?: boolean
-    startedAt?: boolean
+    assignedAt?: boolean
     completedAt?: boolean
     case?: boolean | CaseDefaultArgs<ExtArgs>
     professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
@@ -6933,10 +10600,8 @@ export namespace Prisma {
     id?: boolean
     caseId?: boolean
     professionalId?: boolean
-    assignedBy?: boolean
-    assignedAt?: boolean
     status?: boolean
-    startedAt?: boolean
+    assignedAt?: boolean
     completedAt?: boolean
     case?: boolean | CaseDefaultArgs<ExtArgs>
     professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
@@ -6946,10 +10611,8 @@ export namespace Prisma {
     id?: boolean
     caseId?: boolean
     professionalId?: boolean
-    assignedBy?: boolean
-    assignedAt?: boolean
     status?: boolean
-    startedAt?: boolean
+    assignedAt?: boolean
     completedAt?: boolean
     case?: boolean | CaseDefaultArgs<ExtArgs>
     professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
@@ -6959,14 +10622,12 @@ export namespace Prisma {
     id?: boolean
     caseId?: boolean
     professionalId?: boolean
-    assignedBy?: boolean
-    assignedAt?: boolean
     status?: boolean
-    startedAt?: boolean
+    assignedAt?: boolean
     completedAt?: boolean
   }
 
-  export type CaseAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "caseId" | "professionalId" | "assignedBy" | "assignedAt" | "status" | "startedAt" | "completedAt", ExtArgs["result"]["caseAssignment"]>
+  export type CaseAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "caseId" | "professionalId" | "status" | "assignedAt" | "completedAt", ExtArgs["result"]["caseAssignment"]>
   export type CaseAssignmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     case?: boolean | CaseDefaultArgs<ExtArgs>
     professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
@@ -6990,10 +10651,8 @@ export namespace Prisma {
       id: string
       caseId: string
       professionalId: string
-      assignedBy: string
-      assignedAt: Date
       status: string
-      startedAt: Date | null
+      assignedAt: Date
       completedAt: Date | null
     }, ExtArgs["result"]["caseAssignment"]>
     composites: {}
@@ -7423,10 +11082,8 @@ export namespace Prisma {
     readonly id: FieldRef<"CaseAssignment", 'String'>
     readonly caseId: FieldRef<"CaseAssignment", 'String'>
     readonly professionalId: FieldRef<"CaseAssignment", 'String'>
-    readonly assignedBy: FieldRef<"CaseAssignment", 'String'>
-    readonly assignedAt: FieldRef<"CaseAssignment", 'DateTime'>
     readonly status: FieldRef<"CaseAssignment", 'String'>
-    readonly startedAt: FieldRef<"CaseAssignment", 'DateTime'>
+    readonly assignedAt: FieldRef<"CaseAssignment", 'DateTime'>
     readonly completedAt: FieldRef<"CaseAssignment", 'DateTime'>
   }
     
@@ -7846,88 +11503,58 @@ export namespace Prisma {
 
   export type AggregateAIAnalysis = {
     _count: AIAnalysisCountAggregateOutputType | null
-    _avg: AIAnalysisAvgAggregateOutputType | null
-    _sum: AIAnalysisSumAggregateOutputType | null
     _min: AIAnalysisMinAggregateOutputType | null
     _max: AIAnalysisMaxAggregateOutputType | null
-  }
-
-  export type AIAnalysisAvgAggregateOutputType = {
-    confidence: number | null
-  }
-
-  export type AIAnalysisSumAggregateOutputType = {
-    confidence: number | null
   }
 
   export type AIAnalysisMinAggregateOutputType = {
     id: string | null
     caseId: string | null
     analysisType: string | null
-    findings: string | null
-    confidence: number | null
-    initiatedAt: Date | null
-    completedAt: Date | null
+    results: string | null
+    createdAt: Date | null
   }
 
   export type AIAnalysisMaxAggregateOutputType = {
     id: string | null
     caseId: string | null
     analysisType: string | null
-    findings: string | null
-    confidence: number | null
-    initiatedAt: Date | null
-    completedAt: Date | null
+    results: string | null
+    createdAt: Date | null
   }
 
   export type AIAnalysisCountAggregateOutputType = {
     id: number
     caseId: number
     analysisType: number
-    findings: number
-    confidence: number
-    initiatedAt: number
-    completedAt: number
+    results: number
+    createdAt: number
     _all: number
   }
 
-
-  export type AIAnalysisAvgAggregateInputType = {
-    confidence?: true
-  }
-
-  export type AIAnalysisSumAggregateInputType = {
-    confidence?: true
-  }
 
   export type AIAnalysisMinAggregateInputType = {
     id?: true
     caseId?: true
     analysisType?: true
-    findings?: true
-    confidence?: true
-    initiatedAt?: true
-    completedAt?: true
+    results?: true
+    createdAt?: true
   }
 
   export type AIAnalysisMaxAggregateInputType = {
     id?: true
     caseId?: true
     analysisType?: true
-    findings?: true
-    confidence?: true
-    initiatedAt?: true
-    completedAt?: true
+    results?: true
+    createdAt?: true
   }
 
   export type AIAnalysisCountAggregateInputType = {
     id?: true
     caseId?: true
     analysisType?: true
-    findings?: true
-    confidence?: true
-    initiatedAt?: true
-    completedAt?: true
+    results?: true
+    createdAt?: true
     _all?: true
   }
 
@@ -7969,18 +11596,6 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Select which fields to average
-    **/
-    _avg?: AIAnalysisAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: AIAnalysisSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
      * Select which fields to find the minimum value
     **/
     _min?: AIAnalysisMinAggregateInputType
@@ -8011,8 +11626,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: AIAnalysisCountAggregateInputType | true
-    _avg?: AIAnalysisAvgAggregateInputType
-    _sum?: AIAnalysisSumAggregateInputType
     _min?: AIAnalysisMinAggregateInputType
     _max?: AIAnalysisMaxAggregateInputType
   }
@@ -8021,13 +11634,9 @@ export namespace Prisma {
     id: string
     caseId: string
     analysisType: string
-    findings: string
-    confidence: number | null
-    initiatedAt: Date
-    completedAt: Date | null
+    results: string
+    createdAt: Date
     _count: AIAnalysisCountAggregateOutputType | null
-    _avg: AIAnalysisAvgAggregateOutputType | null
-    _sum: AIAnalysisSumAggregateOutputType | null
     _min: AIAnalysisMinAggregateOutputType | null
     _max: AIAnalysisMaxAggregateOutputType | null
   }
@@ -8050,10 +11659,8 @@ export namespace Prisma {
     id?: boolean
     caseId?: boolean
     analysisType?: boolean
-    findings?: boolean
-    confidence?: boolean
-    initiatedAt?: boolean
-    completedAt?: boolean
+    results?: boolean
+    createdAt?: boolean
     case?: boolean | CaseDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["aIAnalysis"]>
 
@@ -8061,10 +11668,8 @@ export namespace Prisma {
     id?: boolean
     caseId?: boolean
     analysisType?: boolean
-    findings?: boolean
-    confidence?: boolean
-    initiatedAt?: boolean
-    completedAt?: boolean
+    results?: boolean
+    createdAt?: boolean
     case?: boolean | CaseDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["aIAnalysis"]>
 
@@ -8072,10 +11677,8 @@ export namespace Prisma {
     id?: boolean
     caseId?: boolean
     analysisType?: boolean
-    findings?: boolean
-    confidence?: boolean
-    initiatedAt?: boolean
-    completedAt?: boolean
+    results?: boolean
+    createdAt?: boolean
     case?: boolean | CaseDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["aIAnalysis"]>
 
@@ -8083,13 +11686,11 @@ export namespace Prisma {
     id?: boolean
     caseId?: boolean
     analysisType?: boolean
-    findings?: boolean
-    confidence?: boolean
-    initiatedAt?: boolean
-    completedAt?: boolean
+    results?: boolean
+    createdAt?: boolean
   }
 
-  export type AIAnalysisOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "caseId" | "analysisType" | "findings" | "confidence" | "initiatedAt" | "completedAt", ExtArgs["result"]["aIAnalysis"]>
+  export type AIAnalysisOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "caseId" | "analysisType" | "results" | "createdAt", ExtArgs["result"]["aIAnalysis"]>
   export type AIAnalysisInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     case?: boolean | CaseDefaultArgs<ExtArgs>
   }
@@ -8109,10 +11710,8 @@ export namespace Prisma {
       id: string
       caseId: string
       analysisType: string
-      findings: string
-      confidence: number | null
-      initiatedAt: Date
-      completedAt: Date | null
+      results: string
+      createdAt: Date
     }, ExtArgs["result"]["aIAnalysis"]>
     composites: {}
   }
@@ -8540,10 +12139,8 @@ export namespace Prisma {
     readonly id: FieldRef<"AIAnalysis", 'String'>
     readonly caseId: FieldRef<"AIAnalysis", 'String'>
     readonly analysisType: FieldRef<"AIAnalysis", 'String'>
-    readonly findings: FieldRef<"AIAnalysis", 'String'>
-    readonly confidence: FieldRef<"AIAnalysis", 'Float'>
-    readonly initiatedAt: FieldRef<"AIAnalysis", 'DateTime'>
-    readonly completedAt: FieldRef<"AIAnalysis", 'DateTime'>
+    readonly results: FieldRef<"AIAnalysis", 'String'>
+    readonly createdAt: FieldRef<"AIAnalysis", 'DateTime'>
   }
     
 
@@ -8969,58 +12566,31 @@ export namespace Prisma {
   export type MedicalOpinionMinAggregateOutputType = {
     id: string | null
     caseId: string | null
-    primaryProfessionalId: string | null
-    reviewerProfessionalId: string | null
-    diagnosis: string | null
-    recommendations: string | null
-    riskAssessment: string | null
-    additionalTests: string | null
-    notes: string | null
+    professionalId: string | null
+    content: string | null
     status: string | null
-    peerReviewNotes: string | null
     createdAt: Date | null
-    submittedAt: Date | null
-    reviewedAt: Date | null
-    approvedAt: Date | null
-    deliveredAt: Date | null
+    updatedAt: Date | null
   }
 
   export type MedicalOpinionMaxAggregateOutputType = {
     id: string | null
     caseId: string | null
-    primaryProfessionalId: string | null
-    reviewerProfessionalId: string | null
-    diagnosis: string | null
-    recommendations: string | null
-    riskAssessment: string | null
-    additionalTests: string | null
-    notes: string | null
+    professionalId: string | null
+    content: string | null
     status: string | null
-    peerReviewNotes: string | null
     createdAt: Date | null
-    submittedAt: Date | null
-    reviewedAt: Date | null
-    approvedAt: Date | null
-    deliveredAt: Date | null
+    updatedAt: Date | null
   }
 
   export type MedicalOpinionCountAggregateOutputType = {
     id: number
     caseId: number
-    primaryProfessionalId: number
-    reviewerProfessionalId: number
-    diagnosis: number
-    recommendations: number
-    riskAssessment: number
-    additionalTests: number
-    notes: number
+    professionalId: number
+    content: number
     status: number
-    peerReviewNotes: number
     createdAt: number
-    submittedAt: number
-    reviewedAt: number
-    approvedAt: number
-    deliveredAt: number
+    updatedAt: number
     _all: number
   }
 
@@ -9028,58 +12598,31 @@ export namespace Prisma {
   export type MedicalOpinionMinAggregateInputType = {
     id?: true
     caseId?: true
-    primaryProfessionalId?: true
-    reviewerProfessionalId?: true
-    diagnosis?: true
-    recommendations?: true
-    riskAssessment?: true
-    additionalTests?: true
-    notes?: true
+    professionalId?: true
+    content?: true
     status?: true
-    peerReviewNotes?: true
     createdAt?: true
-    submittedAt?: true
-    reviewedAt?: true
-    approvedAt?: true
-    deliveredAt?: true
+    updatedAt?: true
   }
 
   export type MedicalOpinionMaxAggregateInputType = {
     id?: true
     caseId?: true
-    primaryProfessionalId?: true
-    reviewerProfessionalId?: true
-    diagnosis?: true
-    recommendations?: true
-    riskAssessment?: true
-    additionalTests?: true
-    notes?: true
+    professionalId?: true
+    content?: true
     status?: true
-    peerReviewNotes?: true
     createdAt?: true
-    submittedAt?: true
-    reviewedAt?: true
-    approvedAt?: true
-    deliveredAt?: true
+    updatedAt?: true
   }
 
   export type MedicalOpinionCountAggregateInputType = {
     id?: true
     caseId?: true
-    primaryProfessionalId?: true
-    reviewerProfessionalId?: true
-    diagnosis?: true
-    recommendations?: true
-    riskAssessment?: true
-    additionalTests?: true
-    notes?: true
+    professionalId?: true
+    content?: true
     status?: true
-    peerReviewNotes?: true
     createdAt?: true
-    submittedAt?: true
-    reviewedAt?: true
-    approvedAt?: true
-    deliveredAt?: true
+    updatedAt?: true
     _all?: true
   }
 
@@ -9158,20 +12701,11 @@ export namespace Prisma {
   export type MedicalOpinionGroupByOutputType = {
     id: string
     caseId: string
-    primaryProfessionalId: string
-    reviewerProfessionalId: string | null
-    diagnosis: string | null
-    recommendations: string
-    riskAssessment: string | null
-    additionalTests: string | null
-    notes: string | null
+    professionalId: string
+    content: string
     status: string
-    peerReviewNotes: string | null
     createdAt: Date
-    submittedAt: Date | null
-    reviewedAt: Date | null
-    approvedAt: Date | null
-    deliveredAt: Date | null
+    updatedAt: Date
     _count: MedicalOpinionCountAggregateOutputType | null
     _min: MedicalOpinionMinAggregateOutputType | null
     _max: MedicalOpinionMaxAggregateOutputType | null
@@ -9194,129 +12728,77 @@ export namespace Prisma {
   export type MedicalOpinionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     caseId?: boolean
-    primaryProfessionalId?: boolean
-    reviewerProfessionalId?: boolean
-    diagnosis?: boolean
-    recommendations?: boolean
-    riskAssessment?: boolean
-    additionalTests?: boolean
-    notes?: boolean
+    professionalId?: boolean
+    content?: boolean
     status?: boolean
-    peerReviewNotes?: boolean
     createdAt?: boolean
-    submittedAt?: boolean
-    reviewedAt?: boolean
-    approvedAt?: boolean
-    deliveredAt?: boolean
+    updatedAt?: boolean
     case?: boolean | CaseDefaultArgs<ExtArgs>
-    primaryProfessional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
-    reviewerProfessional?: boolean | MedicalOpinion$reviewerProfessionalArgs<ExtArgs>
+    professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["medicalOpinion"]>
 
   export type MedicalOpinionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     caseId?: boolean
-    primaryProfessionalId?: boolean
-    reviewerProfessionalId?: boolean
-    diagnosis?: boolean
-    recommendations?: boolean
-    riskAssessment?: boolean
-    additionalTests?: boolean
-    notes?: boolean
+    professionalId?: boolean
+    content?: boolean
     status?: boolean
-    peerReviewNotes?: boolean
     createdAt?: boolean
-    submittedAt?: boolean
-    reviewedAt?: boolean
-    approvedAt?: boolean
-    deliveredAt?: boolean
+    updatedAt?: boolean
     case?: boolean | CaseDefaultArgs<ExtArgs>
-    primaryProfessional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
-    reviewerProfessional?: boolean | MedicalOpinion$reviewerProfessionalArgs<ExtArgs>
+    professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["medicalOpinion"]>
 
   export type MedicalOpinionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     caseId?: boolean
-    primaryProfessionalId?: boolean
-    reviewerProfessionalId?: boolean
-    diagnosis?: boolean
-    recommendations?: boolean
-    riskAssessment?: boolean
-    additionalTests?: boolean
-    notes?: boolean
+    professionalId?: boolean
+    content?: boolean
     status?: boolean
-    peerReviewNotes?: boolean
     createdAt?: boolean
-    submittedAt?: boolean
-    reviewedAt?: boolean
-    approvedAt?: boolean
-    deliveredAt?: boolean
+    updatedAt?: boolean
     case?: boolean | CaseDefaultArgs<ExtArgs>
-    primaryProfessional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
-    reviewerProfessional?: boolean | MedicalOpinion$reviewerProfessionalArgs<ExtArgs>
+    professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["medicalOpinion"]>
 
   export type MedicalOpinionSelectScalar = {
     id?: boolean
     caseId?: boolean
-    primaryProfessionalId?: boolean
-    reviewerProfessionalId?: boolean
-    diagnosis?: boolean
-    recommendations?: boolean
-    riskAssessment?: boolean
-    additionalTests?: boolean
-    notes?: boolean
+    professionalId?: boolean
+    content?: boolean
     status?: boolean
-    peerReviewNotes?: boolean
     createdAt?: boolean
-    submittedAt?: boolean
-    reviewedAt?: boolean
-    approvedAt?: boolean
-    deliveredAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type MedicalOpinionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "caseId" | "primaryProfessionalId" | "reviewerProfessionalId" | "diagnosis" | "recommendations" | "riskAssessment" | "additionalTests" | "notes" | "status" | "peerReviewNotes" | "createdAt" | "submittedAt" | "reviewedAt" | "approvedAt" | "deliveredAt", ExtArgs["result"]["medicalOpinion"]>
+  export type MedicalOpinionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "caseId" | "professionalId" | "content" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["medicalOpinion"]>
   export type MedicalOpinionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     case?: boolean | CaseDefaultArgs<ExtArgs>
-    primaryProfessional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
-    reviewerProfessional?: boolean | MedicalOpinion$reviewerProfessionalArgs<ExtArgs>
+    professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
   }
   export type MedicalOpinionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     case?: boolean | CaseDefaultArgs<ExtArgs>
-    primaryProfessional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
-    reviewerProfessional?: boolean | MedicalOpinion$reviewerProfessionalArgs<ExtArgs>
+    professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
   }
   export type MedicalOpinionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     case?: boolean | CaseDefaultArgs<ExtArgs>
-    primaryProfessional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
-    reviewerProfessional?: boolean | MedicalOpinion$reviewerProfessionalArgs<ExtArgs>
+    professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
   }
 
   export type $MedicalOpinionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "MedicalOpinion"
     objects: {
       case: Prisma.$CasePayload<ExtArgs>
-      primaryProfessional: Prisma.$MedicalProfessionalPayload<ExtArgs>
-      reviewerProfessional: Prisma.$MedicalProfessionalPayload<ExtArgs> | null
+      professional: Prisma.$MedicalProfessionalPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       caseId: string
-      primaryProfessionalId: string
-      reviewerProfessionalId: string | null
-      diagnosis: string | null
-      recommendations: string
-      riskAssessment: string | null
-      additionalTests: string | null
-      notes: string | null
+      professionalId: string
+      content: string
       status: string
-      peerReviewNotes: string | null
       createdAt: Date
-      submittedAt: Date | null
-      reviewedAt: Date | null
-      approvedAt: Date | null
-      deliveredAt: Date | null
+      updatedAt: Date
     }, ExtArgs["result"]["medicalOpinion"]>
     composites: {}
   }
@@ -9712,8 +13194,7 @@ export namespace Prisma {
   export interface Prisma__MedicalOpinionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     case<T extends CaseDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CaseDefaultArgs<ExtArgs>>): Prisma__CaseClient<$Result.GetResult<Prisma.$CasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    primaryProfessional<T extends MedicalProfessionalDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MedicalProfessionalDefaultArgs<ExtArgs>>): Prisma__MedicalProfessionalClient<$Result.GetResult<Prisma.$MedicalProfessionalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    reviewerProfessional<T extends MedicalOpinion$reviewerProfessionalArgs<ExtArgs> = {}>(args?: Subset<T, MedicalOpinion$reviewerProfessionalArgs<ExtArgs>>): Prisma__MedicalProfessionalClient<$Result.GetResult<Prisma.$MedicalProfessionalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    professional<T extends MedicalProfessionalDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MedicalProfessionalDefaultArgs<ExtArgs>>): Prisma__MedicalProfessionalClient<$Result.GetResult<Prisma.$MedicalProfessionalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9745,20 +13226,11 @@ export namespace Prisma {
   interface MedicalOpinionFieldRefs {
     readonly id: FieldRef<"MedicalOpinion", 'String'>
     readonly caseId: FieldRef<"MedicalOpinion", 'String'>
-    readonly primaryProfessionalId: FieldRef<"MedicalOpinion", 'String'>
-    readonly reviewerProfessionalId: FieldRef<"MedicalOpinion", 'String'>
-    readonly diagnosis: FieldRef<"MedicalOpinion", 'String'>
-    readonly recommendations: FieldRef<"MedicalOpinion", 'String'>
-    readonly riskAssessment: FieldRef<"MedicalOpinion", 'String'>
-    readonly additionalTests: FieldRef<"MedicalOpinion", 'String'>
-    readonly notes: FieldRef<"MedicalOpinion", 'String'>
+    readonly professionalId: FieldRef<"MedicalOpinion", 'String'>
+    readonly content: FieldRef<"MedicalOpinion", 'String'>
     readonly status: FieldRef<"MedicalOpinion", 'String'>
-    readonly peerReviewNotes: FieldRef<"MedicalOpinion", 'String'>
     readonly createdAt: FieldRef<"MedicalOpinion", 'DateTime'>
-    readonly submittedAt: FieldRef<"MedicalOpinion", 'DateTime'>
-    readonly reviewedAt: FieldRef<"MedicalOpinion", 'DateTime'>
-    readonly approvedAt: FieldRef<"MedicalOpinion", 'DateTime'>
-    readonly deliveredAt: FieldRef<"MedicalOpinion", 'DateTime'>
+    readonly updatedAt: FieldRef<"MedicalOpinion", 'DateTime'>
   }
     
 
@@ -10153,25 +13625,6 @@ export namespace Prisma {
   }
 
   /**
-   * MedicalOpinion.reviewerProfessional
-   */
-  export type MedicalOpinion$reviewerProfessionalArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MedicalProfessional
-     */
-    select?: MedicalProfessionalSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the MedicalProfessional
-     */
-    omit?: MedicalProfessionalOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MedicalProfessionalInclude<ExtArgs> | null
-    where?: MedicalProfessionalWhereInput
-  }
-
-  /**
    * MedicalOpinion without action
    */
   export type MedicalOpinionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10212,44 +13665,29 @@ export namespace Prisma {
 
   export type ProfessionalPaymentMinAggregateOutputType = {
     id: string | null
-    professionalId: string | null
     caseId: string | null
+    professionalId: string | null
     amount: number | null
-    currency: string | null
-    paymentType: string | null
-    paymentMethod: string | null
     status: string | null
-    transactionId: string | null
-    initiatedAt: Date | null
-    processedAt: Date | null
+    createdAt: Date | null
   }
 
   export type ProfessionalPaymentMaxAggregateOutputType = {
     id: string | null
-    professionalId: string | null
     caseId: string | null
+    professionalId: string | null
     amount: number | null
-    currency: string | null
-    paymentType: string | null
-    paymentMethod: string | null
     status: string | null
-    transactionId: string | null
-    initiatedAt: Date | null
-    processedAt: Date | null
+    createdAt: Date | null
   }
 
   export type ProfessionalPaymentCountAggregateOutputType = {
     id: number
-    professionalId: number
     caseId: number
+    professionalId: number
     amount: number
-    currency: number
-    paymentType: number
-    paymentMethod: number
     status: number
-    transactionId: number
-    initiatedAt: number
-    processedAt: number
+    createdAt: number
     _all: number
   }
 
@@ -10264,44 +13702,29 @@ export namespace Prisma {
 
   export type ProfessionalPaymentMinAggregateInputType = {
     id?: true
-    professionalId?: true
     caseId?: true
+    professionalId?: true
     amount?: true
-    currency?: true
-    paymentType?: true
-    paymentMethod?: true
     status?: true
-    transactionId?: true
-    initiatedAt?: true
-    processedAt?: true
+    createdAt?: true
   }
 
   export type ProfessionalPaymentMaxAggregateInputType = {
     id?: true
-    professionalId?: true
     caseId?: true
+    professionalId?: true
     amount?: true
-    currency?: true
-    paymentType?: true
-    paymentMethod?: true
     status?: true
-    transactionId?: true
-    initiatedAt?: true
-    processedAt?: true
+    createdAt?: true
   }
 
   export type ProfessionalPaymentCountAggregateInputType = {
     id?: true
-    professionalId?: true
     caseId?: true
+    professionalId?: true
     amount?: true
-    currency?: true
-    paymentType?: true
-    paymentMethod?: true
     status?: true
-    transactionId?: true
-    initiatedAt?: true
-    processedAt?: true
+    createdAt?: true
     _all?: true
   }
 
@@ -10393,16 +13816,11 @@ export namespace Prisma {
 
   export type ProfessionalPaymentGroupByOutputType = {
     id: string
+    caseId: string
     professionalId: string
-    caseId: string | null
     amount: number
-    currency: string
-    paymentType: string
-    paymentMethod: string
     status: string
-    transactionId: string | null
-    initiatedAt: Date
-    processedAt: Date | null
+    createdAt: Date
     _count: ProfessionalPaymentCountAggregateOutputType | null
     _avg: ProfessionalPaymentAvgAggregateOutputType | null
     _sum: ProfessionalPaymentSumAggregateOutputType | null
@@ -10426,91 +13844,73 @@ export namespace Prisma {
 
   export type ProfessionalPaymentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    professionalId?: boolean
     caseId?: boolean
+    professionalId?: boolean
     amount?: boolean
-    currency?: boolean
-    paymentType?: boolean
-    paymentMethod?: boolean
     status?: boolean
-    transactionId?: boolean
-    initiatedAt?: boolean
-    processedAt?: boolean
+    createdAt?: boolean
+    case?: boolean | CaseDefaultArgs<ExtArgs>
     professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["professionalPayment"]>
 
   export type ProfessionalPaymentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    professionalId?: boolean
     caseId?: boolean
+    professionalId?: boolean
     amount?: boolean
-    currency?: boolean
-    paymentType?: boolean
-    paymentMethod?: boolean
     status?: boolean
-    transactionId?: boolean
-    initiatedAt?: boolean
-    processedAt?: boolean
+    createdAt?: boolean
+    case?: boolean | CaseDefaultArgs<ExtArgs>
     professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["professionalPayment"]>
 
   export type ProfessionalPaymentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    professionalId?: boolean
     caseId?: boolean
+    professionalId?: boolean
     amount?: boolean
-    currency?: boolean
-    paymentType?: boolean
-    paymentMethod?: boolean
     status?: boolean
-    transactionId?: boolean
-    initiatedAt?: boolean
-    processedAt?: boolean
+    createdAt?: boolean
+    case?: boolean | CaseDefaultArgs<ExtArgs>
     professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["professionalPayment"]>
 
   export type ProfessionalPaymentSelectScalar = {
     id?: boolean
-    professionalId?: boolean
     caseId?: boolean
+    professionalId?: boolean
     amount?: boolean
-    currency?: boolean
-    paymentType?: boolean
-    paymentMethod?: boolean
     status?: boolean
-    transactionId?: boolean
-    initiatedAt?: boolean
-    processedAt?: boolean
+    createdAt?: boolean
   }
 
-  export type ProfessionalPaymentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "professionalId" | "caseId" | "amount" | "currency" | "paymentType" | "paymentMethod" | "status" | "transactionId" | "initiatedAt" | "processedAt", ExtArgs["result"]["professionalPayment"]>
+  export type ProfessionalPaymentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "caseId" | "professionalId" | "amount" | "status" | "createdAt", ExtArgs["result"]["professionalPayment"]>
   export type ProfessionalPaymentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CaseDefaultArgs<ExtArgs>
     professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
   }
   export type ProfessionalPaymentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CaseDefaultArgs<ExtArgs>
     professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
   }
   export type ProfessionalPaymentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CaseDefaultArgs<ExtArgs>
     professional?: boolean | MedicalProfessionalDefaultArgs<ExtArgs>
   }
 
   export type $ProfessionalPaymentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ProfessionalPayment"
     objects: {
+      case: Prisma.$CasePayload<ExtArgs>
       professional: Prisma.$MedicalProfessionalPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      caseId: string
       professionalId: string
-      caseId: string | null
       amount: number
-      currency: string
-      paymentType: string
-      paymentMethod: string
       status: string
-      transactionId: string | null
-      initiatedAt: Date
-      processedAt: Date | null
+      createdAt: Date
     }, ExtArgs["result"]["professionalPayment"]>
     composites: {}
   }
@@ -10905,6 +14305,7 @@ export namespace Prisma {
    */
   export interface Prisma__ProfessionalPaymentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    case<T extends CaseDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CaseDefaultArgs<ExtArgs>>): Prisma__CaseClient<$Result.GetResult<Prisma.$CasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     professional<T extends MedicalProfessionalDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MedicalProfessionalDefaultArgs<ExtArgs>>): Prisma__MedicalProfessionalClient<$Result.GetResult<Prisma.$MedicalProfessionalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -10936,16 +14337,11 @@ export namespace Prisma {
    */
   interface ProfessionalPaymentFieldRefs {
     readonly id: FieldRef<"ProfessionalPayment", 'String'>
-    readonly professionalId: FieldRef<"ProfessionalPayment", 'String'>
     readonly caseId: FieldRef<"ProfessionalPayment", 'String'>
+    readonly professionalId: FieldRef<"ProfessionalPayment", 'String'>
     readonly amount: FieldRef<"ProfessionalPayment", 'Float'>
-    readonly currency: FieldRef<"ProfessionalPayment", 'String'>
-    readonly paymentType: FieldRef<"ProfessionalPayment", 'String'>
-    readonly paymentMethod: FieldRef<"ProfessionalPayment", 'String'>
     readonly status: FieldRef<"ProfessionalPayment", 'String'>
-    readonly transactionId: FieldRef<"ProfessionalPayment", 'String'>
-    readonly initiatedAt: FieldRef<"ProfessionalPayment", 'DateTime'>
-    readonly processedAt: FieldRef<"ProfessionalPayment", 'DateTime'>
+    readonly createdAt: FieldRef<"ProfessionalPayment", 'DateTime'>
   }
     
 
@@ -11370,45 +14766,27 @@ export namespace Prisma {
 
   export type AdminMinAggregateOutputType = {
     id: string | null
-    adminId: string | null
-    firstName: string | null
-    lastName: string | null
     email: string | null
-    passwordHash: string | null
+    hashedPassword: string | null
     role: string | null
-    permissions: string | null
-    isActive: boolean | null
-    lastLoginAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
   export type AdminMaxAggregateOutputType = {
     id: string | null
-    adminId: string | null
-    firstName: string | null
-    lastName: string | null
     email: string | null
-    passwordHash: string | null
+    hashedPassword: string | null
     role: string | null
-    permissions: string | null
-    isActive: boolean | null
-    lastLoginAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
   export type AdminCountAggregateOutputType = {
     id: number
-    adminId: number
-    firstName: number
-    lastName: number
     email: number
-    passwordHash: number
+    hashedPassword: number
     role: number
-    permissions: number
-    isActive: number
-    lastLoginAt: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -11417,45 +14795,27 @@ export namespace Prisma {
 
   export type AdminMinAggregateInputType = {
     id?: true
-    adminId?: true
-    firstName?: true
-    lastName?: true
     email?: true
-    passwordHash?: true
+    hashedPassword?: true
     role?: true
-    permissions?: true
-    isActive?: true
-    lastLoginAt?: true
     createdAt?: true
     updatedAt?: true
   }
 
   export type AdminMaxAggregateInputType = {
     id?: true
-    adminId?: true
-    firstName?: true
-    lastName?: true
     email?: true
-    passwordHash?: true
+    hashedPassword?: true
     role?: true
-    permissions?: true
-    isActive?: true
-    lastLoginAt?: true
     createdAt?: true
     updatedAt?: true
   }
 
   export type AdminCountAggregateInputType = {
     id?: true
-    adminId?: true
-    firstName?: true
-    lastName?: true
     email?: true
-    passwordHash?: true
+    hashedPassword?: true
     role?: true
-    permissions?: true
-    isActive?: true
-    lastLoginAt?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -11535,15 +14895,9 @@ export namespace Prisma {
 
   export type AdminGroupByOutputType = {
     id: string
-    adminId: string
-    firstName: string
-    lastName: string
     email: string
-    passwordHash: string
+    hashedPassword: string
     role: string
-    permissions: string
-    isActive: boolean
-    lastLoginAt: Date | null
     createdAt: Date
     updatedAt: Date
     _count: AdminCountAggregateOutputType | null
@@ -11567,80 +14921,50 @@ export namespace Prisma {
 
   export type AdminSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    adminId?: boolean
-    firstName?: boolean
-    lastName?: boolean
     email?: boolean
-    passwordHash?: boolean
+    hashedPassword?: boolean
     role?: boolean
-    permissions?: boolean
-    isActive?: boolean
-    lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["admin"]>
 
   export type AdminSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    adminId?: boolean
-    firstName?: boolean
-    lastName?: boolean
     email?: boolean
-    passwordHash?: boolean
+    hashedPassword?: boolean
     role?: boolean
-    permissions?: boolean
-    isActive?: boolean
-    lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["admin"]>
 
   export type AdminSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    adminId?: boolean
-    firstName?: boolean
-    lastName?: boolean
     email?: boolean
-    passwordHash?: boolean
+    hashedPassword?: boolean
     role?: boolean
-    permissions?: boolean
-    isActive?: boolean
-    lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["admin"]>
 
   export type AdminSelectScalar = {
     id?: boolean
-    adminId?: boolean
-    firstName?: boolean
-    lastName?: boolean
     email?: boolean
-    passwordHash?: boolean
+    hashedPassword?: boolean
     role?: boolean
-    permissions?: boolean
-    isActive?: boolean
-    lastLoginAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type AdminOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "adminId" | "firstName" | "lastName" | "email" | "passwordHash" | "role" | "permissions" | "isActive" | "lastLoginAt" | "createdAt" | "updatedAt", ExtArgs["result"]["admin"]>
+  export type AdminOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "hashedPassword" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["admin"]>
 
   export type $AdminPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Admin"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      adminId: string
-      firstName: string
-      lastName: string
       email: string
-      passwordHash: string
+      hashedPassword: string
       role: string
-      permissions: string
-      isActive: boolean
-      lastLoginAt: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["admin"]>
@@ -12067,15 +15391,9 @@ export namespace Prisma {
    */
   interface AdminFieldRefs {
     readonly id: FieldRef<"Admin", 'String'>
-    readonly adminId: FieldRef<"Admin", 'String'>
-    readonly firstName: FieldRef<"Admin", 'String'>
-    readonly lastName: FieldRef<"Admin", 'String'>
     readonly email: FieldRef<"Admin", 'String'>
-    readonly passwordHash: FieldRef<"Admin", 'String'>
+    readonly hashedPassword: FieldRef<"Admin", 'String'>
     readonly role: FieldRef<"Admin", 'String'>
-    readonly permissions: FieldRef<"Admin", 'String'>
-    readonly isActive: FieldRef<"Admin", 'Boolean'>
-    readonly lastLoginAt: FieldRef<"Admin", 'DateTime'>
     readonly createdAt: FieldRef<"Admin", 'DateTime'>
     readonly updatedAt: FieldRef<"Admin", 'DateTime'>
   }
@@ -12453,21 +15771,27 @@ export namespace Prisma {
   export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+  export const UserScalarFieldEnum: {
+    id: 'id',
+    email: 'email',
+    hashedPassword: 'hashedPassword',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
   export const CustomerScalarFieldEnum: {
     id: 'id',
-    customerId: 'customerId',
-    email: 'email',
-    passwordHash: 'passwordHash',
-    isActive: 'isActive',
-    lastLoginAt: 'lastLoginAt',
     firstName: 'firstName',
     middleName: 'middleName',
     lastName: 'lastName',
     dateOfBirth: 'dateOfBirth',
+    email: 'email',
     phone: 'phone',
-    preferredContact: 'preferredContact',
-    emailNotifications: 'emailNotifications',
-    smsNotifications: 'smsNotifications',
+    preferredChannel: 'preferredChannel',
+    userId: 'userId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -12475,10 +15799,19 @@ export namespace Prisma {
   export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
 
 
+  export const TempSubmissionScalarFieldEnum: {
+    id: 'id',
+    payload: 'payload',
+    expiresAt: 'expiresAt',
+    createdAt: 'createdAt'
+  };
+
+  export type TempSubmissionScalarFieldEnum = (typeof TempSubmissionScalarFieldEnum)[keyof typeof TempSubmissionScalarFieldEnum]
+
+
   export const CaseScalarFieldEnum: {
     id: 'id',
     caseNumber: 'caseNumber',
-    customerId: 'customerId',
     firstName: 'firstName',
     middleName: 'middleName',
     lastName: 'lastName',
@@ -12492,7 +15825,7 @@ export namespace Prisma {
     geneticFamilyHistory: 'geneticFamilyHistory',
     paymentId: 'paymentId',
     consentAccepted: 'consentAccepted',
-    status: 'status',
+    customerId: 'customerId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -12503,13 +15836,12 @@ export namespace Prisma {
   export const UploadedFileScalarFieldEnum: {
     id: 'id',
     caseId: 'caseId',
-    fileName: 'fileName',
-    originalName: 'originalName',
-    fileSize: 'fileSize',
-    mimeType: 'mimeType',
-    category: 'category',
+    filename: 'filename',
     s3Key: 's3Key',
-    uploadedAt: 'uploadedAt'
+    mimetype: 'mimetype',
+    size: 'size',
+    category: 'category',
+    createdAt: 'createdAt'
   };
 
   export type UploadedFileScalarFieldEnum = (typeof UploadedFileScalarFieldEnum)[keyof typeof UploadedFileScalarFieldEnum]
@@ -12517,33 +15849,63 @@ export namespace Prisma {
 
   export const MedicalProfessionalScalarFieldEnum: {
     id: 'id',
-    professionalId: 'professionalId',
+    proNumber: 'proNumber',
     firstName: 'firstName',
+    middleName: 'middleName',
     lastName: 'lastName',
+    dob: 'dob',
     email: 'email',
     phone: 'phone',
+    nationality: 'nationality',
     licenseNumber: 'licenseNumber',
-    specialty: 'specialty',
-    yearsExperience: 'yearsExperience',
-    qualifications: 'qualifications',
-    vettingStatus: 'vettingStatus',
-    vettedBy: 'vettedBy',
-    vettedAt: 'vettedAt',
-    appliedAt: 'appliedAt',
+    licenseCountry: 'licenseCountry',
+    licenseExpiry: 'licenseExpiry',
+    vetted: 'vetted',
+    level: 'level',
+    cvUrl: 'cvUrl',
+    documents: 'documents',
+    subspecialties: 'subspecialties',
+    yearsPractice: 'yearsPractice',
+    publications: 'publications',
+    trialInvolved: 'trialInvolved',
+    leadership: 'leadership',
+    societyMemberships: 'societyMemberships',
+    score: 'score',
+    hashedPassword: 'hashedPassword',
+    twoFactorMethod: 'twoFactorMethod',
+    twoFactorSecret: 'twoFactorSecret',
+    profileLastUpdated: 'profileLastUpdated',
+    codeOfConductAcknowledged: 'codeOfConductAcknowledged',
+    address: 'address',
+    billingAddress: 'billingAddress',
+    bankDetails: 'bankDetails',
+    vatNumber: 'vatNumber',
+    billingRate: 'billingRate',
+    createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type MedicalProfessionalScalarFieldEnum = (typeof MedicalProfessionalScalarFieldEnum)[keyof typeof MedicalProfessionalScalarFieldEnum]
 
 
+  export const ProfessionalSessionScalarFieldEnum: {
+    id: 'id',
+    professionalId: 'professionalId',
+    sessionToken: 'sessionToken',
+    twoFactorVerified: 'twoFactorVerified',
+    expiresAt: 'expiresAt',
+    createdAt: 'createdAt'
+  };
+
+  export type ProfessionalSessionScalarFieldEnum = (typeof ProfessionalSessionScalarFieldEnum)[keyof typeof ProfessionalSessionScalarFieldEnum]
+
+
   export const CaseAssignmentScalarFieldEnum: {
     id: 'id',
     caseId: 'caseId',
     professionalId: 'professionalId',
-    assignedBy: 'assignedBy',
-    assignedAt: 'assignedAt',
     status: 'status',
-    startedAt: 'startedAt',
+    assignedAt: 'assignedAt',
     completedAt: 'completedAt'
   };
 
@@ -12554,10 +15916,8 @@ export namespace Prisma {
     id: 'id',
     caseId: 'caseId',
     analysisType: 'analysisType',
-    findings: 'findings',
-    confidence: 'confidence',
-    initiatedAt: 'initiatedAt',
-    completedAt: 'completedAt'
+    results: 'results',
+    createdAt: 'createdAt'
   };
 
   export type AIAnalysisScalarFieldEnum = (typeof AIAnalysisScalarFieldEnum)[keyof typeof AIAnalysisScalarFieldEnum]
@@ -12566,20 +15926,11 @@ export namespace Prisma {
   export const MedicalOpinionScalarFieldEnum: {
     id: 'id',
     caseId: 'caseId',
-    primaryProfessionalId: 'primaryProfessionalId',
-    reviewerProfessionalId: 'reviewerProfessionalId',
-    diagnosis: 'diagnosis',
-    recommendations: 'recommendations',
-    riskAssessment: 'riskAssessment',
-    additionalTests: 'additionalTests',
-    notes: 'notes',
+    professionalId: 'professionalId',
+    content: 'content',
     status: 'status',
-    peerReviewNotes: 'peerReviewNotes',
     createdAt: 'createdAt',
-    submittedAt: 'submittedAt',
-    reviewedAt: 'reviewedAt',
-    approvedAt: 'approvedAt',
-    deliveredAt: 'deliveredAt'
+    updatedAt: 'updatedAt'
   };
 
   export type MedicalOpinionScalarFieldEnum = (typeof MedicalOpinionScalarFieldEnum)[keyof typeof MedicalOpinionScalarFieldEnum]
@@ -12587,16 +15938,11 @@ export namespace Prisma {
 
   export const ProfessionalPaymentScalarFieldEnum: {
     id: 'id',
-    professionalId: 'professionalId',
     caseId: 'caseId',
+    professionalId: 'professionalId',
     amount: 'amount',
-    currency: 'currency',
-    paymentType: 'paymentType',
-    paymentMethod: 'paymentMethod',
     status: 'status',
-    transactionId: 'transactionId',
-    initiatedAt: 'initiatedAt',
-    processedAt: 'processedAt'
+    createdAt: 'createdAt'
   };
 
   export type ProfessionalPaymentScalarFieldEnum = (typeof ProfessionalPaymentScalarFieldEnum)[keyof typeof ProfessionalPaymentScalarFieldEnum]
@@ -12604,15 +15950,9 @@ export namespace Prisma {
 
   export const AdminScalarFieldEnum: {
     id: 'id',
-    adminId: 'adminId',
-    firstName: 'firstName',
-    lastName: 'lastName',
     email: 'email',
-    passwordHash: 'passwordHash',
+    hashedPassword: 'hashedPassword',
     role: 'role',
-    permissions: 'permissions',
-    isActive: 'isActive',
-    lastLoginAt: 'lastLoginAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -12628,12 +15968,44 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
   export const NullsOrder: {
     first: 'first',
     last: 'last'
   };
 
   export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+  export const QueryMode: {
+    default: 'default',
+    insensitive: 'insensitive'
+  };
+
+  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
   /**
@@ -12649,13 +16021,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Boolean'
-   */
-  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -12663,9 +16028,51 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'CommunicationChannel'
+   */
+  export type EnumCommunicationChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CommunicationChannel'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'ProLevel'
+   */
+  export type EnumProLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProLevel'>
+    
+
+
+  /**
+   * Reference to a field of type 'TwoFactorMethod'
+   */
+  export type EnumTwoFactorMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TwoFactorMethod'>
     
 
 
@@ -12679,87 +16086,125 @@ export namespace Prisma {
    */
 
 
+  export type UserWhereInput = {
+    AND?: UserWhereInput | UserWhereInput[]
+    OR?: UserWhereInput[]
+    NOT?: UserWhereInput | UserWhereInput[]
+    id?: StringFilter<"User"> | string
+    email?: StringFilter<"User"> | string
+    hashedPassword?: StringFilter<"User"> | string
+    createdAt?: DateTimeFilter<"User"> | Date | string
+    updatedAt?: DateTimeFilter<"User"> | Date | string
+    customer?: XOR<CustomerNullableScalarRelationFilter, CustomerWhereInput> | null
+  }
+
+  export type UserOrderByWithRelationInput = {
+    id?: SortOrder
+    email?: SortOrder
+    hashedPassword?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    customer?: CustomerOrderByWithRelationInput
+  }
+
+  export type UserWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    email?: string
+    AND?: UserWhereInput | UserWhereInput[]
+    OR?: UserWhereInput[]
+    NOT?: UserWhereInput | UserWhereInput[]
+    hashedPassword?: StringFilter<"User"> | string
+    createdAt?: DateTimeFilter<"User"> | Date | string
+    updatedAt?: DateTimeFilter<"User"> | Date | string
+    customer?: XOR<CustomerNullableScalarRelationFilter, CustomerWhereInput> | null
+  }, "id" | "email">
+
+  export type UserOrderByWithAggregationInput = {
+    id?: SortOrder
+    email?: SortOrder
+    hashedPassword?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: UserCountOrderByAggregateInput
+    _max?: UserMaxOrderByAggregateInput
+    _min?: UserMinOrderByAggregateInput
+  }
+
+  export type UserScalarWhereWithAggregatesInput = {
+    AND?: UserScalarWhereWithAggregatesInput | UserScalarWhereWithAggregatesInput[]
+    OR?: UserScalarWhereWithAggregatesInput[]
+    NOT?: UserScalarWhereWithAggregatesInput | UserScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"User"> | string
+    email?: StringWithAggregatesFilter<"User"> | string
+    hashedPassword?: StringWithAggregatesFilter<"User"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+  }
+
   export type CustomerWhereInput = {
     AND?: CustomerWhereInput | CustomerWhereInput[]
     OR?: CustomerWhereInput[]
     NOT?: CustomerWhereInput | CustomerWhereInput[]
     id?: StringFilter<"Customer"> | string
-    customerId?: StringFilter<"Customer"> | string
-    email?: StringFilter<"Customer"> | string
-    passwordHash?: StringFilter<"Customer"> | string
-    isActive?: BoolFilter<"Customer"> | boolean
-    lastLoginAt?: DateTimeNullableFilter<"Customer"> | Date | string | null
     firstName?: StringFilter<"Customer"> | string
     middleName?: StringNullableFilter<"Customer"> | string | null
     lastName?: StringFilter<"Customer"> | string
     dateOfBirth?: DateTimeFilter<"Customer"> | Date | string
+    email?: StringFilter<"Customer"> | string
     phone?: StringNullableFilter<"Customer"> | string | null
-    preferredContact?: StringFilter<"Customer"> | string
-    emailNotifications?: BoolFilter<"Customer"> | boolean
-    smsNotifications?: BoolFilter<"Customer"> | boolean
+    preferredChannel?: EnumCommunicationChannelFilter<"Customer"> | $Enums.CommunicationChannel
+    userId?: StringNullableFilter<"Customer"> | string | null
     createdAt?: DateTimeFilter<"Customer"> | Date | string
     updatedAt?: DateTimeFilter<"Customer"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     cases?: CaseListRelationFilter
   }
 
   export type CustomerOrderByWithRelationInput = {
     id?: SortOrder
-    customerId?: SortOrder
-    email?: SortOrder
-    passwordHash?: SortOrder
-    isActive?: SortOrder
-    lastLoginAt?: SortOrderInput | SortOrder
     firstName?: SortOrder
     middleName?: SortOrderInput | SortOrder
     lastName?: SortOrder
     dateOfBirth?: SortOrder
+    email?: SortOrder
     phone?: SortOrderInput | SortOrder
-    preferredContact?: SortOrder
-    emailNotifications?: SortOrder
-    smsNotifications?: SortOrder
+    preferredChannel?: SortOrder
+    userId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
     cases?: CaseOrderByRelationAggregateInput
   }
 
   export type CustomerWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    customerId?: string
     email?: string
+    userId?: string
     AND?: CustomerWhereInput | CustomerWhereInput[]
     OR?: CustomerWhereInput[]
     NOT?: CustomerWhereInput | CustomerWhereInput[]
-    passwordHash?: StringFilter<"Customer"> | string
-    isActive?: BoolFilter<"Customer"> | boolean
-    lastLoginAt?: DateTimeNullableFilter<"Customer"> | Date | string | null
     firstName?: StringFilter<"Customer"> | string
     middleName?: StringNullableFilter<"Customer"> | string | null
     lastName?: StringFilter<"Customer"> | string
     dateOfBirth?: DateTimeFilter<"Customer"> | Date | string
     phone?: StringNullableFilter<"Customer"> | string | null
-    preferredContact?: StringFilter<"Customer"> | string
-    emailNotifications?: BoolFilter<"Customer"> | boolean
-    smsNotifications?: BoolFilter<"Customer"> | boolean
+    preferredChannel?: EnumCommunicationChannelFilter<"Customer"> | $Enums.CommunicationChannel
     createdAt?: DateTimeFilter<"Customer"> | Date | string
     updatedAt?: DateTimeFilter<"Customer"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     cases?: CaseListRelationFilter
-  }, "id" | "customerId" | "email">
+  }, "id" | "email" | "userId">
 
   export type CustomerOrderByWithAggregationInput = {
     id?: SortOrder
-    customerId?: SortOrder
-    email?: SortOrder
-    passwordHash?: SortOrder
-    isActive?: SortOrder
-    lastLoginAt?: SortOrderInput | SortOrder
     firstName?: SortOrder
     middleName?: SortOrderInput | SortOrder
     lastName?: SortOrder
     dateOfBirth?: SortOrder
+    email?: SortOrder
     phone?: SortOrderInput | SortOrder
-    preferredContact?: SortOrder
-    emailNotifications?: SortOrder
-    smsNotifications?: SortOrder
+    preferredChannel?: SortOrder
+    userId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CustomerCountOrderByAggregateInput
@@ -12772,21 +16217,63 @@ export namespace Prisma {
     OR?: CustomerScalarWhereWithAggregatesInput[]
     NOT?: CustomerScalarWhereWithAggregatesInput | CustomerScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Customer"> | string
-    customerId?: StringWithAggregatesFilter<"Customer"> | string
-    email?: StringWithAggregatesFilter<"Customer"> | string
-    passwordHash?: StringWithAggregatesFilter<"Customer"> | string
-    isActive?: BoolWithAggregatesFilter<"Customer"> | boolean
-    lastLoginAt?: DateTimeNullableWithAggregatesFilter<"Customer"> | Date | string | null
     firstName?: StringWithAggregatesFilter<"Customer"> | string
     middleName?: StringNullableWithAggregatesFilter<"Customer"> | string | null
     lastName?: StringWithAggregatesFilter<"Customer"> | string
     dateOfBirth?: DateTimeWithAggregatesFilter<"Customer"> | Date | string
+    email?: StringWithAggregatesFilter<"Customer"> | string
     phone?: StringNullableWithAggregatesFilter<"Customer"> | string | null
-    preferredContact?: StringWithAggregatesFilter<"Customer"> | string
-    emailNotifications?: BoolWithAggregatesFilter<"Customer"> | boolean
-    smsNotifications?: BoolWithAggregatesFilter<"Customer"> | boolean
+    preferredChannel?: EnumCommunicationChannelWithAggregatesFilter<"Customer"> | $Enums.CommunicationChannel
+    userId?: StringNullableWithAggregatesFilter<"Customer"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Customer"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Customer"> | Date | string
+  }
+
+  export type TempSubmissionWhereInput = {
+    AND?: TempSubmissionWhereInput | TempSubmissionWhereInput[]
+    OR?: TempSubmissionWhereInput[]
+    NOT?: TempSubmissionWhereInput | TempSubmissionWhereInput[]
+    id?: StringFilter<"TempSubmission"> | string
+    payload?: JsonFilter<"TempSubmission">
+    expiresAt?: DateTimeFilter<"TempSubmission"> | Date | string
+    createdAt?: DateTimeFilter<"TempSubmission"> | Date | string
+  }
+
+  export type TempSubmissionOrderByWithRelationInput = {
+    id?: SortOrder
+    payload?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type TempSubmissionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: TempSubmissionWhereInput | TempSubmissionWhereInput[]
+    OR?: TempSubmissionWhereInput[]
+    NOT?: TempSubmissionWhereInput | TempSubmissionWhereInput[]
+    payload?: JsonFilter<"TempSubmission">
+    expiresAt?: DateTimeFilter<"TempSubmission"> | Date | string
+    createdAt?: DateTimeFilter<"TempSubmission"> | Date | string
+  }, "id">
+
+  export type TempSubmissionOrderByWithAggregationInput = {
+    id?: SortOrder
+    payload?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    _count?: TempSubmissionCountOrderByAggregateInput
+    _max?: TempSubmissionMaxOrderByAggregateInput
+    _min?: TempSubmissionMinOrderByAggregateInput
+  }
+
+  export type TempSubmissionScalarWhereWithAggregatesInput = {
+    AND?: TempSubmissionScalarWhereWithAggregatesInput | TempSubmissionScalarWhereWithAggregatesInput[]
+    OR?: TempSubmissionScalarWhereWithAggregatesInput[]
+    NOT?: TempSubmissionScalarWhereWithAggregatesInput | TempSubmissionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"TempSubmission"> | string
+    payload?: JsonWithAggregatesFilter<"TempSubmission">
+    expiresAt?: DateTimeWithAggregatesFilter<"TempSubmission"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"TempSubmission"> | Date | string
   }
 
   export type CaseWhereInput = {
@@ -12795,7 +16282,6 @@ export namespace Prisma {
     NOT?: CaseWhereInput | CaseWhereInput[]
     id?: StringFilter<"Case"> | string
     caseNumber?: StringFilter<"Case"> | string
-    customerId?: StringFilter<"Case"> | string
     firstName?: StringFilter<"Case"> | string
     middleName?: StringNullableFilter<"Case"> | string | null
     lastName?: StringFilter<"Case"> | string
@@ -12809,20 +16295,20 @@ export namespace Prisma {
     geneticFamilyHistory?: StringNullableFilter<"Case"> | string | null
     paymentId?: StringNullableFilter<"Case"> | string | null
     consentAccepted?: BoolFilter<"Case"> | boolean
-    status?: StringFilter<"Case"> | string
+    customerId?: StringFilter<"Case"> | string
     createdAt?: DateTimeFilter<"Case"> | Date | string
     updatedAt?: DateTimeFilter<"Case"> | Date | string
     customer?: XOR<CustomerScalarRelationFilter, CustomerWhereInput>
     uploadedFiles?: UploadedFileListRelationFilter
-    aiAnalysis?: XOR<AIAnalysisNullableScalarRelationFilter, AIAnalysisWhereInput> | null
     caseAssignments?: CaseAssignmentListRelationFilter
+    aiAnalyses?: AIAnalysisListRelationFilter
     medicalOpinions?: MedicalOpinionListRelationFilter
+    professionalPayments?: ProfessionalPaymentListRelationFilter
   }
 
   export type CaseOrderByWithRelationInput = {
     id?: SortOrder
     caseNumber?: SortOrder
-    customerId?: SortOrder
     firstName?: SortOrder
     middleName?: SortOrderInput | SortOrder
     lastName?: SortOrder
@@ -12836,14 +16322,15 @@ export namespace Prisma {
     geneticFamilyHistory?: SortOrderInput | SortOrder
     paymentId?: SortOrderInput | SortOrder
     consentAccepted?: SortOrder
-    status?: SortOrder
+    customerId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     customer?: CustomerOrderByWithRelationInput
     uploadedFiles?: UploadedFileOrderByRelationAggregateInput
-    aiAnalysis?: AIAnalysisOrderByWithRelationInput
     caseAssignments?: CaseAssignmentOrderByRelationAggregateInput
+    aiAnalyses?: AIAnalysisOrderByRelationAggregateInput
     medicalOpinions?: MedicalOpinionOrderByRelationAggregateInput
+    professionalPayments?: ProfessionalPaymentOrderByRelationAggregateInput
   }
 
   export type CaseWhereUniqueInput = Prisma.AtLeast<{
@@ -12852,7 +16339,6 @@ export namespace Prisma {
     AND?: CaseWhereInput | CaseWhereInput[]
     OR?: CaseWhereInput[]
     NOT?: CaseWhereInput | CaseWhereInput[]
-    customerId?: StringFilter<"Case"> | string
     firstName?: StringFilter<"Case"> | string
     middleName?: StringNullableFilter<"Case"> | string | null
     lastName?: StringFilter<"Case"> | string
@@ -12866,20 +16352,20 @@ export namespace Prisma {
     geneticFamilyHistory?: StringNullableFilter<"Case"> | string | null
     paymentId?: StringNullableFilter<"Case"> | string | null
     consentAccepted?: BoolFilter<"Case"> | boolean
-    status?: StringFilter<"Case"> | string
+    customerId?: StringFilter<"Case"> | string
     createdAt?: DateTimeFilter<"Case"> | Date | string
     updatedAt?: DateTimeFilter<"Case"> | Date | string
     customer?: XOR<CustomerScalarRelationFilter, CustomerWhereInput>
     uploadedFiles?: UploadedFileListRelationFilter
-    aiAnalysis?: XOR<AIAnalysisNullableScalarRelationFilter, AIAnalysisWhereInput> | null
     caseAssignments?: CaseAssignmentListRelationFilter
+    aiAnalyses?: AIAnalysisListRelationFilter
     medicalOpinions?: MedicalOpinionListRelationFilter
+    professionalPayments?: ProfessionalPaymentListRelationFilter
   }, "id" | "caseNumber">
 
   export type CaseOrderByWithAggregationInput = {
     id?: SortOrder
     caseNumber?: SortOrder
-    customerId?: SortOrder
     firstName?: SortOrder
     middleName?: SortOrderInput | SortOrder
     lastName?: SortOrder
@@ -12893,7 +16379,7 @@ export namespace Prisma {
     geneticFamilyHistory?: SortOrderInput | SortOrder
     paymentId?: SortOrderInput | SortOrder
     consentAccepted?: SortOrder
-    status?: SortOrder
+    customerId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CaseCountOrderByAggregateInput
@@ -12907,7 +16393,6 @@ export namespace Prisma {
     NOT?: CaseScalarWhereWithAggregatesInput | CaseScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Case"> | string
     caseNumber?: StringWithAggregatesFilter<"Case"> | string
-    customerId?: StringWithAggregatesFilter<"Case"> | string
     firstName?: StringWithAggregatesFilter<"Case"> | string
     middleName?: StringNullableWithAggregatesFilter<"Case"> | string | null
     lastName?: StringWithAggregatesFilter<"Case"> | string
@@ -12921,7 +16406,7 @@ export namespace Prisma {
     geneticFamilyHistory?: StringNullableWithAggregatesFilter<"Case"> | string | null
     paymentId?: StringNullableWithAggregatesFilter<"Case"> | string | null
     consentAccepted?: BoolWithAggregatesFilter<"Case"> | boolean
-    status?: StringWithAggregatesFilter<"Case"> | string
+    customerId?: StringWithAggregatesFilter<"Case"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Case"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Case"> | Date | string
   }
@@ -12932,26 +16417,24 @@ export namespace Prisma {
     NOT?: UploadedFileWhereInput | UploadedFileWhereInput[]
     id?: StringFilter<"UploadedFile"> | string
     caseId?: StringFilter<"UploadedFile"> | string
-    fileName?: StringFilter<"UploadedFile"> | string
-    originalName?: StringFilter<"UploadedFile"> | string
-    fileSize?: IntFilter<"UploadedFile"> | number
-    mimeType?: StringFilter<"UploadedFile"> | string
+    filename?: StringFilter<"UploadedFile"> | string
+    s3Key?: StringFilter<"UploadedFile"> | string
+    mimetype?: StringFilter<"UploadedFile"> | string
+    size?: IntFilter<"UploadedFile"> | number
     category?: StringFilter<"UploadedFile"> | string
-    s3Key?: StringNullableFilter<"UploadedFile"> | string | null
-    uploadedAt?: DateTimeFilter<"UploadedFile"> | Date | string
+    createdAt?: DateTimeFilter<"UploadedFile"> | Date | string
     case?: XOR<CaseScalarRelationFilter, CaseWhereInput>
   }
 
   export type UploadedFileOrderByWithRelationInput = {
     id?: SortOrder
     caseId?: SortOrder
-    fileName?: SortOrder
-    originalName?: SortOrder
-    fileSize?: SortOrder
-    mimeType?: SortOrder
+    filename?: SortOrder
+    s3Key?: SortOrder
+    mimetype?: SortOrder
+    size?: SortOrder
     category?: SortOrder
-    s3Key?: SortOrderInput | SortOrder
-    uploadedAt?: SortOrder
+    createdAt?: SortOrder
     case?: CaseOrderByWithRelationInput
   }
 
@@ -12961,26 +16444,24 @@ export namespace Prisma {
     OR?: UploadedFileWhereInput[]
     NOT?: UploadedFileWhereInput | UploadedFileWhereInput[]
     caseId?: StringFilter<"UploadedFile"> | string
-    fileName?: StringFilter<"UploadedFile"> | string
-    originalName?: StringFilter<"UploadedFile"> | string
-    fileSize?: IntFilter<"UploadedFile"> | number
-    mimeType?: StringFilter<"UploadedFile"> | string
+    filename?: StringFilter<"UploadedFile"> | string
+    s3Key?: StringFilter<"UploadedFile"> | string
+    mimetype?: StringFilter<"UploadedFile"> | string
+    size?: IntFilter<"UploadedFile"> | number
     category?: StringFilter<"UploadedFile"> | string
-    s3Key?: StringNullableFilter<"UploadedFile"> | string | null
-    uploadedAt?: DateTimeFilter<"UploadedFile"> | Date | string
+    createdAt?: DateTimeFilter<"UploadedFile"> | Date | string
     case?: XOR<CaseScalarRelationFilter, CaseWhereInput>
   }, "id">
 
   export type UploadedFileOrderByWithAggregationInput = {
     id?: SortOrder
     caseId?: SortOrder
-    fileName?: SortOrder
-    originalName?: SortOrder
-    fileSize?: SortOrder
-    mimeType?: SortOrder
+    filename?: SortOrder
+    s3Key?: SortOrder
+    mimetype?: SortOrder
+    size?: SortOrder
     category?: SortOrder
-    s3Key?: SortOrderInput | SortOrder
-    uploadedAt?: SortOrder
+    createdAt?: SortOrder
     _count?: UploadedFileCountOrderByAggregateInput
     _avg?: UploadedFileAvgOrderByAggregateInput
     _max?: UploadedFileMaxOrderByAggregateInput
@@ -12994,13 +16475,12 @@ export namespace Prisma {
     NOT?: UploadedFileScalarWhereWithAggregatesInput | UploadedFileScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"UploadedFile"> | string
     caseId?: StringWithAggregatesFilter<"UploadedFile"> | string
-    fileName?: StringWithAggregatesFilter<"UploadedFile"> | string
-    originalName?: StringWithAggregatesFilter<"UploadedFile"> | string
-    fileSize?: IntWithAggregatesFilter<"UploadedFile"> | number
-    mimeType?: StringWithAggregatesFilter<"UploadedFile"> | string
+    filename?: StringWithAggregatesFilter<"UploadedFile"> | string
+    s3Key?: StringWithAggregatesFilter<"UploadedFile"> | string
+    mimetype?: StringWithAggregatesFilter<"UploadedFile"> | string
+    size?: IntWithAggregatesFilter<"UploadedFile"> | number
     category?: StringWithAggregatesFilter<"UploadedFile"> | string
-    s3Key?: StringNullableWithAggregatesFilter<"UploadedFile"> | string | null
-    uploadedAt?: DateTimeWithAggregatesFilter<"UploadedFile"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"UploadedFile"> | Date | string
   }
 
   export type MedicalProfessionalWhereInput = {
@@ -13008,88 +16488,168 @@ export namespace Prisma {
     OR?: MedicalProfessionalWhereInput[]
     NOT?: MedicalProfessionalWhereInput | MedicalProfessionalWhereInput[]
     id?: StringFilter<"MedicalProfessional"> | string
-    professionalId?: StringFilter<"MedicalProfessional"> | string
+    proNumber?: StringFilter<"MedicalProfessional"> | string
     firstName?: StringFilter<"MedicalProfessional"> | string
+    middleName?: StringNullableFilter<"MedicalProfessional"> | string | null
     lastName?: StringFilter<"MedicalProfessional"> | string
+    dob?: DateTimeFilter<"MedicalProfessional"> | Date | string
     email?: StringFilter<"MedicalProfessional"> | string
     phone?: StringNullableFilter<"MedicalProfessional"> | string | null
+    nationality?: StringNullableFilter<"MedicalProfessional"> | string | null
     licenseNumber?: StringFilter<"MedicalProfessional"> | string
-    specialty?: StringFilter<"MedicalProfessional"> | string
-    yearsExperience?: IntFilter<"MedicalProfessional"> | number
-    qualifications?: StringFilter<"MedicalProfessional"> | string
-    vettingStatus?: StringFilter<"MedicalProfessional"> | string
-    vettedBy?: StringNullableFilter<"MedicalProfessional"> | string | null
-    vettedAt?: DateTimeNullableFilter<"MedicalProfessional"> | Date | string | null
-    appliedAt?: DateTimeFilter<"MedicalProfessional"> | Date | string
+    licenseCountry?: StringFilter<"MedicalProfessional"> | string
+    licenseExpiry?: DateTimeFilter<"MedicalProfessional"> | Date | string
+    vetted?: BoolFilter<"MedicalProfessional"> | boolean
+    level?: EnumProLevelFilter<"MedicalProfessional"> | $Enums.ProLevel
+    cvUrl?: StringNullableFilter<"MedicalProfessional"> | string | null
+    documents?: JsonNullableFilter<"MedicalProfessional">
+    subspecialties?: StringNullableFilter<"MedicalProfessional"> | string | null
+    yearsPractice?: IntFilter<"MedicalProfessional"> | number
+    publications?: IntFilter<"MedicalProfessional"> | number
+    trialInvolved?: BoolFilter<"MedicalProfessional"> | boolean
+    leadership?: StringNullableFilter<"MedicalProfessional"> | string | null
+    societyMemberships?: StringNullableFilter<"MedicalProfessional"> | string | null
+    score?: IntNullableFilter<"MedicalProfessional"> | number | null
+    hashedPassword?: StringNullableFilter<"MedicalProfessional"> | string | null
+    twoFactorMethod?: EnumTwoFactorMethodFilter<"MedicalProfessional"> | $Enums.TwoFactorMethod
+    twoFactorSecret?: StringNullableFilter<"MedicalProfessional"> | string | null
+    profileLastUpdated?: DateTimeNullableFilter<"MedicalProfessional"> | Date | string | null
+    codeOfConductAcknowledged?: DateTimeNullableFilter<"MedicalProfessional"> | Date | string | null
+    address?: StringNullableFilter<"MedicalProfessional"> | string | null
+    billingAddress?: StringNullableFilter<"MedicalProfessional"> | string | null
+    bankDetails?: JsonNullableFilter<"MedicalProfessional">
+    vatNumber?: StringNullableFilter<"MedicalProfessional"> | string | null
+    billingRate?: FloatNullableFilter<"MedicalProfessional"> | number | null
+    createdAt?: DateTimeFilter<"MedicalProfessional"> | Date | string
     updatedAt?: DateTimeFilter<"MedicalProfessional"> | Date | string
     caseAssignments?: CaseAssignmentListRelationFilter
-    primaryOpinions?: MedicalOpinionListRelationFilter
-    reviewedOpinions?: MedicalOpinionListRelationFilter
-    payments?: ProfessionalPaymentListRelationFilter
+    medicalOpinions?: MedicalOpinionListRelationFilter
+    professionalPayments?: ProfessionalPaymentListRelationFilter
+    professionalSessions?: ProfessionalSessionListRelationFilter
   }
 
   export type MedicalProfessionalOrderByWithRelationInput = {
     id?: SortOrder
-    professionalId?: SortOrder
+    proNumber?: SortOrder
     firstName?: SortOrder
+    middleName?: SortOrderInput | SortOrder
     lastName?: SortOrder
+    dob?: SortOrder
     email?: SortOrder
     phone?: SortOrderInput | SortOrder
+    nationality?: SortOrderInput | SortOrder
     licenseNumber?: SortOrder
-    specialty?: SortOrder
-    yearsExperience?: SortOrder
-    qualifications?: SortOrder
-    vettingStatus?: SortOrder
-    vettedBy?: SortOrderInput | SortOrder
-    vettedAt?: SortOrderInput | SortOrder
-    appliedAt?: SortOrder
+    licenseCountry?: SortOrder
+    licenseExpiry?: SortOrder
+    vetted?: SortOrder
+    level?: SortOrder
+    cvUrl?: SortOrderInput | SortOrder
+    documents?: SortOrderInput | SortOrder
+    subspecialties?: SortOrderInput | SortOrder
+    yearsPractice?: SortOrder
+    publications?: SortOrder
+    trialInvolved?: SortOrder
+    leadership?: SortOrderInput | SortOrder
+    societyMemberships?: SortOrderInput | SortOrder
+    score?: SortOrderInput | SortOrder
+    hashedPassword?: SortOrderInput | SortOrder
+    twoFactorMethod?: SortOrder
+    twoFactorSecret?: SortOrderInput | SortOrder
+    profileLastUpdated?: SortOrderInput | SortOrder
+    codeOfConductAcknowledged?: SortOrderInput | SortOrder
+    address?: SortOrderInput | SortOrder
+    billingAddress?: SortOrderInput | SortOrder
+    bankDetails?: SortOrderInput | SortOrder
+    vatNumber?: SortOrderInput | SortOrder
+    billingRate?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
     updatedAt?: SortOrder
     caseAssignments?: CaseAssignmentOrderByRelationAggregateInput
-    primaryOpinions?: MedicalOpinionOrderByRelationAggregateInput
-    reviewedOpinions?: MedicalOpinionOrderByRelationAggregateInput
-    payments?: ProfessionalPaymentOrderByRelationAggregateInput
+    medicalOpinions?: MedicalOpinionOrderByRelationAggregateInput
+    professionalPayments?: ProfessionalPaymentOrderByRelationAggregateInput
+    professionalSessions?: ProfessionalSessionOrderByRelationAggregateInput
   }
 
   export type MedicalProfessionalWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    professionalId?: string
+    proNumber?: string
     email?: string
     AND?: MedicalProfessionalWhereInput | MedicalProfessionalWhereInput[]
     OR?: MedicalProfessionalWhereInput[]
     NOT?: MedicalProfessionalWhereInput | MedicalProfessionalWhereInput[]
     firstName?: StringFilter<"MedicalProfessional"> | string
+    middleName?: StringNullableFilter<"MedicalProfessional"> | string | null
     lastName?: StringFilter<"MedicalProfessional"> | string
+    dob?: DateTimeFilter<"MedicalProfessional"> | Date | string
     phone?: StringNullableFilter<"MedicalProfessional"> | string | null
+    nationality?: StringNullableFilter<"MedicalProfessional"> | string | null
     licenseNumber?: StringFilter<"MedicalProfessional"> | string
-    specialty?: StringFilter<"MedicalProfessional"> | string
-    yearsExperience?: IntFilter<"MedicalProfessional"> | number
-    qualifications?: StringFilter<"MedicalProfessional"> | string
-    vettingStatus?: StringFilter<"MedicalProfessional"> | string
-    vettedBy?: StringNullableFilter<"MedicalProfessional"> | string | null
-    vettedAt?: DateTimeNullableFilter<"MedicalProfessional"> | Date | string | null
-    appliedAt?: DateTimeFilter<"MedicalProfessional"> | Date | string
+    licenseCountry?: StringFilter<"MedicalProfessional"> | string
+    licenseExpiry?: DateTimeFilter<"MedicalProfessional"> | Date | string
+    vetted?: BoolFilter<"MedicalProfessional"> | boolean
+    level?: EnumProLevelFilter<"MedicalProfessional"> | $Enums.ProLevel
+    cvUrl?: StringNullableFilter<"MedicalProfessional"> | string | null
+    documents?: JsonNullableFilter<"MedicalProfessional">
+    subspecialties?: StringNullableFilter<"MedicalProfessional"> | string | null
+    yearsPractice?: IntFilter<"MedicalProfessional"> | number
+    publications?: IntFilter<"MedicalProfessional"> | number
+    trialInvolved?: BoolFilter<"MedicalProfessional"> | boolean
+    leadership?: StringNullableFilter<"MedicalProfessional"> | string | null
+    societyMemberships?: StringNullableFilter<"MedicalProfessional"> | string | null
+    score?: IntNullableFilter<"MedicalProfessional"> | number | null
+    hashedPassword?: StringNullableFilter<"MedicalProfessional"> | string | null
+    twoFactorMethod?: EnumTwoFactorMethodFilter<"MedicalProfessional"> | $Enums.TwoFactorMethod
+    twoFactorSecret?: StringNullableFilter<"MedicalProfessional"> | string | null
+    profileLastUpdated?: DateTimeNullableFilter<"MedicalProfessional"> | Date | string | null
+    codeOfConductAcknowledged?: DateTimeNullableFilter<"MedicalProfessional"> | Date | string | null
+    address?: StringNullableFilter<"MedicalProfessional"> | string | null
+    billingAddress?: StringNullableFilter<"MedicalProfessional"> | string | null
+    bankDetails?: JsonNullableFilter<"MedicalProfessional">
+    vatNumber?: StringNullableFilter<"MedicalProfessional"> | string | null
+    billingRate?: FloatNullableFilter<"MedicalProfessional"> | number | null
+    createdAt?: DateTimeFilter<"MedicalProfessional"> | Date | string
     updatedAt?: DateTimeFilter<"MedicalProfessional"> | Date | string
     caseAssignments?: CaseAssignmentListRelationFilter
-    primaryOpinions?: MedicalOpinionListRelationFilter
-    reviewedOpinions?: MedicalOpinionListRelationFilter
-    payments?: ProfessionalPaymentListRelationFilter
-  }, "id" | "professionalId" | "email">
+    medicalOpinions?: MedicalOpinionListRelationFilter
+    professionalPayments?: ProfessionalPaymentListRelationFilter
+    professionalSessions?: ProfessionalSessionListRelationFilter
+  }, "id" | "proNumber" | "email">
 
   export type MedicalProfessionalOrderByWithAggregationInput = {
     id?: SortOrder
-    professionalId?: SortOrder
+    proNumber?: SortOrder
     firstName?: SortOrder
+    middleName?: SortOrderInput | SortOrder
     lastName?: SortOrder
+    dob?: SortOrder
     email?: SortOrder
     phone?: SortOrderInput | SortOrder
+    nationality?: SortOrderInput | SortOrder
     licenseNumber?: SortOrder
-    specialty?: SortOrder
-    yearsExperience?: SortOrder
-    qualifications?: SortOrder
-    vettingStatus?: SortOrder
-    vettedBy?: SortOrderInput | SortOrder
-    vettedAt?: SortOrderInput | SortOrder
-    appliedAt?: SortOrder
+    licenseCountry?: SortOrder
+    licenseExpiry?: SortOrder
+    vetted?: SortOrder
+    level?: SortOrder
+    cvUrl?: SortOrderInput | SortOrder
+    documents?: SortOrderInput | SortOrder
+    subspecialties?: SortOrderInput | SortOrder
+    yearsPractice?: SortOrder
+    publications?: SortOrder
+    trialInvolved?: SortOrder
+    leadership?: SortOrderInput | SortOrder
+    societyMemberships?: SortOrderInput | SortOrder
+    score?: SortOrderInput | SortOrder
+    hashedPassword?: SortOrderInput | SortOrder
+    twoFactorMethod?: SortOrder
+    twoFactorSecret?: SortOrderInput | SortOrder
+    profileLastUpdated?: SortOrderInput | SortOrder
+    codeOfConductAcknowledged?: SortOrderInput | SortOrder
+    address?: SortOrderInput | SortOrder
+    billingAddress?: SortOrderInput | SortOrder
+    bankDetails?: SortOrderInput | SortOrder
+    vatNumber?: SortOrderInput | SortOrder
+    billingRate?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: MedicalProfessionalCountOrderByAggregateInput
     _avg?: MedicalProfessionalAvgOrderByAggregateInput
@@ -13103,20 +16663,100 @@ export namespace Prisma {
     OR?: MedicalProfessionalScalarWhereWithAggregatesInput[]
     NOT?: MedicalProfessionalScalarWhereWithAggregatesInput | MedicalProfessionalScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"MedicalProfessional"> | string
-    professionalId?: StringWithAggregatesFilter<"MedicalProfessional"> | string
+    proNumber?: StringWithAggregatesFilter<"MedicalProfessional"> | string
     firstName?: StringWithAggregatesFilter<"MedicalProfessional"> | string
+    middleName?: StringNullableWithAggregatesFilter<"MedicalProfessional"> | string | null
     lastName?: StringWithAggregatesFilter<"MedicalProfessional"> | string
+    dob?: DateTimeWithAggregatesFilter<"MedicalProfessional"> | Date | string
     email?: StringWithAggregatesFilter<"MedicalProfessional"> | string
     phone?: StringNullableWithAggregatesFilter<"MedicalProfessional"> | string | null
+    nationality?: StringNullableWithAggregatesFilter<"MedicalProfessional"> | string | null
     licenseNumber?: StringWithAggregatesFilter<"MedicalProfessional"> | string
-    specialty?: StringWithAggregatesFilter<"MedicalProfessional"> | string
-    yearsExperience?: IntWithAggregatesFilter<"MedicalProfessional"> | number
-    qualifications?: StringWithAggregatesFilter<"MedicalProfessional"> | string
-    vettingStatus?: StringWithAggregatesFilter<"MedicalProfessional"> | string
-    vettedBy?: StringNullableWithAggregatesFilter<"MedicalProfessional"> | string | null
-    vettedAt?: DateTimeNullableWithAggregatesFilter<"MedicalProfessional"> | Date | string | null
-    appliedAt?: DateTimeWithAggregatesFilter<"MedicalProfessional"> | Date | string
+    licenseCountry?: StringWithAggregatesFilter<"MedicalProfessional"> | string
+    licenseExpiry?: DateTimeWithAggregatesFilter<"MedicalProfessional"> | Date | string
+    vetted?: BoolWithAggregatesFilter<"MedicalProfessional"> | boolean
+    level?: EnumProLevelWithAggregatesFilter<"MedicalProfessional"> | $Enums.ProLevel
+    cvUrl?: StringNullableWithAggregatesFilter<"MedicalProfessional"> | string | null
+    documents?: JsonNullableWithAggregatesFilter<"MedicalProfessional">
+    subspecialties?: StringNullableWithAggregatesFilter<"MedicalProfessional"> | string | null
+    yearsPractice?: IntWithAggregatesFilter<"MedicalProfessional"> | number
+    publications?: IntWithAggregatesFilter<"MedicalProfessional"> | number
+    trialInvolved?: BoolWithAggregatesFilter<"MedicalProfessional"> | boolean
+    leadership?: StringNullableWithAggregatesFilter<"MedicalProfessional"> | string | null
+    societyMemberships?: StringNullableWithAggregatesFilter<"MedicalProfessional"> | string | null
+    score?: IntNullableWithAggregatesFilter<"MedicalProfessional"> | number | null
+    hashedPassword?: StringNullableWithAggregatesFilter<"MedicalProfessional"> | string | null
+    twoFactorMethod?: EnumTwoFactorMethodWithAggregatesFilter<"MedicalProfessional"> | $Enums.TwoFactorMethod
+    twoFactorSecret?: StringNullableWithAggregatesFilter<"MedicalProfessional"> | string | null
+    profileLastUpdated?: DateTimeNullableWithAggregatesFilter<"MedicalProfessional"> | Date | string | null
+    codeOfConductAcknowledged?: DateTimeNullableWithAggregatesFilter<"MedicalProfessional"> | Date | string | null
+    address?: StringNullableWithAggregatesFilter<"MedicalProfessional"> | string | null
+    billingAddress?: StringNullableWithAggregatesFilter<"MedicalProfessional"> | string | null
+    bankDetails?: JsonNullableWithAggregatesFilter<"MedicalProfessional">
+    vatNumber?: StringNullableWithAggregatesFilter<"MedicalProfessional"> | string | null
+    billingRate?: FloatNullableWithAggregatesFilter<"MedicalProfessional"> | number | null
+    createdAt?: DateTimeWithAggregatesFilter<"MedicalProfessional"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"MedicalProfessional"> | Date | string
+  }
+
+  export type ProfessionalSessionWhereInput = {
+    AND?: ProfessionalSessionWhereInput | ProfessionalSessionWhereInput[]
+    OR?: ProfessionalSessionWhereInput[]
+    NOT?: ProfessionalSessionWhereInput | ProfessionalSessionWhereInput[]
+    id?: StringFilter<"ProfessionalSession"> | string
+    professionalId?: StringFilter<"ProfessionalSession"> | string
+    sessionToken?: StringFilter<"ProfessionalSession"> | string
+    twoFactorVerified?: BoolFilter<"ProfessionalSession"> | boolean
+    expiresAt?: DateTimeFilter<"ProfessionalSession"> | Date | string
+    createdAt?: DateTimeFilter<"ProfessionalSession"> | Date | string
+    professional?: XOR<MedicalProfessionalScalarRelationFilter, MedicalProfessionalWhereInput>
+  }
+
+  export type ProfessionalSessionOrderByWithRelationInput = {
+    id?: SortOrder
+    professionalId?: SortOrder
+    sessionToken?: SortOrder
+    twoFactorVerified?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    professional?: MedicalProfessionalOrderByWithRelationInput
+  }
+
+  export type ProfessionalSessionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    sessionToken?: string
+    AND?: ProfessionalSessionWhereInput | ProfessionalSessionWhereInput[]
+    OR?: ProfessionalSessionWhereInput[]
+    NOT?: ProfessionalSessionWhereInput | ProfessionalSessionWhereInput[]
+    professionalId?: StringFilter<"ProfessionalSession"> | string
+    twoFactorVerified?: BoolFilter<"ProfessionalSession"> | boolean
+    expiresAt?: DateTimeFilter<"ProfessionalSession"> | Date | string
+    createdAt?: DateTimeFilter<"ProfessionalSession"> | Date | string
+    professional?: XOR<MedicalProfessionalScalarRelationFilter, MedicalProfessionalWhereInput>
+  }, "id" | "sessionToken">
+
+  export type ProfessionalSessionOrderByWithAggregationInput = {
+    id?: SortOrder
+    professionalId?: SortOrder
+    sessionToken?: SortOrder
+    twoFactorVerified?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    _count?: ProfessionalSessionCountOrderByAggregateInput
+    _max?: ProfessionalSessionMaxOrderByAggregateInput
+    _min?: ProfessionalSessionMinOrderByAggregateInput
+  }
+
+  export type ProfessionalSessionScalarWhereWithAggregatesInput = {
+    AND?: ProfessionalSessionScalarWhereWithAggregatesInput | ProfessionalSessionScalarWhereWithAggregatesInput[]
+    OR?: ProfessionalSessionScalarWhereWithAggregatesInput[]
+    NOT?: ProfessionalSessionScalarWhereWithAggregatesInput | ProfessionalSessionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ProfessionalSession"> | string
+    professionalId?: StringWithAggregatesFilter<"ProfessionalSession"> | string
+    sessionToken?: StringWithAggregatesFilter<"ProfessionalSession"> | string
+    twoFactorVerified?: BoolWithAggregatesFilter<"ProfessionalSession"> | boolean
+    expiresAt?: DateTimeWithAggregatesFilter<"ProfessionalSession"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"ProfessionalSession"> | Date | string
   }
 
   export type CaseAssignmentWhereInput = {
@@ -13126,10 +16766,8 @@ export namespace Prisma {
     id?: StringFilter<"CaseAssignment"> | string
     caseId?: StringFilter<"CaseAssignment"> | string
     professionalId?: StringFilter<"CaseAssignment"> | string
-    assignedBy?: StringFilter<"CaseAssignment"> | string
-    assignedAt?: DateTimeFilter<"CaseAssignment"> | Date | string
     status?: StringFilter<"CaseAssignment"> | string
-    startedAt?: DateTimeNullableFilter<"CaseAssignment"> | Date | string | null
+    assignedAt?: DateTimeFilter<"CaseAssignment"> | Date | string
     completedAt?: DateTimeNullableFilter<"CaseAssignment"> | Date | string | null
     case?: XOR<CaseScalarRelationFilter, CaseWhereInput>
     professional?: XOR<MedicalProfessionalScalarRelationFilter, MedicalProfessionalWhereInput>
@@ -13139,10 +16777,8 @@ export namespace Prisma {
     id?: SortOrder
     caseId?: SortOrder
     professionalId?: SortOrder
-    assignedBy?: SortOrder
-    assignedAt?: SortOrder
     status?: SortOrder
-    startedAt?: SortOrderInput | SortOrder
+    assignedAt?: SortOrder
     completedAt?: SortOrderInput | SortOrder
     case?: CaseOrderByWithRelationInput
     professional?: MedicalProfessionalOrderByWithRelationInput
@@ -13155,10 +16791,8 @@ export namespace Prisma {
     NOT?: CaseAssignmentWhereInput | CaseAssignmentWhereInput[]
     caseId?: StringFilter<"CaseAssignment"> | string
     professionalId?: StringFilter<"CaseAssignment"> | string
-    assignedBy?: StringFilter<"CaseAssignment"> | string
-    assignedAt?: DateTimeFilter<"CaseAssignment"> | Date | string
     status?: StringFilter<"CaseAssignment"> | string
-    startedAt?: DateTimeNullableFilter<"CaseAssignment"> | Date | string | null
+    assignedAt?: DateTimeFilter<"CaseAssignment"> | Date | string
     completedAt?: DateTimeNullableFilter<"CaseAssignment"> | Date | string | null
     case?: XOR<CaseScalarRelationFilter, CaseWhereInput>
     professional?: XOR<MedicalProfessionalScalarRelationFilter, MedicalProfessionalWhereInput>
@@ -13168,10 +16802,8 @@ export namespace Prisma {
     id?: SortOrder
     caseId?: SortOrder
     professionalId?: SortOrder
-    assignedBy?: SortOrder
-    assignedAt?: SortOrder
     status?: SortOrder
-    startedAt?: SortOrderInput | SortOrder
+    assignedAt?: SortOrder
     completedAt?: SortOrderInput | SortOrder
     _count?: CaseAssignmentCountOrderByAggregateInput
     _max?: CaseAssignmentMaxOrderByAggregateInput
@@ -13185,10 +16817,8 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"CaseAssignment"> | string
     caseId?: StringWithAggregatesFilter<"CaseAssignment"> | string
     professionalId?: StringWithAggregatesFilter<"CaseAssignment"> | string
-    assignedBy?: StringWithAggregatesFilter<"CaseAssignment"> | string
-    assignedAt?: DateTimeWithAggregatesFilter<"CaseAssignment"> | Date | string
     status?: StringWithAggregatesFilter<"CaseAssignment"> | string
-    startedAt?: DateTimeNullableWithAggregatesFilter<"CaseAssignment"> | Date | string | null
+    assignedAt?: DateTimeWithAggregatesFilter<"CaseAssignment"> | Date | string
     completedAt?: DateTimeNullableWithAggregatesFilter<"CaseAssignment"> | Date | string | null
   }
 
@@ -13199,10 +16829,8 @@ export namespace Prisma {
     id?: StringFilter<"AIAnalysis"> | string
     caseId?: StringFilter<"AIAnalysis"> | string
     analysisType?: StringFilter<"AIAnalysis"> | string
-    findings?: StringFilter<"AIAnalysis"> | string
-    confidence?: FloatNullableFilter<"AIAnalysis"> | number | null
-    initiatedAt?: DateTimeFilter<"AIAnalysis"> | Date | string
-    completedAt?: DateTimeNullableFilter<"AIAnalysis"> | Date | string | null
+    results?: StringFilter<"AIAnalysis"> | string
+    createdAt?: DateTimeFilter<"AIAnalysis"> | Date | string
     case?: XOR<CaseScalarRelationFilter, CaseWhereInput>
   }
 
@@ -13210,40 +16838,32 @@ export namespace Prisma {
     id?: SortOrder
     caseId?: SortOrder
     analysisType?: SortOrder
-    findings?: SortOrder
-    confidence?: SortOrderInput | SortOrder
-    initiatedAt?: SortOrder
-    completedAt?: SortOrderInput | SortOrder
+    results?: SortOrder
+    createdAt?: SortOrder
     case?: CaseOrderByWithRelationInput
   }
 
   export type AIAnalysisWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    caseId?: string
     AND?: AIAnalysisWhereInput | AIAnalysisWhereInput[]
     OR?: AIAnalysisWhereInput[]
     NOT?: AIAnalysisWhereInput | AIAnalysisWhereInput[]
+    caseId?: StringFilter<"AIAnalysis"> | string
     analysisType?: StringFilter<"AIAnalysis"> | string
-    findings?: StringFilter<"AIAnalysis"> | string
-    confidence?: FloatNullableFilter<"AIAnalysis"> | number | null
-    initiatedAt?: DateTimeFilter<"AIAnalysis"> | Date | string
-    completedAt?: DateTimeNullableFilter<"AIAnalysis"> | Date | string | null
+    results?: StringFilter<"AIAnalysis"> | string
+    createdAt?: DateTimeFilter<"AIAnalysis"> | Date | string
     case?: XOR<CaseScalarRelationFilter, CaseWhereInput>
-  }, "id" | "caseId">
+  }, "id">
 
   export type AIAnalysisOrderByWithAggregationInput = {
     id?: SortOrder
     caseId?: SortOrder
     analysisType?: SortOrder
-    findings?: SortOrder
-    confidence?: SortOrderInput | SortOrder
-    initiatedAt?: SortOrder
-    completedAt?: SortOrderInput | SortOrder
+    results?: SortOrder
+    createdAt?: SortOrder
     _count?: AIAnalysisCountOrderByAggregateInput
-    _avg?: AIAnalysisAvgOrderByAggregateInput
     _max?: AIAnalysisMaxOrderByAggregateInput
     _min?: AIAnalysisMinOrderByAggregateInput
-    _sum?: AIAnalysisSumOrderByAggregateInput
   }
 
   export type AIAnalysisScalarWhereWithAggregatesInput = {
@@ -13253,10 +16873,8 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"AIAnalysis"> | string
     caseId?: StringWithAggregatesFilter<"AIAnalysis"> | string
     analysisType?: StringWithAggregatesFilter<"AIAnalysis"> | string
-    findings?: StringWithAggregatesFilter<"AIAnalysis"> | string
-    confidence?: FloatNullableWithAggregatesFilter<"AIAnalysis"> | number | null
-    initiatedAt?: DateTimeWithAggregatesFilter<"AIAnalysis"> | Date | string
-    completedAt?: DateTimeNullableWithAggregatesFilter<"AIAnalysis"> | Date | string | null
+    results?: StringWithAggregatesFilter<"AIAnalysis"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"AIAnalysis"> | Date | string
   }
 
   export type MedicalOpinionWhereInput = {
@@ -13265,45 +16883,25 @@ export namespace Prisma {
     NOT?: MedicalOpinionWhereInput | MedicalOpinionWhereInput[]
     id?: StringFilter<"MedicalOpinion"> | string
     caseId?: StringFilter<"MedicalOpinion"> | string
-    primaryProfessionalId?: StringFilter<"MedicalOpinion"> | string
-    reviewerProfessionalId?: StringNullableFilter<"MedicalOpinion"> | string | null
-    diagnosis?: StringNullableFilter<"MedicalOpinion"> | string | null
-    recommendations?: StringFilter<"MedicalOpinion"> | string
-    riskAssessment?: StringNullableFilter<"MedicalOpinion"> | string | null
-    additionalTests?: StringNullableFilter<"MedicalOpinion"> | string | null
-    notes?: StringNullableFilter<"MedicalOpinion"> | string | null
+    professionalId?: StringFilter<"MedicalOpinion"> | string
+    content?: StringFilter<"MedicalOpinion"> | string
     status?: StringFilter<"MedicalOpinion"> | string
-    peerReviewNotes?: StringNullableFilter<"MedicalOpinion"> | string | null
     createdAt?: DateTimeFilter<"MedicalOpinion"> | Date | string
-    submittedAt?: DateTimeNullableFilter<"MedicalOpinion"> | Date | string | null
-    reviewedAt?: DateTimeNullableFilter<"MedicalOpinion"> | Date | string | null
-    approvedAt?: DateTimeNullableFilter<"MedicalOpinion"> | Date | string | null
-    deliveredAt?: DateTimeNullableFilter<"MedicalOpinion"> | Date | string | null
+    updatedAt?: DateTimeFilter<"MedicalOpinion"> | Date | string
     case?: XOR<CaseScalarRelationFilter, CaseWhereInput>
-    primaryProfessional?: XOR<MedicalProfessionalScalarRelationFilter, MedicalProfessionalWhereInput>
-    reviewerProfessional?: XOR<MedicalProfessionalNullableScalarRelationFilter, MedicalProfessionalWhereInput> | null
+    professional?: XOR<MedicalProfessionalScalarRelationFilter, MedicalProfessionalWhereInput>
   }
 
   export type MedicalOpinionOrderByWithRelationInput = {
     id?: SortOrder
     caseId?: SortOrder
-    primaryProfessionalId?: SortOrder
-    reviewerProfessionalId?: SortOrderInput | SortOrder
-    diagnosis?: SortOrderInput | SortOrder
-    recommendations?: SortOrder
-    riskAssessment?: SortOrderInput | SortOrder
-    additionalTests?: SortOrderInput | SortOrder
-    notes?: SortOrderInput | SortOrder
+    professionalId?: SortOrder
+    content?: SortOrder
     status?: SortOrder
-    peerReviewNotes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
-    submittedAt?: SortOrderInput | SortOrder
-    reviewedAt?: SortOrderInput | SortOrder
-    approvedAt?: SortOrderInput | SortOrder
-    deliveredAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
     case?: CaseOrderByWithRelationInput
-    primaryProfessional?: MedicalProfessionalOrderByWithRelationInput
-    reviewerProfessional?: MedicalProfessionalOrderByWithRelationInput
+    professional?: MedicalProfessionalOrderByWithRelationInput
   }
 
   export type MedicalOpinionWhereUniqueInput = Prisma.AtLeast<{
@@ -13312,42 +16910,23 @@ export namespace Prisma {
     OR?: MedicalOpinionWhereInput[]
     NOT?: MedicalOpinionWhereInput | MedicalOpinionWhereInput[]
     caseId?: StringFilter<"MedicalOpinion"> | string
-    primaryProfessionalId?: StringFilter<"MedicalOpinion"> | string
-    reviewerProfessionalId?: StringNullableFilter<"MedicalOpinion"> | string | null
-    diagnosis?: StringNullableFilter<"MedicalOpinion"> | string | null
-    recommendations?: StringFilter<"MedicalOpinion"> | string
-    riskAssessment?: StringNullableFilter<"MedicalOpinion"> | string | null
-    additionalTests?: StringNullableFilter<"MedicalOpinion"> | string | null
-    notes?: StringNullableFilter<"MedicalOpinion"> | string | null
+    professionalId?: StringFilter<"MedicalOpinion"> | string
+    content?: StringFilter<"MedicalOpinion"> | string
     status?: StringFilter<"MedicalOpinion"> | string
-    peerReviewNotes?: StringNullableFilter<"MedicalOpinion"> | string | null
     createdAt?: DateTimeFilter<"MedicalOpinion"> | Date | string
-    submittedAt?: DateTimeNullableFilter<"MedicalOpinion"> | Date | string | null
-    reviewedAt?: DateTimeNullableFilter<"MedicalOpinion"> | Date | string | null
-    approvedAt?: DateTimeNullableFilter<"MedicalOpinion"> | Date | string | null
-    deliveredAt?: DateTimeNullableFilter<"MedicalOpinion"> | Date | string | null
+    updatedAt?: DateTimeFilter<"MedicalOpinion"> | Date | string
     case?: XOR<CaseScalarRelationFilter, CaseWhereInput>
-    primaryProfessional?: XOR<MedicalProfessionalScalarRelationFilter, MedicalProfessionalWhereInput>
-    reviewerProfessional?: XOR<MedicalProfessionalNullableScalarRelationFilter, MedicalProfessionalWhereInput> | null
+    professional?: XOR<MedicalProfessionalScalarRelationFilter, MedicalProfessionalWhereInput>
   }, "id">
 
   export type MedicalOpinionOrderByWithAggregationInput = {
     id?: SortOrder
     caseId?: SortOrder
-    primaryProfessionalId?: SortOrder
-    reviewerProfessionalId?: SortOrderInput | SortOrder
-    diagnosis?: SortOrderInput | SortOrder
-    recommendations?: SortOrder
-    riskAssessment?: SortOrderInput | SortOrder
-    additionalTests?: SortOrderInput | SortOrder
-    notes?: SortOrderInput | SortOrder
+    professionalId?: SortOrder
+    content?: SortOrder
     status?: SortOrder
-    peerReviewNotes?: SortOrderInput | SortOrder
     createdAt?: SortOrder
-    submittedAt?: SortOrderInput | SortOrder
-    reviewedAt?: SortOrderInput | SortOrder
-    approvedAt?: SortOrderInput | SortOrder
-    deliveredAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
     _count?: MedicalOpinionCountOrderByAggregateInput
     _max?: MedicalOpinionMaxOrderByAggregateInput
     _min?: MedicalOpinionMinOrderByAggregateInput
@@ -13359,20 +16938,11 @@ export namespace Prisma {
     NOT?: MedicalOpinionScalarWhereWithAggregatesInput | MedicalOpinionScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"MedicalOpinion"> | string
     caseId?: StringWithAggregatesFilter<"MedicalOpinion"> | string
-    primaryProfessionalId?: StringWithAggregatesFilter<"MedicalOpinion"> | string
-    reviewerProfessionalId?: StringNullableWithAggregatesFilter<"MedicalOpinion"> | string | null
-    diagnosis?: StringNullableWithAggregatesFilter<"MedicalOpinion"> | string | null
-    recommendations?: StringWithAggregatesFilter<"MedicalOpinion"> | string
-    riskAssessment?: StringNullableWithAggregatesFilter<"MedicalOpinion"> | string | null
-    additionalTests?: StringNullableWithAggregatesFilter<"MedicalOpinion"> | string | null
-    notes?: StringNullableWithAggregatesFilter<"MedicalOpinion"> | string | null
+    professionalId?: StringWithAggregatesFilter<"MedicalOpinion"> | string
+    content?: StringWithAggregatesFilter<"MedicalOpinion"> | string
     status?: StringWithAggregatesFilter<"MedicalOpinion"> | string
-    peerReviewNotes?: StringNullableWithAggregatesFilter<"MedicalOpinion"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"MedicalOpinion"> | Date | string
-    submittedAt?: DateTimeNullableWithAggregatesFilter<"MedicalOpinion"> | Date | string | null
-    reviewedAt?: DateTimeNullableWithAggregatesFilter<"MedicalOpinion"> | Date | string | null
-    approvedAt?: DateTimeNullableWithAggregatesFilter<"MedicalOpinion"> | Date | string | null
-    deliveredAt?: DateTimeNullableWithAggregatesFilter<"MedicalOpinion"> | Date | string | null
+    updatedAt?: DateTimeWithAggregatesFilter<"MedicalOpinion"> | Date | string
   }
 
   export type ProfessionalPaymentWhereInput = {
@@ -13380,31 +16950,23 @@ export namespace Prisma {
     OR?: ProfessionalPaymentWhereInput[]
     NOT?: ProfessionalPaymentWhereInput | ProfessionalPaymentWhereInput[]
     id?: StringFilter<"ProfessionalPayment"> | string
+    caseId?: StringFilter<"ProfessionalPayment"> | string
     professionalId?: StringFilter<"ProfessionalPayment"> | string
-    caseId?: StringNullableFilter<"ProfessionalPayment"> | string | null
     amount?: FloatFilter<"ProfessionalPayment"> | number
-    currency?: StringFilter<"ProfessionalPayment"> | string
-    paymentType?: StringFilter<"ProfessionalPayment"> | string
-    paymentMethod?: StringFilter<"ProfessionalPayment"> | string
     status?: StringFilter<"ProfessionalPayment"> | string
-    transactionId?: StringNullableFilter<"ProfessionalPayment"> | string | null
-    initiatedAt?: DateTimeFilter<"ProfessionalPayment"> | Date | string
-    processedAt?: DateTimeNullableFilter<"ProfessionalPayment"> | Date | string | null
+    createdAt?: DateTimeFilter<"ProfessionalPayment"> | Date | string
+    case?: XOR<CaseScalarRelationFilter, CaseWhereInput>
     professional?: XOR<MedicalProfessionalScalarRelationFilter, MedicalProfessionalWhereInput>
   }
 
   export type ProfessionalPaymentOrderByWithRelationInput = {
     id?: SortOrder
+    caseId?: SortOrder
     professionalId?: SortOrder
-    caseId?: SortOrderInput | SortOrder
     amount?: SortOrder
-    currency?: SortOrder
-    paymentType?: SortOrder
-    paymentMethod?: SortOrder
     status?: SortOrder
-    transactionId?: SortOrderInput | SortOrder
-    initiatedAt?: SortOrder
-    processedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    case?: CaseOrderByWithRelationInput
     professional?: MedicalProfessionalOrderByWithRelationInput
   }
 
@@ -13413,31 +16975,22 @@ export namespace Prisma {
     AND?: ProfessionalPaymentWhereInput | ProfessionalPaymentWhereInput[]
     OR?: ProfessionalPaymentWhereInput[]
     NOT?: ProfessionalPaymentWhereInput | ProfessionalPaymentWhereInput[]
+    caseId?: StringFilter<"ProfessionalPayment"> | string
     professionalId?: StringFilter<"ProfessionalPayment"> | string
-    caseId?: StringNullableFilter<"ProfessionalPayment"> | string | null
     amount?: FloatFilter<"ProfessionalPayment"> | number
-    currency?: StringFilter<"ProfessionalPayment"> | string
-    paymentType?: StringFilter<"ProfessionalPayment"> | string
-    paymentMethod?: StringFilter<"ProfessionalPayment"> | string
     status?: StringFilter<"ProfessionalPayment"> | string
-    transactionId?: StringNullableFilter<"ProfessionalPayment"> | string | null
-    initiatedAt?: DateTimeFilter<"ProfessionalPayment"> | Date | string
-    processedAt?: DateTimeNullableFilter<"ProfessionalPayment"> | Date | string | null
+    createdAt?: DateTimeFilter<"ProfessionalPayment"> | Date | string
+    case?: XOR<CaseScalarRelationFilter, CaseWhereInput>
     professional?: XOR<MedicalProfessionalScalarRelationFilter, MedicalProfessionalWhereInput>
   }, "id">
 
   export type ProfessionalPaymentOrderByWithAggregationInput = {
     id?: SortOrder
+    caseId?: SortOrder
     professionalId?: SortOrder
-    caseId?: SortOrderInput | SortOrder
     amount?: SortOrder
-    currency?: SortOrder
-    paymentType?: SortOrder
-    paymentMethod?: SortOrder
     status?: SortOrder
-    transactionId?: SortOrderInput | SortOrder
-    initiatedAt?: SortOrder
-    processedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
     _count?: ProfessionalPaymentCountOrderByAggregateInput
     _avg?: ProfessionalPaymentAvgOrderByAggregateInput
     _max?: ProfessionalPaymentMaxOrderByAggregateInput
@@ -13450,16 +17003,11 @@ export namespace Prisma {
     OR?: ProfessionalPaymentScalarWhereWithAggregatesInput[]
     NOT?: ProfessionalPaymentScalarWhereWithAggregatesInput | ProfessionalPaymentScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"ProfessionalPayment"> | string
+    caseId?: StringWithAggregatesFilter<"ProfessionalPayment"> | string
     professionalId?: StringWithAggregatesFilter<"ProfessionalPayment"> | string
-    caseId?: StringNullableWithAggregatesFilter<"ProfessionalPayment"> | string | null
     amount?: FloatWithAggregatesFilter<"ProfessionalPayment"> | number
-    currency?: StringWithAggregatesFilter<"ProfessionalPayment"> | string
-    paymentType?: StringWithAggregatesFilter<"ProfessionalPayment"> | string
-    paymentMethod?: StringWithAggregatesFilter<"ProfessionalPayment"> | string
     status?: StringWithAggregatesFilter<"ProfessionalPayment"> | string
-    transactionId?: StringNullableWithAggregatesFilter<"ProfessionalPayment"> | string | null
-    initiatedAt?: DateTimeWithAggregatesFilter<"ProfessionalPayment"> | Date | string
-    processedAt?: DateTimeNullableWithAggregatesFilter<"ProfessionalPayment"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ProfessionalPayment"> | Date | string
   }
 
   export type AdminWhereInput = {
@@ -13467,63 +17015,39 @@ export namespace Prisma {
     OR?: AdminWhereInput[]
     NOT?: AdminWhereInput | AdminWhereInput[]
     id?: StringFilter<"Admin"> | string
-    adminId?: StringFilter<"Admin"> | string
-    firstName?: StringFilter<"Admin"> | string
-    lastName?: StringFilter<"Admin"> | string
     email?: StringFilter<"Admin"> | string
-    passwordHash?: StringFilter<"Admin"> | string
+    hashedPassword?: StringFilter<"Admin"> | string
     role?: StringFilter<"Admin"> | string
-    permissions?: StringFilter<"Admin"> | string
-    isActive?: BoolFilter<"Admin"> | boolean
-    lastLoginAt?: DateTimeNullableFilter<"Admin"> | Date | string | null
     createdAt?: DateTimeFilter<"Admin"> | Date | string
     updatedAt?: DateTimeFilter<"Admin"> | Date | string
   }
 
   export type AdminOrderByWithRelationInput = {
     id?: SortOrder
-    adminId?: SortOrder
-    firstName?: SortOrder
-    lastName?: SortOrder
     email?: SortOrder
-    passwordHash?: SortOrder
+    hashedPassword?: SortOrder
     role?: SortOrder
-    permissions?: SortOrder
-    isActive?: SortOrder
-    lastLoginAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type AdminWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    adminId?: string
     email?: string
     AND?: AdminWhereInput | AdminWhereInput[]
     OR?: AdminWhereInput[]
     NOT?: AdminWhereInput | AdminWhereInput[]
-    firstName?: StringFilter<"Admin"> | string
-    lastName?: StringFilter<"Admin"> | string
-    passwordHash?: StringFilter<"Admin"> | string
+    hashedPassword?: StringFilter<"Admin"> | string
     role?: StringFilter<"Admin"> | string
-    permissions?: StringFilter<"Admin"> | string
-    isActive?: BoolFilter<"Admin"> | boolean
-    lastLoginAt?: DateTimeNullableFilter<"Admin"> | Date | string | null
     createdAt?: DateTimeFilter<"Admin"> | Date | string
     updatedAt?: DateTimeFilter<"Admin"> | Date | string
-  }, "id" | "adminId" | "email">
+  }, "id" | "email">
 
   export type AdminOrderByWithAggregationInput = {
     id?: SortOrder
-    adminId?: SortOrder
-    firstName?: SortOrder
-    lastName?: SortOrder
     email?: SortOrder
-    passwordHash?: SortOrder
+    hashedPassword?: SortOrder
     role?: SortOrder
-    permissions?: SortOrder
-    isActive?: SortOrder
-    lastLoginAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: AdminCountOrderByAggregateInput
@@ -13536,54 +17060,98 @@ export namespace Prisma {
     OR?: AdminScalarWhereWithAggregatesInput[]
     NOT?: AdminScalarWhereWithAggregatesInput | AdminScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Admin"> | string
-    adminId?: StringWithAggregatesFilter<"Admin"> | string
-    firstName?: StringWithAggregatesFilter<"Admin"> | string
-    lastName?: StringWithAggregatesFilter<"Admin"> | string
     email?: StringWithAggregatesFilter<"Admin"> | string
-    passwordHash?: StringWithAggregatesFilter<"Admin"> | string
+    hashedPassword?: StringWithAggregatesFilter<"Admin"> | string
     role?: StringWithAggregatesFilter<"Admin"> | string
-    permissions?: StringWithAggregatesFilter<"Admin"> | string
-    isActive?: BoolWithAggregatesFilter<"Admin"> | boolean
-    lastLoginAt?: DateTimeNullableWithAggregatesFilter<"Admin"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Admin"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Admin"> | Date | string
   }
 
+  export type UserCreateInput = {
+    id?: string
+    email: string
+    hashedPassword: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    customer?: CustomerCreateNestedOneWithoutUserInput
+  }
+
+  export type UserUncheckedCreateInput = {
+    id?: string
+    email: string
+    hashedPassword: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    customer?: CustomerUncheckedCreateNestedOneWithoutUserInput
+  }
+
+  export type UserUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: CustomerUpdateOneWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: CustomerUncheckedUpdateOneWithoutUserNestedInput
+  }
+
+  export type UserCreateManyInput = {
+    id?: string
+    email: string
+    hashedPassword: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UserUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type CustomerCreateInput = {
     id?: string
-    customerId?: string
-    email: string
-    passwordHash: string
-    isActive?: boolean
-    lastLoginAt?: Date | string | null
     firstName: string
     middleName?: string | null
     lastName: string
     dateOfBirth: Date | string
+    email: string
     phone?: string | null
-    preferredContact?: string
-    emailNotifications?: boolean
-    smsNotifications?: boolean
+    preferredChannel?: $Enums.CommunicationChannel
     createdAt?: Date | string
     updatedAt?: Date | string
+    user?: UserCreateNestedOneWithoutCustomerInput
     cases?: CaseCreateNestedManyWithoutCustomerInput
   }
 
   export type CustomerUncheckedCreateInput = {
     id?: string
-    customerId?: string
-    email: string
-    passwordHash: string
-    isActive?: boolean
-    lastLoginAt?: Date | string | null
     firstName: string
     middleName?: string | null
     lastName: string
     dateOfBirth: Date | string
+    email: string
     phone?: string | null
-    preferredContact?: string
-    emailNotifications?: boolean
-    smsNotifications?: boolean
+    preferredChannel?: $Enums.CommunicationChannel
+    userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     cases?: CaseUncheckedCreateNestedManyWithoutCustomerInput
@@ -13591,39 +17159,29 @@ export namespace Prisma {
 
   export type CustomerUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    customerId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
-    preferredContact?: StringFieldUpdateOperationsInput | string
-    emailNotifications?: BoolFieldUpdateOperationsInput | boolean
-    smsNotifications?: BoolFieldUpdateOperationsInput | boolean
+    preferredChannel?: EnumCommunicationChannelFieldUpdateOperationsInput | $Enums.CommunicationChannel
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutCustomerNestedInput
     cases?: CaseUpdateManyWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    customerId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
-    preferredContact?: StringFieldUpdateOperationsInput | string
-    emailNotifications?: BoolFieldUpdateOperationsInput | boolean
-    smsNotifications?: BoolFieldUpdateOperationsInput | boolean
+    preferredChannel?: EnumCommunicationChannelFieldUpdateOperationsInput | $Enums.CommunicationChannel
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     cases?: CaseUncheckedUpdateManyWithoutCustomerNestedInput
@@ -13631,64 +17189,97 @@ export namespace Prisma {
 
   export type CustomerCreateManyInput = {
     id?: string
-    customerId?: string
-    email: string
-    passwordHash: string
-    isActive?: boolean
-    lastLoginAt?: Date | string | null
     firstName: string
     middleName?: string | null
     lastName: string
     dateOfBirth: Date | string
+    email: string
     phone?: string | null
-    preferredContact?: string
-    emailNotifications?: boolean
-    smsNotifications?: boolean
+    preferredChannel?: $Enums.CommunicationChannel
+    userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
   export type CustomerUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    customerId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
-    preferredContact?: StringFieldUpdateOperationsInput | string
-    emailNotifications?: BoolFieldUpdateOperationsInput | boolean
-    smsNotifications?: BoolFieldUpdateOperationsInput | boolean
+    preferredChannel?: EnumCommunicationChannelFieldUpdateOperationsInput | $Enums.CommunicationChannel
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CustomerUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    customerId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
-    preferredContact?: StringFieldUpdateOperationsInput | string
-    emailNotifications?: BoolFieldUpdateOperationsInput | boolean
-    smsNotifications?: BoolFieldUpdateOperationsInput | boolean
+    preferredChannel?: EnumCommunicationChannelFieldUpdateOperationsInput | $Enums.CommunicationChannel
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type TempSubmissionCreateInput = {
+    id?: string
+    payload: JsonNullValueInput | InputJsonValue
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type TempSubmissionUncheckedCreateInput = {
+    id?: string
+    payload: JsonNullValueInput | InputJsonValue
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type TempSubmissionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TempSubmissionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TempSubmissionCreateManyInput = {
+    id?: string
+    payload: JsonNullValueInput | InputJsonValue
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type TempSubmissionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TempSubmissionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type CaseCreateInput = {
     id?: string
-    caseNumber?: string
+    caseNumber: string
     firstName: string
     middleName?: string | null
     lastName: string
@@ -13701,21 +17292,20 @@ export namespace Prisma {
     isFirstOccurrence?: boolean | null
     geneticFamilyHistory?: string | null
     paymentId?: string | null
-    consentAccepted?: boolean
-    status?: string
+    consentAccepted: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     customer: CustomerCreateNestedOneWithoutCasesInput
     uploadedFiles?: UploadedFileCreateNestedManyWithoutCaseInput
-    aiAnalysis?: AIAnalysisCreateNestedOneWithoutCaseInput
     caseAssignments?: CaseAssignmentCreateNestedManyWithoutCaseInput
+    aiAnalyses?: AIAnalysisCreateNestedManyWithoutCaseInput
     medicalOpinions?: MedicalOpinionCreateNestedManyWithoutCaseInput
+    professionalPayments?: ProfessionalPaymentCreateNestedManyWithoutCaseInput
   }
 
   export type CaseUncheckedCreateInput = {
     id?: string
-    caseNumber?: string
-    customerId: string
+    caseNumber: string
     firstName: string
     middleName?: string | null
     lastName: string
@@ -13728,14 +17318,15 @@ export namespace Prisma {
     isFirstOccurrence?: boolean | null
     geneticFamilyHistory?: string | null
     paymentId?: string | null
-    consentAccepted?: boolean
-    status?: string
+    consentAccepted: boolean
+    customerId: string
     createdAt?: Date | string
     updatedAt?: Date | string
     uploadedFiles?: UploadedFileUncheckedCreateNestedManyWithoutCaseInput
-    aiAnalysis?: AIAnalysisUncheckedCreateNestedOneWithoutCaseInput
     caseAssignments?: CaseAssignmentUncheckedCreateNestedManyWithoutCaseInput
+    aiAnalyses?: AIAnalysisUncheckedCreateNestedManyWithoutCaseInput
     medicalOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutCaseInput
+    professionalPayments?: ProfessionalPaymentUncheckedCreateNestedManyWithoutCaseInput
   }
 
   export type CaseUpdateInput = {
@@ -13754,20 +17345,19 @@ export namespace Prisma {
     geneticFamilyHistory?: NullableStringFieldUpdateOperationsInput | string | null
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     consentAccepted?: BoolFieldUpdateOperationsInput | boolean
-    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customer?: CustomerUpdateOneRequiredWithoutCasesNestedInput
     uploadedFiles?: UploadedFileUpdateManyWithoutCaseNestedInput
-    aiAnalysis?: AIAnalysisUpdateOneWithoutCaseNestedInput
     caseAssignments?: CaseAssignmentUpdateManyWithoutCaseNestedInput
+    aiAnalyses?: AIAnalysisUpdateManyWithoutCaseNestedInput
     medicalOpinions?: MedicalOpinionUpdateManyWithoutCaseNestedInput
+    professionalPayments?: ProfessionalPaymentUpdateManyWithoutCaseNestedInput
   }
 
   export type CaseUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     caseNumber?: StringFieldUpdateOperationsInput | string
-    customerId?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
@@ -13781,19 +17371,19 @@ export namespace Prisma {
     geneticFamilyHistory?: NullableStringFieldUpdateOperationsInput | string | null
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     consentAccepted?: BoolFieldUpdateOperationsInput | boolean
-    status?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     uploadedFiles?: UploadedFileUncheckedUpdateManyWithoutCaseNestedInput
-    aiAnalysis?: AIAnalysisUncheckedUpdateOneWithoutCaseNestedInput
     caseAssignments?: CaseAssignmentUncheckedUpdateManyWithoutCaseNestedInput
+    aiAnalyses?: AIAnalysisUncheckedUpdateManyWithoutCaseNestedInput
     medicalOpinions?: MedicalOpinionUncheckedUpdateManyWithoutCaseNestedInput
+    professionalPayments?: ProfessionalPaymentUncheckedUpdateManyWithoutCaseNestedInput
   }
 
   export type CaseCreateManyInput = {
     id?: string
-    caseNumber?: string
-    customerId: string
+    caseNumber: string
     firstName: string
     middleName?: string | null
     lastName: string
@@ -13806,8 +17396,8 @@ export namespace Prisma {
     isFirstOccurrence?: boolean | null
     geneticFamilyHistory?: string | null
     paymentId?: string | null
-    consentAccepted?: boolean
-    status?: string
+    consentAccepted: boolean
+    customerId: string
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -13828,7 +17418,6 @@ export namespace Prisma {
     geneticFamilyHistory?: NullableStringFieldUpdateOperationsInput | string | null
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     consentAccepted?: BoolFieldUpdateOperationsInput | boolean
-    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -13836,7 +17425,6 @@ export namespace Prisma {
   export type CaseUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     caseNumber?: StringFieldUpdateOperationsInput | string
-    customerId?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
@@ -13850,242 +17438,435 @@ export namespace Prisma {
     geneticFamilyHistory?: NullableStringFieldUpdateOperationsInput | string | null
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     consentAccepted?: BoolFieldUpdateOperationsInput | boolean
-    status?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UploadedFileCreateInput = {
     id?: string
-    fileName: string
-    originalName: string
-    fileSize: number
-    mimeType: string
+    filename: string
+    s3Key: string
+    mimetype: string
+    size: number
     category: string
-    s3Key?: string | null
-    uploadedAt?: Date | string
+    createdAt?: Date | string
     case: CaseCreateNestedOneWithoutUploadedFilesInput
   }
 
   export type UploadedFileUncheckedCreateInput = {
     id?: string
     caseId: string
-    fileName: string
-    originalName: string
-    fileSize: number
-    mimeType: string
+    filename: string
+    s3Key: string
+    mimetype: string
+    size: number
     category: string
-    s3Key?: string | null
-    uploadedAt?: Date | string
+    createdAt?: Date | string
   }
 
   export type UploadedFileUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    fileName?: StringFieldUpdateOperationsInput | string
-    originalName?: StringFieldUpdateOperationsInput | string
-    fileSize?: IntFieldUpdateOperationsInput | number
-    mimeType?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    s3Key?: StringFieldUpdateOperationsInput | string
+    mimetype?: StringFieldUpdateOperationsInput | string
+    size?: IntFieldUpdateOperationsInput | number
     category?: StringFieldUpdateOperationsInput | string
-    s3Key?: NullableStringFieldUpdateOperationsInput | string | null
-    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     case?: CaseUpdateOneRequiredWithoutUploadedFilesNestedInput
   }
 
   export type UploadedFileUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     caseId?: StringFieldUpdateOperationsInput | string
-    fileName?: StringFieldUpdateOperationsInput | string
-    originalName?: StringFieldUpdateOperationsInput | string
-    fileSize?: IntFieldUpdateOperationsInput | number
-    mimeType?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    s3Key?: StringFieldUpdateOperationsInput | string
+    mimetype?: StringFieldUpdateOperationsInput | string
+    size?: IntFieldUpdateOperationsInput | number
     category?: StringFieldUpdateOperationsInput | string
-    s3Key?: NullableStringFieldUpdateOperationsInput | string | null
-    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UploadedFileCreateManyInput = {
     id?: string
     caseId: string
-    fileName: string
-    originalName: string
-    fileSize: number
-    mimeType: string
+    filename: string
+    s3Key: string
+    mimetype: string
+    size: number
     category: string
-    s3Key?: string | null
-    uploadedAt?: Date | string
+    createdAt?: Date | string
   }
 
   export type UploadedFileUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    fileName?: StringFieldUpdateOperationsInput | string
-    originalName?: StringFieldUpdateOperationsInput | string
-    fileSize?: IntFieldUpdateOperationsInput | number
-    mimeType?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    s3Key?: StringFieldUpdateOperationsInput | string
+    mimetype?: StringFieldUpdateOperationsInput | string
+    size?: IntFieldUpdateOperationsInput | number
     category?: StringFieldUpdateOperationsInput | string
-    s3Key?: NullableStringFieldUpdateOperationsInput | string | null
-    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UploadedFileUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     caseId?: StringFieldUpdateOperationsInput | string
-    fileName?: StringFieldUpdateOperationsInput | string
-    originalName?: StringFieldUpdateOperationsInput | string
-    fileSize?: IntFieldUpdateOperationsInput | number
-    mimeType?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    s3Key?: StringFieldUpdateOperationsInput | string
+    mimetype?: StringFieldUpdateOperationsInput | string
+    size?: IntFieldUpdateOperationsInput | number
     category?: StringFieldUpdateOperationsInput | string
-    s3Key?: NullableStringFieldUpdateOperationsInput | string | null
-    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MedicalProfessionalCreateInput = {
     id?: string
-    professionalId?: string
+    proNumber: string
     firstName: string
+    middleName?: string | null
     lastName: string
+    dob: Date | string
     email: string
     phone?: string | null
+    nationality?: string | null
     licenseNumber: string
-    specialty: string
-    yearsExperience: number
-    qualifications: string
-    vettingStatus?: string
-    vettedBy?: string | null
-    vettedAt?: Date | string | null
-    appliedAt?: Date | string
+    licenseCountry: string
+    licenseExpiry: Date | string
+    vetted?: boolean
+    level?: $Enums.ProLevel
+    cvUrl?: string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: string | null
+    yearsPractice: number
+    publications: number
+    trialInvolved: boolean
+    leadership?: string | null
+    societyMemberships?: string | null
+    score?: number | null
+    hashedPassword?: string | null
+    twoFactorMethod?: $Enums.TwoFactorMethod
+    twoFactorSecret?: string | null
+    profileLastUpdated?: Date | string | null
+    codeOfConductAcknowledged?: Date | string | null
+    address?: string | null
+    billingAddress?: string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: string | null
+    billingRate?: number | null
+    createdAt?: Date | string
     updatedAt?: Date | string
     caseAssignments?: CaseAssignmentCreateNestedManyWithoutProfessionalInput
-    primaryOpinions?: MedicalOpinionCreateNestedManyWithoutPrimaryProfessionalInput
-    reviewedOpinions?: MedicalOpinionCreateNestedManyWithoutReviewerProfessionalInput
-    payments?: ProfessionalPaymentCreateNestedManyWithoutProfessionalInput
+    medicalOpinions?: MedicalOpinionCreateNestedManyWithoutProfessionalInput
+    professionalPayments?: ProfessionalPaymentCreateNestedManyWithoutProfessionalInput
+    professionalSessions?: ProfessionalSessionCreateNestedManyWithoutProfessionalInput
   }
 
   export type MedicalProfessionalUncheckedCreateInput = {
     id?: string
-    professionalId?: string
+    proNumber: string
     firstName: string
+    middleName?: string | null
     lastName: string
+    dob: Date | string
     email: string
     phone?: string | null
+    nationality?: string | null
     licenseNumber: string
-    specialty: string
-    yearsExperience: number
-    qualifications: string
-    vettingStatus?: string
-    vettedBy?: string | null
-    vettedAt?: Date | string | null
-    appliedAt?: Date | string
+    licenseCountry: string
+    licenseExpiry: Date | string
+    vetted?: boolean
+    level?: $Enums.ProLevel
+    cvUrl?: string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: string | null
+    yearsPractice: number
+    publications: number
+    trialInvolved: boolean
+    leadership?: string | null
+    societyMemberships?: string | null
+    score?: number | null
+    hashedPassword?: string | null
+    twoFactorMethod?: $Enums.TwoFactorMethod
+    twoFactorSecret?: string | null
+    profileLastUpdated?: Date | string | null
+    codeOfConductAcknowledged?: Date | string | null
+    address?: string | null
+    billingAddress?: string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: string | null
+    billingRate?: number | null
+    createdAt?: Date | string
     updatedAt?: Date | string
     caseAssignments?: CaseAssignmentUncheckedCreateNestedManyWithoutProfessionalInput
-    primaryOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutPrimaryProfessionalInput
-    reviewedOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutReviewerProfessionalInput
-    payments?: ProfessionalPaymentUncheckedCreateNestedManyWithoutProfessionalInput
+    medicalOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutProfessionalInput
+    professionalPayments?: ProfessionalPaymentUncheckedCreateNestedManyWithoutProfessionalInput
+    professionalSessions?: ProfessionalSessionUncheckedCreateNestedManyWithoutProfessionalInput
   }
 
   export type MedicalProfessionalUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    professionalId?: StringFieldUpdateOperationsInput | string
+    proNumber?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
+    dob?: DateTimeFieldUpdateOperationsInput | Date | string
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
     licenseNumber?: StringFieldUpdateOperationsInput | string
-    specialty?: StringFieldUpdateOperationsInput | string
-    yearsExperience?: IntFieldUpdateOperationsInput | number
-    qualifications?: StringFieldUpdateOperationsInput | string
-    vettingStatus?: StringFieldUpdateOperationsInput | string
-    vettedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    vettedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    appliedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    licenseCountry?: StringFieldUpdateOperationsInput | string
+    licenseExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
+    vetted?: BoolFieldUpdateOperationsInput | boolean
+    level?: EnumProLevelFieldUpdateOperationsInput | $Enums.ProLevel
+    cvUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: NullableStringFieldUpdateOperationsInput | string | null
+    yearsPractice?: IntFieldUpdateOperationsInput | number
+    publications?: IntFieldUpdateOperationsInput | number
+    trialInvolved?: BoolFieldUpdateOperationsInput | boolean
+    leadership?: NullableStringFieldUpdateOperationsInput | string | null
+    societyMemberships?: NullableStringFieldUpdateOperationsInput | string | null
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorMethod?: EnumTwoFactorMethodFieldUpdateOperationsInput | $Enums.TwoFactorMethod
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    profileLastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    codeOfConductAcknowledged?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     caseAssignments?: CaseAssignmentUpdateManyWithoutProfessionalNestedInput
-    primaryOpinions?: MedicalOpinionUpdateManyWithoutPrimaryProfessionalNestedInput
-    reviewedOpinions?: MedicalOpinionUpdateManyWithoutReviewerProfessionalNestedInput
-    payments?: ProfessionalPaymentUpdateManyWithoutProfessionalNestedInput
+    medicalOpinions?: MedicalOpinionUpdateManyWithoutProfessionalNestedInput
+    professionalPayments?: ProfessionalPaymentUpdateManyWithoutProfessionalNestedInput
+    professionalSessions?: ProfessionalSessionUpdateManyWithoutProfessionalNestedInput
   }
 
   export type MedicalProfessionalUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    professionalId?: StringFieldUpdateOperationsInput | string
+    proNumber?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
+    dob?: DateTimeFieldUpdateOperationsInput | Date | string
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
     licenseNumber?: StringFieldUpdateOperationsInput | string
-    specialty?: StringFieldUpdateOperationsInput | string
-    yearsExperience?: IntFieldUpdateOperationsInput | number
-    qualifications?: StringFieldUpdateOperationsInput | string
-    vettingStatus?: StringFieldUpdateOperationsInput | string
-    vettedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    vettedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    appliedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    licenseCountry?: StringFieldUpdateOperationsInput | string
+    licenseExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
+    vetted?: BoolFieldUpdateOperationsInput | boolean
+    level?: EnumProLevelFieldUpdateOperationsInput | $Enums.ProLevel
+    cvUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: NullableStringFieldUpdateOperationsInput | string | null
+    yearsPractice?: IntFieldUpdateOperationsInput | number
+    publications?: IntFieldUpdateOperationsInput | number
+    trialInvolved?: BoolFieldUpdateOperationsInput | boolean
+    leadership?: NullableStringFieldUpdateOperationsInput | string | null
+    societyMemberships?: NullableStringFieldUpdateOperationsInput | string | null
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorMethod?: EnumTwoFactorMethodFieldUpdateOperationsInput | $Enums.TwoFactorMethod
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    profileLastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    codeOfConductAcknowledged?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     caseAssignments?: CaseAssignmentUncheckedUpdateManyWithoutProfessionalNestedInput
-    primaryOpinions?: MedicalOpinionUncheckedUpdateManyWithoutPrimaryProfessionalNestedInput
-    reviewedOpinions?: MedicalOpinionUncheckedUpdateManyWithoutReviewerProfessionalNestedInput
-    payments?: ProfessionalPaymentUncheckedUpdateManyWithoutProfessionalNestedInput
+    medicalOpinions?: MedicalOpinionUncheckedUpdateManyWithoutProfessionalNestedInput
+    professionalPayments?: ProfessionalPaymentUncheckedUpdateManyWithoutProfessionalNestedInput
+    professionalSessions?: ProfessionalSessionUncheckedUpdateManyWithoutProfessionalNestedInput
   }
 
   export type MedicalProfessionalCreateManyInput = {
     id?: string
-    professionalId?: string
+    proNumber: string
     firstName: string
+    middleName?: string | null
     lastName: string
+    dob: Date | string
     email: string
     phone?: string | null
+    nationality?: string | null
     licenseNumber: string
-    specialty: string
-    yearsExperience: number
-    qualifications: string
-    vettingStatus?: string
-    vettedBy?: string | null
-    vettedAt?: Date | string | null
-    appliedAt?: Date | string
+    licenseCountry: string
+    licenseExpiry: Date | string
+    vetted?: boolean
+    level?: $Enums.ProLevel
+    cvUrl?: string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: string | null
+    yearsPractice: number
+    publications: number
+    trialInvolved: boolean
+    leadership?: string | null
+    societyMemberships?: string | null
+    score?: number | null
+    hashedPassword?: string | null
+    twoFactorMethod?: $Enums.TwoFactorMethod
+    twoFactorSecret?: string | null
+    profileLastUpdated?: Date | string | null
+    codeOfConductAcknowledged?: Date | string | null
+    address?: string | null
+    billingAddress?: string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: string | null
+    billingRate?: number | null
+    createdAt?: Date | string
     updatedAt?: Date | string
   }
 
   export type MedicalProfessionalUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    professionalId?: StringFieldUpdateOperationsInput | string
+    proNumber?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
+    dob?: DateTimeFieldUpdateOperationsInput | Date | string
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
     licenseNumber?: StringFieldUpdateOperationsInput | string
-    specialty?: StringFieldUpdateOperationsInput | string
-    yearsExperience?: IntFieldUpdateOperationsInput | number
-    qualifications?: StringFieldUpdateOperationsInput | string
-    vettingStatus?: StringFieldUpdateOperationsInput | string
-    vettedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    vettedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    appliedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    licenseCountry?: StringFieldUpdateOperationsInput | string
+    licenseExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
+    vetted?: BoolFieldUpdateOperationsInput | boolean
+    level?: EnumProLevelFieldUpdateOperationsInput | $Enums.ProLevel
+    cvUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: NullableStringFieldUpdateOperationsInput | string | null
+    yearsPractice?: IntFieldUpdateOperationsInput | number
+    publications?: IntFieldUpdateOperationsInput | number
+    trialInvolved?: BoolFieldUpdateOperationsInput | boolean
+    leadership?: NullableStringFieldUpdateOperationsInput | string | null
+    societyMemberships?: NullableStringFieldUpdateOperationsInput | string | null
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorMethod?: EnumTwoFactorMethodFieldUpdateOperationsInput | $Enums.TwoFactorMethod
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    profileLastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    codeOfConductAcknowledged?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MedicalProfessionalUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    professionalId?: StringFieldUpdateOperationsInput | string
+    proNumber?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
+    dob?: DateTimeFieldUpdateOperationsInput | Date | string
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
     licenseNumber?: StringFieldUpdateOperationsInput | string
-    specialty?: StringFieldUpdateOperationsInput | string
-    yearsExperience?: IntFieldUpdateOperationsInput | number
-    qualifications?: StringFieldUpdateOperationsInput | string
-    vettingStatus?: StringFieldUpdateOperationsInput | string
-    vettedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    vettedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    appliedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    licenseCountry?: StringFieldUpdateOperationsInput | string
+    licenseExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
+    vetted?: BoolFieldUpdateOperationsInput | boolean
+    level?: EnumProLevelFieldUpdateOperationsInput | $Enums.ProLevel
+    cvUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: NullableStringFieldUpdateOperationsInput | string | null
+    yearsPractice?: IntFieldUpdateOperationsInput | number
+    publications?: IntFieldUpdateOperationsInput | number
+    trialInvolved?: BoolFieldUpdateOperationsInput | boolean
+    leadership?: NullableStringFieldUpdateOperationsInput | string | null
+    societyMemberships?: NullableStringFieldUpdateOperationsInput | string | null
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorMethod?: EnumTwoFactorMethodFieldUpdateOperationsInput | $Enums.TwoFactorMethod
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    profileLastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    codeOfConductAcknowledged?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProfessionalSessionCreateInput = {
+    id?: string
+    sessionToken: string
+    twoFactorVerified?: boolean
+    expiresAt: Date | string
+    createdAt?: Date | string
+    professional: MedicalProfessionalCreateNestedOneWithoutProfessionalSessionsInput
+  }
+
+  export type ProfessionalSessionUncheckedCreateInput = {
+    id?: string
+    professionalId: string
+    sessionToken: string
+    twoFactorVerified?: boolean
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ProfessionalSessionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionToken?: StringFieldUpdateOperationsInput | string
+    twoFactorVerified?: BoolFieldUpdateOperationsInput | boolean
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    professional?: MedicalProfessionalUpdateOneRequiredWithoutProfessionalSessionsNestedInput
+  }
+
+  export type ProfessionalSessionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    professionalId?: StringFieldUpdateOperationsInput | string
+    sessionToken?: StringFieldUpdateOperationsInput | string
+    twoFactorVerified?: BoolFieldUpdateOperationsInput | boolean
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProfessionalSessionCreateManyInput = {
+    id?: string
+    professionalId: string
+    sessionToken: string
+    twoFactorVerified?: boolean
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ProfessionalSessionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionToken?: StringFieldUpdateOperationsInput | string
+    twoFactorVerified?: BoolFieldUpdateOperationsInput | boolean
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProfessionalSessionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    professionalId?: StringFieldUpdateOperationsInput | string
+    sessionToken?: StringFieldUpdateOperationsInput | string
+    twoFactorVerified?: BoolFieldUpdateOperationsInput | boolean
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CaseAssignmentCreateInput = {
     id?: string
-    assignedBy: string
-    assignedAt?: Date | string
     status?: string
-    startedAt?: Date | string | null
+    assignedAt?: Date | string
     completedAt?: Date | string | null
     case: CaseCreateNestedOneWithoutCaseAssignmentsInput
     professional: MedicalProfessionalCreateNestedOneWithoutCaseAssignmentsInput
@@ -14095,19 +17876,15 @@ export namespace Prisma {
     id?: string
     caseId: string
     professionalId: string
-    assignedBy: string
-    assignedAt?: Date | string
     status?: string
-    startedAt?: Date | string | null
+    assignedAt?: Date | string
     completedAt?: Date | string | null
   }
 
   export type CaseAssignmentUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    assignedBy?: StringFieldUpdateOperationsInput | string
-    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     case?: CaseUpdateOneRequiredWithoutCaseAssignmentsNestedInput
     professional?: MedicalProfessionalUpdateOneRequiredWithoutCaseAssignmentsNestedInput
@@ -14117,10 +17894,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     caseId?: StringFieldUpdateOperationsInput | string
     professionalId?: StringFieldUpdateOperationsInput | string
-    assignedBy?: StringFieldUpdateOperationsInput | string
-    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
@@ -14128,19 +17903,15 @@ export namespace Prisma {
     id?: string
     caseId: string
     professionalId: string
-    assignedBy: string
-    assignedAt?: Date | string
     status?: string
-    startedAt?: Date | string | null
+    assignedAt?: Date | string
     completedAt?: Date | string | null
   }
 
   export type CaseAssignmentUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    assignedBy?: StringFieldUpdateOperationsInput | string
-    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
@@ -14148,410 +17919,254 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     caseId?: StringFieldUpdateOperationsInput | string
     professionalId?: StringFieldUpdateOperationsInput | string
-    assignedBy?: StringFieldUpdateOperationsInput | string
-    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type AIAnalysisCreateInput = {
     id?: string
     analysisType: string
-    findings: string
-    confidence?: number | null
-    initiatedAt?: Date | string
-    completedAt?: Date | string | null
-    case: CaseCreateNestedOneWithoutAiAnalysisInput
+    results: string
+    createdAt?: Date | string
+    case: CaseCreateNestedOneWithoutAiAnalysesInput
   }
 
   export type AIAnalysisUncheckedCreateInput = {
     id?: string
     caseId: string
     analysisType: string
-    findings: string
-    confidence?: number | null
-    initiatedAt?: Date | string
-    completedAt?: Date | string | null
+    results: string
+    createdAt?: Date | string
   }
 
   export type AIAnalysisUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     analysisType?: StringFieldUpdateOperationsInput | string
-    findings?: StringFieldUpdateOperationsInput | string
-    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
-    initiatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    case?: CaseUpdateOneRequiredWithoutAiAnalysisNestedInput
+    results?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    case?: CaseUpdateOneRequiredWithoutAiAnalysesNestedInput
   }
 
   export type AIAnalysisUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     caseId?: StringFieldUpdateOperationsInput | string
     analysisType?: StringFieldUpdateOperationsInput | string
-    findings?: StringFieldUpdateOperationsInput | string
-    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
-    initiatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    results?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AIAnalysisCreateManyInput = {
     id?: string
     caseId: string
     analysisType: string
-    findings: string
-    confidence?: number | null
-    initiatedAt?: Date | string
-    completedAt?: Date | string | null
+    results: string
+    createdAt?: Date | string
   }
 
   export type AIAnalysisUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     analysisType?: StringFieldUpdateOperationsInput | string
-    findings?: StringFieldUpdateOperationsInput | string
-    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
-    initiatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    results?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AIAnalysisUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     caseId?: StringFieldUpdateOperationsInput | string
     analysisType?: StringFieldUpdateOperationsInput | string
-    findings?: StringFieldUpdateOperationsInput | string
-    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
-    initiatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    results?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MedicalOpinionCreateInput = {
     id?: string
-    diagnosis?: string | null
-    recommendations: string
-    riskAssessment?: string | null
-    additionalTests?: string | null
-    notes?: string | null
+    content: string
     status?: string
-    peerReviewNotes?: string | null
     createdAt?: Date | string
-    submittedAt?: Date | string | null
-    reviewedAt?: Date | string | null
-    approvedAt?: Date | string | null
-    deliveredAt?: Date | string | null
+    updatedAt?: Date | string
     case: CaseCreateNestedOneWithoutMedicalOpinionsInput
-    primaryProfessional: MedicalProfessionalCreateNestedOneWithoutPrimaryOpinionsInput
-    reviewerProfessional?: MedicalProfessionalCreateNestedOneWithoutReviewedOpinionsInput
+    professional: MedicalProfessionalCreateNestedOneWithoutMedicalOpinionsInput
   }
 
   export type MedicalOpinionUncheckedCreateInput = {
     id?: string
     caseId: string
-    primaryProfessionalId: string
-    reviewerProfessionalId?: string | null
-    diagnosis?: string | null
-    recommendations: string
-    riskAssessment?: string | null
-    additionalTests?: string | null
-    notes?: string | null
+    professionalId: string
+    content: string
     status?: string
-    peerReviewNotes?: string | null
     createdAt?: Date | string
-    submittedAt?: Date | string | null
-    reviewedAt?: Date | string | null
-    approvedAt?: Date | string | null
-    deliveredAt?: Date | string | null
+    updatedAt?: Date | string
   }
 
   export type MedicalOpinionUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    diagnosis?: NullableStringFieldUpdateOperationsInput | string | null
-    recommendations?: StringFieldUpdateOperationsInput | string
-    riskAssessment?: NullableStringFieldUpdateOperationsInput | string | null
-    additionalTests?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    peerReviewNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     case?: CaseUpdateOneRequiredWithoutMedicalOpinionsNestedInput
-    primaryProfessional?: MedicalProfessionalUpdateOneRequiredWithoutPrimaryOpinionsNestedInput
-    reviewerProfessional?: MedicalProfessionalUpdateOneWithoutReviewedOpinionsNestedInput
+    professional?: MedicalProfessionalUpdateOneRequiredWithoutMedicalOpinionsNestedInput
   }
 
   export type MedicalOpinionUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     caseId?: StringFieldUpdateOperationsInput | string
-    primaryProfessionalId?: StringFieldUpdateOperationsInput | string
-    reviewerProfessionalId?: NullableStringFieldUpdateOperationsInput | string | null
-    diagnosis?: NullableStringFieldUpdateOperationsInput | string | null
-    recommendations?: StringFieldUpdateOperationsInput | string
-    riskAssessment?: NullableStringFieldUpdateOperationsInput | string | null
-    additionalTests?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    professionalId?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    peerReviewNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MedicalOpinionCreateManyInput = {
     id?: string
     caseId: string
-    primaryProfessionalId: string
-    reviewerProfessionalId?: string | null
-    diagnosis?: string | null
-    recommendations: string
-    riskAssessment?: string | null
-    additionalTests?: string | null
-    notes?: string | null
+    professionalId: string
+    content: string
     status?: string
-    peerReviewNotes?: string | null
     createdAt?: Date | string
-    submittedAt?: Date | string | null
-    reviewedAt?: Date | string | null
-    approvedAt?: Date | string | null
-    deliveredAt?: Date | string | null
+    updatedAt?: Date | string
   }
 
   export type MedicalOpinionUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    diagnosis?: NullableStringFieldUpdateOperationsInput | string | null
-    recommendations?: StringFieldUpdateOperationsInput | string
-    riskAssessment?: NullableStringFieldUpdateOperationsInput | string | null
-    additionalTests?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    peerReviewNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MedicalOpinionUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     caseId?: StringFieldUpdateOperationsInput | string
-    primaryProfessionalId?: StringFieldUpdateOperationsInput | string
-    reviewerProfessionalId?: NullableStringFieldUpdateOperationsInput | string | null
-    diagnosis?: NullableStringFieldUpdateOperationsInput | string | null
-    recommendations?: StringFieldUpdateOperationsInput | string
-    riskAssessment?: NullableStringFieldUpdateOperationsInput | string | null
-    additionalTests?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    professionalId?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    peerReviewNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProfessionalPaymentCreateInput = {
     id?: string
-    caseId?: string | null
     amount: number
-    currency?: string
-    paymentType: string
-    paymentMethod: string
     status?: string
-    transactionId?: string | null
-    initiatedAt?: Date | string
-    processedAt?: Date | string | null
-    professional: MedicalProfessionalCreateNestedOneWithoutPaymentsInput
+    createdAt?: Date | string
+    case: CaseCreateNestedOneWithoutProfessionalPaymentsInput
+    professional: MedicalProfessionalCreateNestedOneWithoutProfessionalPaymentsInput
   }
 
   export type ProfessionalPaymentUncheckedCreateInput = {
     id?: string
+    caseId: string
     professionalId: string
-    caseId?: string | null
     amount: number
-    currency?: string
-    paymentType: string
-    paymentMethod: string
     status?: string
-    transactionId?: string | null
-    initiatedAt?: Date | string
-    processedAt?: Date | string | null
+    createdAt?: Date | string
   }
 
   export type ProfessionalPaymentUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    caseId?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
-    currency?: StringFieldUpdateOperationsInput | string
-    paymentType?: StringFieldUpdateOperationsInput | string
-    paymentMethod?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
-    initiatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    professional?: MedicalProfessionalUpdateOneRequiredWithoutPaymentsNestedInput
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    case?: CaseUpdateOneRequiredWithoutProfessionalPaymentsNestedInput
+    professional?: MedicalProfessionalUpdateOneRequiredWithoutProfessionalPaymentsNestedInput
   }
 
   export type ProfessionalPaymentUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
     professionalId?: StringFieldUpdateOperationsInput | string
-    caseId?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
-    currency?: StringFieldUpdateOperationsInput | string
-    paymentType?: StringFieldUpdateOperationsInput | string
-    paymentMethod?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
-    initiatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProfessionalPaymentCreateManyInput = {
     id?: string
+    caseId: string
     professionalId: string
-    caseId?: string | null
     amount: number
-    currency?: string
-    paymentType: string
-    paymentMethod: string
     status?: string
-    transactionId?: string | null
-    initiatedAt?: Date | string
-    processedAt?: Date | string | null
+    createdAt?: Date | string
   }
 
   export type ProfessionalPaymentUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    caseId?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
-    currency?: StringFieldUpdateOperationsInput | string
-    paymentType?: StringFieldUpdateOperationsInput | string
-    paymentMethod?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
-    initiatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProfessionalPaymentUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
     professionalId?: StringFieldUpdateOperationsInput | string
-    caseId?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
-    currency?: StringFieldUpdateOperationsInput | string
-    paymentType?: StringFieldUpdateOperationsInput | string
-    paymentMethod?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
-    initiatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AdminCreateInput = {
     id?: string
-    adminId?: string
-    firstName: string
-    lastName: string
     email: string
-    passwordHash: string
+    hashedPassword: string
     role?: string
-    permissions: string
-    isActive?: boolean
-    lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
   export type AdminUncheckedCreateInput = {
     id?: string
-    adminId?: string
-    firstName: string
-    lastName: string
     email: string
-    passwordHash: string
+    hashedPassword: string
     role?: string
-    permissions: string
-    isActive?: boolean
-    lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
   export type AdminUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    adminId?: StringFieldUpdateOperationsInput | string
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
-    permissions?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AdminUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    adminId?: StringFieldUpdateOperationsInput | string
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
-    permissions?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AdminCreateManyInput = {
     id?: string
-    adminId?: string
-    firstName: string
-    lastName: string
     email: string
-    passwordHash: string
+    hashedPassword: string
     role?: string
-    permissions: string
-    isActive?: boolean
-    lastLoginAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
   export type AdminUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    adminId?: StringFieldUpdateOperationsInput | string
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
-    permissions?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AdminUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    adminId?: StringFieldUpdateOperationsInput | string
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
-    permissions?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14570,36 +18185,6 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
-  export type StringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[]
@@ -14611,74 +18196,31 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
-  export type CaseListRelationFilter = {
-    every?: CaseWhereInput
-    some?: CaseWhereInput
-    none?: CaseWhereInput
+  export type CustomerNullableScalarRelationFilter = {
+    is?: CustomerWhereInput | null
+    isNot?: CustomerWhereInput | null
   }
 
-  export type SortOrderInput = {
-    sort: SortOrder
-    nulls?: NullsOrder
-  }
-
-  export type CaseOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type CustomerCountOrderByAggregateInput = {
+  export type UserCountOrderByAggregateInput = {
     id?: SortOrder
-    customerId?: SortOrder
     email?: SortOrder
-    passwordHash?: SortOrder
-    isActive?: SortOrder
-    lastLoginAt?: SortOrder
-    firstName?: SortOrder
-    middleName?: SortOrder
-    lastName?: SortOrder
-    dateOfBirth?: SortOrder
-    phone?: SortOrder
-    preferredContact?: SortOrder
-    emailNotifications?: SortOrder
-    smsNotifications?: SortOrder
+    hashedPassword?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type CustomerMaxOrderByAggregateInput = {
+  export type UserMaxOrderByAggregateInput = {
     id?: SortOrder
-    customerId?: SortOrder
     email?: SortOrder
-    passwordHash?: SortOrder
-    isActive?: SortOrder
-    lastLoginAt?: SortOrder
-    firstName?: SortOrder
-    middleName?: SortOrder
-    lastName?: SortOrder
-    dateOfBirth?: SortOrder
-    phone?: SortOrder
-    preferredContact?: SortOrder
-    emailNotifications?: SortOrder
-    smsNotifications?: SortOrder
+    hashedPassword?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type CustomerMinOrderByAggregateInput = {
+  export type UserMinOrderByAggregateInput = {
     id?: SortOrder
-    customerId?: SortOrder
     email?: SortOrder
-    passwordHash?: SortOrder
-    isActive?: SortOrder
-    lastLoginAt?: SortOrder
-    firstName?: SortOrder
-    middleName?: SortOrder
-    lastName?: SortOrder
-    dateOfBirth?: SortOrder
-    phone?: SortOrder
-    preferredContact?: SortOrder
-    emailNotifications?: SortOrder
-    smsNotifications?: SortOrder
+    hashedPassword?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -14700,26 +18242,101 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
-  }
-
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type EnumCommunicationChannelFilter<$PrismaModel = never> = {
+    equals?: $Enums.CommunicationChannel | EnumCommunicationChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.CommunicationChannel[]
+    notIn?: $Enums.CommunicationChannel[]
+    not?: NestedEnumCommunicationChannelFilter<$PrismaModel> | $Enums.CommunicationChannel
+  }
+
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
+  export type CaseListRelationFilter = {
+    every?: CaseWhereInput
+    some?: CaseWhereInput
+    none?: CaseWhereInput
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
+  export type CaseOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CustomerCountOrderByAggregateInput = {
+    id?: SortOrder
+    firstName?: SortOrder
+    middleName?: SortOrder
+    lastName?: SortOrder
+    dateOfBirth?: SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    preferredChannel?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CustomerMaxOrderByAggregateInput = {
+    id?: SortOrder
+    firstName?: SortOrder
+    middleName?: SortOrder
+    lastName?: SortOrder
+    dateOfBirth?: SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    preferredChannel?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CustomerMinOrderByAggregateInput = {
+    id?: SortOrder
+    firstName?: SortOrder
+    middleName?: SortOrder
+    lastName?: SortOrder
+    dateOfBirth?: SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    preferredChannel?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -14739,23 +18356,82 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
-  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+  export type EnumCommunicationChannelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CommunicationChannel | EnumCommunicationChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.CommunicationChannel[]
+    notIn?: $Enums.CommunicationChannel[]
+    not?: NestedEnumCommunicationChannelWithAggregatesFilter<$PrismaModel> | $Enums.CommunicationChannel
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
+    _min?: NestedEnumCommunicationChannelFilter<$PrismaModel>
+    _max?: NestedEnumCommunicationChannelFilter<$PrismaModel>
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type TempSubmissionCountOrderByAggregateInput = {
+    id?: SortOrder
+    payload?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type TempSubmissionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type TempSubmissionMinOrderByAggregateInput = {
+    id?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type BoolNullableFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
     not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type CustomerScalarRelationFilter = {
@@ -14769,21 +18445,28 @@ export namespace Prisma {
     none?: UploadedFileWhereInput
   }
 
-  export type AIAnalysisNullableScalarRelationFilter = {
-    is?: AIAnalysisWhereInput | null
-    isNot?: AIAnalysisWhereInput | null
-  }
-
   export type CaseAssignmentListRelationFilter = {
     every?: CaseAssignmentWhereInput
     some?: CaseAssignmentWhereInput
     none?: CaseAssignmentWhereInput
   }
 
+  export type AIAnalysisListRelationFilter = {
+    every?: AIAnalysisWhereInput
+    some?: AIAnalysisWhereInput
+    none?: AIAnalysisWhereInput
+  }
+
   export type MedicalOpinionListRelationFilter = {
     every?: MedicalOpinionWhereInput
     some?: MedicalOpinionWhereInput
     none?: MedicalOpinionWhereInput
+  }
+
+  export type ProfessionalPaymentListRelationFilter = {
+    every?: ProfessionalPaymentWhereInput
+    some?: ProfessionalPaymentWhereInput
+    none?: ProfessionalPaymentWhereInput
   }
 
   export type UploadedFileOrderByRelationAggregateInput = {
@@ -14794,14 +18477,21 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type AIAnalysisOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type MedicalOpinionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ProfessionalPaymentOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type CaseCountOrderByAggregateInput = {
     id?: SortOrder
     caseNumber?: SortOrder
-    customerId?: SortOrder
     firstName?: SortOrder
     middleName?: SortOrder
     lastName?: SortOrder
@@ -14815,7 +18505,7 @@ export namespace Prisma {
     geneticFamilyHistory?: SortOrder
     paymentId?: SortOrder
     consentAccepted?: SortOrder
-    status?: SortOrder
+    customerId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -14823,7 +18513,6 @@ export namespace Prisma {
   export type CaseMaxOrderByAggregateInput = {
     id?: SortOrder
     caseNumber?: SortOrder
-    customerId?: SortOrder
     firstName?: SortOrder
     middleName?: SortOrder
     lastName?: SortOrder
@@ -14837,7 +18526,7 @@ export namespace Prisma {
     geneticFamilyHistory?: SortOrder
     paymentId?: SortOrder
     consentAccepted?: SortOrder
-    status?: SortOrder
+    customerId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -14845,7 +18534,6 @@ export namespace Prisma {
   export type CaseMinOrderByAggregateInput = {
     id?: SortOrder
     caseNumber?: SortOrder
-    customerId?: SortOrder
     firstName?: SortOrder
     middleName?: SortOrder
     lastName?: SortOrder
@@ -14859,7 +18547,7 @@ export namespace Prisma {
     geneticFamilyHistory?: SortOrder
     paymentId?: SortOrder
     consentAccepted?: SortOrder
-    status?: SortOrder
+    customerId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -14870,6 +18558,14 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedBoolNullableFilter<$PrismaModel>
     _max?: NestedBoolNullableFilter<$PrismaModel>
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -14891,45 +18587,42 @@ export namespace Prisma {
   export type UploadedFileCountOrderByAggregateInput = {
     id?: SortOrder
     caseId?: SortOrder
-    fileName?: SortOrder
-    originalName?: SortOrder
-    fileSize?: SortOrder
-    mimeType?: SortOrder
-    category?: SortOrder
+    filename?: SortOrder
     s3Key?: SortOrder
-    uploadedAt?: SortOrder
+    mimetype?: SortOrder
+    size?: SortOrder
+    category?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type UploadedFileAvgOrderByAggregateInput = {
-    fileSize?: SortOrder
+    size?: SortOrder
   }
 
   export type UploadedFileMaxOrderByAggregateInput = {
     id?: SortOrder
     caseId?: SortOrder
-    fileName?: SortOrder
-    originalName?: SortOrder
-    fileSize?: SortOrder
-    mimeType?: SortOrder
-    category?: SortOrder
+    filename?: SortOrder
     s3Key?: SortOrder
-    uploadedAt?: SortOrder
+    mimetype?: SortOrder
+    size?: SortOrder
+    category?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type UploadedFileMinOrderByAggregateInput = {
     id?: SortOrder
     caseId?: SortOrder
-    fileName?: SortOrder
-    originalName?: SortOrder
-    fileSize?: SortOrder
-    mimeType?: SortOrder
-    category?: SortOrder
+    filename?: SortOrder
     s3Key?: SortOrder
-    uploadedAt?: SortOrder
+    mimetype?: SortOrder
+    size?: SortOrder
+    category?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type UploadedFileSumOrderByAggregateInput = {
-    fileSize?: SortOrder
+    size?: SortOrder
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -14948,114 +18641,58 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
-  export type ProfessionalPaymentListRelationFilter = {
-    every?: ProfessionalPaymentWhereInput
-    some?: ProfessionalPaymentWhereInput
-    none?: ProfessionalPaymentWhereInput
+  export type EnumProLevelFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProLevel | EnumProLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.ProLevel[]
+    notIn?: $Enums.ProLevel[]
+    not?: NestedEnumProLevelFilter<$PrismaModel> | $Enums.ProLevel
+  }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type ProfessionalPaymentOrderByRelationAggregateInput = {
-    _count?: SortOrder
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
-  export type MedicalProfessionalCountOrderByAggregateInput = {
-    id?: SortOrder
-    professionalId?: SortOrder
-    firstName?: SortOrder
-    lastName?: SortOrder
-    email?: SortOrder
-    phone?: SortOrder
-    licenseNumber?: SortOrder
-    specialty?: SortOrder
-    yearsExperience?: SortOrder
-    qualifications?: SortOrder
-    vettingStatus?: SortOrder
-    vettedBy?: SortOrder
-    vettedAt?: SortOrder
-    appliedAt?: SortOrder
-    updatedAt?: SortOrder
+  export type EnumTwoFactorMethodFilter<$PrismaModel = never> = {
+    equals?: $Enums.TwoFactorMethod | EnumTwoFactorMethodFieldRefInput<$PrismaModel>
+    in?: $Enums.TwoFactorMethod[]
+    notIn?: $Enums.TwoFactorMethod[]
+    not?: NestedEnumTwoFactorMethodFilter<$PrismaModel> | $Enums.TwoFactorMethod
   }
 
-  export type MedicalProfessionalAvgOrderByAggregateInput = {
-    yearsExperience?: SortOrder
-  }
-
-  export type MedicalProfessionalMaxOrderByAggregateInput = {
-    id?: SortOrder
-    professionalId?: SortOrder
-    firstName?: SortOrder
-    lastName?: SortOrder
-    email?: SortOrder
-    phone?: SortOrder
-    licenseNumber?: SortOrder
-    specialty?: SortOrder
-    yearsExperience?: SortOrder
-    qualifications?: SortOrder
-    vettingStatus?: SortOrder
-    vettedBy?: SortOrder
-    vettedAt?: SortOrder
-    appliedAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type MedicalProfessionalMinOrderByAggregateInput = {
-    id?: SortOrder
-    professionalId?: SortOrder
-    firstName?: SortOrder
-    lastName?: SortOrder
-    email?: SortOrder
-    phone?: SortOrder
-    licenseNumber?: SortOrder
-    specialty?: SortOrder
-    yearsExperience?: SortOrder
-    qualifications?: SortOrder
-    vettingStatus?: SortOrder
-    vettedBy?: SortOrder
-    vettedAt?: SortOrder
-    appliedAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type MedicalProfessionalSumOrderByAggregateInput = {
-    yearsExperience?: SortOrder
-  }
-
-  export type MedicalProfessionalScalarRelationFilter = {
-    is?: MedicalProfessionalWhereInput
-    isNot?: MedicalProfessionalWhereInput
-  }
-
-  export type CaseAssignmentCountOrderByAggregateInput = {
-    id?: SortOrder
-    caseId?: SortOrder
-    professionalId?: SortOrder
-    assignedBy?: SortOrder
-    assignedAt?: SortOrder
-    status?: SortOrder
-    startedAt?: SortOrder
-    completedAt?: SortOrder
-  }
-
-  export type CaseAssignmentMaxOrderByAggregateInput = {
-    id?: SortOrder
-    caseId?: SortOrder
-    professionalId?: SortOrder
-    assignedBy?: SortOrder
-    assignedAt?: SortOrder
-    status?: SortOrder
-    startedAt?: SortOrder
-    completedAt?: SortOrder
-  }
-
-  export type CaseAssignmentMinOrderByAggregateInput = {
-    id?: SortOrder
-    caseId?: SortOrder
-    professionalId?: SortOrder
-    assignedBy?: SortOrder
-    assignedAt?: SortOrder
-    status?: SortOrder
-    startedAt?: SortOrder
-    completedAt?: SortOrder
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type FloatNullableFilter<$PrismaModel = never> = {
@@ -15069,42 +18706,209 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
-  export type AIAnalysisCountOrderByAggregateInput = {
+  export type ProfessionalSessionListRelationFilter = {
+    every?: ProfessionalSessionWhereInput
+    some?: ProfessionalSessionWhereInput
+    none?: ProfessionalSessionWhereInput
+  }
+
+  export type ProfessionalSessionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type MedicalProfessionalCountOrderByAggregateInput = {
     id?: SortOrder
-    caseId?: SortOrder
-    analysisType?: SortOrder
-    findings?: SortOrder
-    confidence?: SortOrder
-    initiatedAt?: SortOrder
-    completedAt?: SortOrder
+    proNumber?: SortOrder
+    firstName?: SortOrder
+    middleName?: SortOrder
+    lastName?: SortOrder
+    dob?: SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    nationality?: SortOrder
+    licenseNumber?: SortOrder
+    licenseCountry?: SortOrder
+    licenseExpiry?: SortOrder
+    vetted?: SortOrder
+    level?: SortOrder
+    cvUrl?: SortOrder
+    documents?: SortOrder
+    subspecialties?: SortOrder
+    yearsPractice?: SortOrder
+    publications?: SortOrder
+    trialInvolved?: SortOrder
+    leadership?: SortOrder
+    societyMemberships?: SortOrder
+    score?: SortOrder
+    hashedPassword?: SortOrder
+    twoFactorMethod?: SortOrder
+    twoFactorSecret?: SortOrder
+    profileLastUpdated?: SortOrder
+    codeOfConductAcknowledged?: SortOrder
+    address?: SortOrder
+    billingAddress?: SortOrder
+    bankDetails?: SortOrder
+    vatNumber?: SortOrder
+    billingRate?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
-  export type AIAnalysisAvgOrderByAggregateInput = {
-    confidence?: SortOrder
+  export type MedicalProfessionalAvgOrderByAggregateInput = {
+    yearsPractice?: SortOrder
+    publications?: SortOrder
+    score?: SortOrder
+    billingRate?: SortOrder
   }
 
-  export type AIAnalysisMaxOrderByAggregateInput = {
+  export type MedicalProfessionalMaxOrderByAggregateInput = {
     id?: SortOrder
-    caseId?: SortOrder
-    analysisType?: SortOrder
-    findings?: SortOrder
-    confidence?: SortOrder
-    initiatedAt?: SortOrder
-    completedAt?: SortOrder
+    proNumber?: SortOrder
+    firstName?: SortOrder
+    middleName?: SortOrder
+    lastName?: SortOrder
+    dob?: SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    nationality?: SortOrder
+    licenseNumber?: SortOrder
+    licenseCountry?: SortOrder
+    licenseExpiry?: SortOrder
+    vetted?: SortOrder
+    level?: SortOrder
+    cvUrl?: SortOrder
+    subspecialties?: SortOrder
+    yearsPractice?: SortOrder
+    publications?: SortOrder
+    trialInvolved?: SortOrder
+    leadership?: SortOrder
+    societyMemberships?: SortOrder
+    score?: SortOrder
+    hashedPassword?: SortOrder
+    twoFactorMethod?: SortOrder
+    twoFactorSecret?: SortOrder
+    profileLastUpdated?: SortOrder
+    codeOfConductAcknowledged?: SortOrder
+    address?: SortOrder
+    billingAddress?: SortOrder
+    vatNumber?: SortOrder
+    billingRate?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
-  export type AIAnalysisMinOrderByAggregateInput = {
+  export type MedicalProfessionalMinOrderByAggregateInput = {
     id?: SortOrder
-    caseId?: SortOrder
-    analysisType?: SortOrder
-    findings?: SortOrder
-    confidence?: SortOrder
-    initiatedAt?: SortOrder
-    completedAt?: SortOrder
+    proNumber?: SortOrder
+    firstName?: SortOrder
+    middleName?: SortOrder
+    lastName?: SortOrder
+    dob?: SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    nationality?: SortOrder
+    licenseNumber?: SortOrder
+    licenseCountry?: SortOrder
+    licenseExpiry?: SortOrder
+    vetted?: SortOrder
+    level?: SortOrder
+    cvUrl?: SortOrder
+    subspecialties?: SortOrder
+    yearsPractice?: SortOrder
+    publications?: SortOrder
+    trialInvolved?: SortOrder
+    leadership?: SortOrder
+    societyMemberships?: SortOrder
+    score?: SortOrder
+    hashedPassword?: SortOrder
+    twoFactorMethod?: SortOrder
+    twoFactorSecret?: SortOrder
+    profileLastUpdated?: SortOrder
+    codeOfConductAcknowledged?: SortOrder
+    address?: SortOrder
+    billingAddress?: SortOrder
+    vatNumber?: SortOrder
+    billingRate?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
-  export type AIAnalysisSumOrderByAggregateInput = {
-    confidence?: SortOrder
+  export type MedicalProfessionalSumOrderByAggregateInput = {
+    yearsPractice?: SortOrder
+    publications?: SortOrder
+    score?: SortOrder
+    billingRate?: SortOrder
+  }
+
+  export type EnumProLevelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProLevel | EnumProLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.ProLevel[]
+    notIn?: $Enums.ProLevel[]
+    not?: NestedEnumProLevelWithAggregatesFilter<$PrismaModel> | $Enums.ProLevel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProLevelFilter<$PrismaModel>
+    _max?: NestedEnumProLevelFilter<$PrismaModel>
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type EnumTwoFactorMethodWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TwoFactorMethod | EnumTwoFactorMethodFieldRefInput<$PrismaModel>
+    in?: $Enums.TwoFactorMethod[]
+    notIn?: $Enums.TwoFactorMethod[]
+    not?: NestedEnumTwoFactorMethodWithAggregatesFilter<$PrismaModel> | $Enums.TwoFactorMethod
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTwoFactorMethodFilter<$PrismaModel>
+    _max?: NestedEnumTwoFactorMethodFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -15123,66 +18927,117 @@ export namespace Prisma {
     _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
-  export type MedicalProfessionalNullableScalarRelationFilter = {
-    is?: MedicalProfessionalWhereInput | null
-    isNot?: MedicalProfessionalWhereInput | null
+  export type MedicalProfessionalScalarRelationFilter = {
+    is?: MedicalProfessionalWhereInput
+    isNot?: MedicalProfessionalWhereInput
+  }
+
+  export type ProfessionalSessionCountOrderByAggregateInput = {
+    id?: SortOrder
+    professionalId?: SortOrder
+    sessionToken?: SortOrder
+    twoFactorVerified?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProfessionalSessionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    professionalId?: SortOrder
+    sessionToken?: SortOrder
+    twoFactorVerified?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProfessionalSessionMinOrderByAggregateInput = {
+    id?: SortOrder
+    professionalId?: SortOrder
+    sessionToken?: SortOrder
+    twoFactorVerified?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CaseAssignmentCountOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    professionalId?: SortOrder
+    status?: SortOrder
+    assignedAt?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type CaseAssignmentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    professionalId?: SortOrder
+    status?: SortOrder
+    assignedAt?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type CaseAssignmentMinOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    professionalId?: SortOrder
+    status?: SortOrder
+    assignedAt?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type AIAnalysisCountOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    analysisType?: SortOrder
+    results?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AIAnalysisMaxOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    analysisType?: SortOrder
+    results?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AIAnalysisMinOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    analysisType?: SortOrder
+    results?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type MedicalOpinionCountOrderByAggregateInput = {
     id?: SortOrder
     caseId?: SortOrder
-    primaryProfessionalId?: SortOrder
-    reviewerProfessionalId?: SortOrder
-    diagnosis?: SortOrder
-    recommendations?: SortOrder
-    riskAssessment?: SortOrder
-    additionalTests?: SortOrder
-    notes?: SortOrder
+    professionalId?: SortOrder
+    content?: SortOrder
     status?: SortOrder
-    peerReviewNotes?: SortOrder
     createdAt?: SortOrder
-    submittedAt?: SortOrder
-    reviewedAt?: SortOrder
-    approvedAt?: SortOrder
-    deliveredAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type MedicalOpinionMaxOrderByAggregateInput = {
     id?: SortOrder
     caseId?: SortOrder
-    primaryProfessionalId?: SortOrder
-    reviewerProfessionalId?: SortOrder
-    diagnosis?: SortOrder
-    recommendations?: SortOrder
-    riskAssessment?: SortOrder
-    additionalTests?: SortOrder
-    notes?: SortOrder
+    professionalId?: SortOrder
+    content?: SortOrder
     status?: SortOrder
-    peerReviewNotes?: SortOrder
     createdAt?: SortOrder
-    submittedAt?: SortOrder
-    reviewedAt?: SortOrder
-    approvedAt?: SortOrder
-    deliveredAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type MedicalOpinionMinOrderByAggregateInput = {
     id?: SortOrder
     caseId?: SortOrder
-    primaryProfessionalId?: SortOrder
-    reviewerProfessionalId?: SortOrder
-    diagnosis?: SortOrder
-    recommendations?: SortOrder
-    riskAssessment?: SortOrder
-    additionalTests?: SortOrder
-    notes?: SortOrder
+    professionalId?: SortOrder
+    content?: SortOrder
     status?: SortOrder
-    peerReviewNotes?: SortOrder
     createdAt?: SortOrder
-    submittedAt?: SortOrder
-    reviewedAt?: SortOrder
-    approvedAt?: SortOrder
-    deliveredAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type FloatFilter<$PrismaModel = never> = {
@@ -15198,16 +19053,11 @@ export namespace Prisma {
 
   export type ProfessionalPaymentCountOrderByAggregateInput = {
     id?: SortOrder
-    professionalId?: SortOrder
     caseId?: SortOrder
+    professionalId?: SortOrder
     amount?: SortOrder
-    currency?: SortOrder
-    paymentType?: SortOrder
-    paymentMethod?: SortOrder
     status?: SortOrder
-    transactionId?: SortOrder
-    initiatedAt?: SortOrder
-    processedAt?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type ProfessionalPaymentAvgOrderByAggregateInput = {
@@ -15216,30 +19066,20 @@ export namespace Prisma {
 
   export type ProfessionalPaymentMaxOrderByAggregateInput = {
     id?: SortOrder
-    professionalId?: SortOrder
     caseId?: SortOrder
+    professionalId?: SortOrder
     amount?: SortOrder
-    currency?: SortOrder
-    paymentType?: SortOrder
-    paymentMethod?: SortOrder
     status?: SortOrder
-    transactionId?: SortOrder
-    initiatedAt?: SortOrder
-    processedAt?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type ProfessionalPaymentMinOrderByAggregateInput = {
     id?: SortOrder
-    professionalId?: SortOrder
     caseId?: SortOrder
+    professionalId?: SortOrder
     amount?: SortOrder
-    currency?: SortOrder
-    paymentType?: SortOrder
-    paymentMethod?: SortOrder
     status?: SortOrder
-    transactionId?: SortOrder
-    initiatedAt?: SortOrder
-    processedAt?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type ProfessionalPaymentSumOrderByAggregateInput = {
@@ -15264,47 +19104,75 @@ export namespace Prisma {
 
   export type AdminCountOrderByAggregateInput = {
     id?: SortOrder
-    adminId?: SortOrder
-    firstName?: SortOrder
-    lastName?: SortOrder
     email?: SortOrder
-    passwordHash?: SortOrder
+    hashedPassword?: SortOrder
     role?: SortOrder
-    permissions?: SortOrder
-    isActive?: SortOrder
-    lastLoginAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type AdminMaxOrderByAggregateInput = {
     id?: SortOrder
-    adminId?: SortOrder
-    firstName?: SortOrder
-    lastName?: SortOrder
     email?: SortOrder
-    passwordHash?: SortOrder
+    hashedPassword?: SortOrder
     role?: SortOrder
-    permissions?: SortOrder
-    isActive?: SortOrder
-    lastLoginAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type AdminMinOrderByAggregateInput = {
     id?: SortOrder
-    adminId?: SortOrder
-    firstName?: SortOrder
-    lastName?: SortOrder
     email?: SortOrder
-    passwordHash?: SortOrder
+    hashedPassword?: SortOrder
     role?: SortOrder
-    permissions?: SortOrder
-    isActive?: SortOrder
-    lastLoginAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type CustomerCreateNestedOneWithoutUserInput = {
+    create?: XOR<CustomerCreateWithoutUserInput, CustomerUncheckedCreateWithoutUserInput>
+    connectOrCreate?: CustomerCreateOrConnectWithoutUserInput
+    connect?: CustomerWhereUniqueInput
+  }
+
+  export type CustomerUncheckedCreateNestedOneWithoutUserInput = {
+    create?: XOR<CustomerCreateWithoutUserInput, CustomerUncheckedCreateWithoutUserInput>
+    connectOrCreate?: CustomerCreateOrConnectWithoutUserInput
+    connect?: CustomerWhereUniqueInput
+  }
+
+  export type StringFieldUpdateOperationsInput = {
+    set?: string
+  }
+
+  export type DateTimeFieldUpdateOperationsInput = {
+    set?: Date | string
+  }
+
+  export type CustomerUpdateOneWithoutUserNestedInput = {
+    create?: XOR<CustomerCreateWithoutUserInput, CustomerUncheckedCreateWithoutUserInput>
+    connectOrCreate?: CustomerCreateOrConnectWithoutUserInput
+    upsert?: CustomerUpsertWithoutUserInput
+    disconnect?: CustomerWhereInput | boolean
+    delete?: CustomerWhereInput | boolean
+    connect?: CustomerWhereUniqueInput
+    update?: XOR<XOR<CustomerUpdateToOneWithWhereWithoutUserInput, CustomerUpdateWithoutUserInput>, CustomerUncheckedUpdateWithoutUserInput>
+  }
+
+  export type CustomerUncheckedUpdateOneWithoutUserNestedInput = {
+    create?: XOR<CustomerCreateWithoutUserInput, CustomerUncheckedCreateWithoutUserInput>
+    connectOrCreate?: CustomerCreateOrConnectWithoutUserInput
+    upsert?: CustomerUpsertWithoutUserInput
+    disconnect?: CustomerWhereInput | boolean
+    delete?: CustomerWhereInput | boolean
+    connect?: CustomerWhereUniqueInput
+    update?: XOR<XOR<CustomerUpdateToOneWithWhereWithoutUserInput, CustomerUpdateWithoutUserInput>, CustomerUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UserCreateNestedOneWithoutCustomerInput = {
+    create?: XOR<UserCreateWithoutCustomerInput, UserUncheckedCreateWithoutCustomerInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCustomerInput
+    connect?: UserWhereUniqueInput
   }
 
   export type CaseCreateNestedManyWithoutCustomerInput = {
@@ -15321,24 +19189,22 @@ export namespace Prisma {
     connect?: CaseWhereUniqueInput | CaseWhereUniqueInput[]
   }
 
-  export type StringFieldUpdateOperationsInput = {
-    set?: string
-  }
-
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
-  }
-
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
-  }
-
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
   }
 
-  export type DateTimeFieldUpdateOperationsInput = {
-    set?: Date | string
+  export type EnumCommunicationChannelFieldUpdateOperationsInput = {
+    set?: $Enums.CommunicationChannel
+  }
+
+  export type UserUpdateOneWithoutCustomerNestedInput = {
+    create?: XOR<UserCreateWithoutCustomerInput, UserUncheckedCreateWithoutCustomerInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCustomerInput
+    upsert?: UserUpsertWithoutCustomerInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCustomerInput, UserUpdateWithoutCustomerInput>, UserUncheckedUpdateWithoutCustomerInput>
   }
 
   export type CaseUpdateManyWithoutCustomerNestedInput = {
@@ -15382,17 +19248,18 @@ export namespace Prisma {
     connect?: UploadedFileWhereUniqueInput | UploadedFileWhereUniqueInput[]
   }
 
-  export type AIAnalysisCreateNestedOneWithoutCaseInput = {
-    create?: XOR<AIAnalysisCreateWithoutCaseInput, AIAnalysisUncheckedCreateWithoutCaseInput>
-    connectOrCreate?: AIAnalysisCreateOrConnectWithoutCaseInput
-    connect?: AIAnalysisWhereUniqueInput
-  }
-
   export type CaseAssignmentCreateNestedManyWithoutCaseInput = {
     create?: XOR<CaseAssignmentCreateWithoutCaseInput, CaseAssignmentUncheckedCreateWithoutCaseInput> | CaseAssignmentCreateWithoutCaseInput[] | CaseAssignmentUncheckedCreateWithoutCaseInput[]
     connectOrCreate?: CaseAssignmentCreateOrConnectWithoutCaseInput | CaseAssignmentCreateOrConnectWithoutCaseInput[]
     createMany?: CaseAssignmentCreateManyCaseInputEnvelope
     connect?: CaseAssignmentWhereUniqueInput | CaseAssignmentWhereUniqueInput[]
+  }
+
+  export type AIAnalysisCreateNestedManyWithoutCaseInput = {
+    create?: XOR<AIAnalysisCreateWithoutCaseInput, AIAnalysisUncheckedCreateWithoutCaseInput> | AIAnalysisCreateWithoutCaseInput[] | AIAnalysisUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: AIAnalysisCreateOrConnectWithoutCaseInput | AIAnalysisCreateOrConnectWithoutCaseInput[]
+    createMany?: AIAnalysisCreateManyCaseInputEnvelope
+    connect?: AIAnalysisWhereUniqueInput | AIAnalysisWhereUniqueInput[]
   }
 
   export type MedicalOpinionCreateNestedManyWithoutCaseInput = {
@@ -15402,17 +19269,18 @@ export namespace Prisma {
     connect?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
   }
 
+  export type ProfessionalPaymentCreateNestedManyWithoutCaseInput = {
+    create?: XOR<ProfessionalPaymentCreateWithoutCaseInput, ProfessionalPaymentUncheckedCreateWithoutCaseInput> | ProfessionalPaymentCreateWithoutCaseInput[] | ProfessionalPaymentUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: ProfessionalPaymentCreateOrConnectWithoutCaseInput | ProfessionalPaymentCreateOrConnectWithoutCaseInput[]
+    createMany?: ProfessionalPaymentCreateManyCaseInputEnvelope
+    connect?: ProfessionalPaymentWhereUniqueInput | ProfessionalPaymentWhereUniqueInput[]
+  }
+
   export type UploadedFileUncheckedCreateNestedManyWithoutCaseInput = {
     create?: XOR<UploadedFileCreateWithoutCaseInput, UploadedFileUncheckedCreateWithoutCaseInput> | UploadedFileCreateWithoutCaseInput[] | UploadedFileUncheckedCreateWithoutCaseInput[]
     connectOrCreate?: UploadedFileCreateOrConnectWithoutCaseInput | UploadedFileCreateOrConnectWithoutCaseInput[]
     createMany?: UploadedFileCreateManyCaseInputEnvelope
     connect?: UploadedFileWhereUniqueInput | UploadedFileWhereUniqueInput[]
-  }
-
-  export type AIAnalysisUncheckedCreateNestedOneWithoutCaseInput = {
-    create?: XOR<AIAnalysisCreateWithoutCaseInput, AIAnalysisUncheckedCreateWithoutCaseInput>
-    connectOrCreate?: AIAnalysisCreateOrConnectWithoutCaseInput
-    connect?: AIAnalysisWhereUniqueInput
   }
 
   export type CaseAssignmentUncheckedCreateNestedManyWithoutCaseInput = {
@@ -15422,6 +19290,13 @@ export namespace Prisma {
     connect?: CaseAssignmentWhereUniqueInput | CaseAssignmentWhereUniqueInput[]
   }
 
+  export type AIAnalysisUncheckedCreateNestedManyWithoutCaseInput = {
+    create?: XOR<AIAnalysisCreateWithoutCaseInput, AIAnalysisUncheckedCreateWithoutCaseInput> | AIAnalysisCreateWithoutCaseInput[] | AIAnalysisUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: AIAnalysisCreateOrConnectWithoutCaseInput | AIAnalysisCreateOrConnectWithoutCaseInput[]
+    createMany?: AIAnalysisCreateManyCaseInputEnvelope
+    connect?: AIAnalysisWhereUniqueInput | AIAnalysisWhereUniqueInput[]
+  }
+
   export type MedicalOpinionUncheckedCreateNestedManyWithoutCaseInput = {
     create?: XOR<MedicalOpinionCreateWithoutCaseInput, MedicalOpinionUncheckedCreateWithoutCaseInput> | MedicalOpinionCreateWithoutCaseInput[] | MedicalOpinionUncheckedCreateWithoutCaseInput[]
     connectOrCreate?: MedicalOpinionCreateOrConnectWithoutCaseInput | MedicalOpinionCreateOrConnectWithoutCaseInput[]
@@ -15429,8 +19304,19 @@ export namespace Prisma {
     connect?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
   }
 
+  export type ProfessionalPaymentUncheckedCreateNestedManyWithoutCaseInput = {
+    create?: XOR<ProfessionalPaymentCreateWithoutCaseInput, ProfessionalPaymentUncheckedCreateWithoutCaseInput> | ProfessionalPaymentCreateWithoutCaseInput[] | ProfessionalPaymentUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: ProfessionalPaymentCreateOrConnectWithoutCaseInput | ProfessionalPaymentCreateOrConnectWithoutCaseInput[]
+    createMany?: ProfessionalPaymentCreateManyCaseInputEnvelope
+    connect?: ProfessionalPaymentWhereUniqueInput | ProfessionalPaymentWhereUniqueInput[]
+  }
+
   export type NullableBoolFieldUpdateOperationsInput = {
     set?: boolean | null
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type CustomerUpdateOneRequiredWithoutCasesNestedInput = {
@@ -15455,16 +19341,6 @@ export namespace Prisma {
     deleteMany?: UploadedFileScalarWhereInput | UploadedFileScalarWhereInput[]
   }
 
-  export type AIAnalysisUpdateOneWithoutCaseNestedInput = {
-    create?: XOR<AIAnalysisCreateWithoutCaseInput, AIAnalysisUncheckedCreateWithoutCaseInput>
-    connectOrCreate?: AIAnalysisCreateOrConnectWithoutCaseInput
-    upsert?: AIAnalysisUpsertWithoutCaseInput
-    disconnect?: AIAnalysisWhereInput | boolean
-    delete?: AIAnalysisWhereInput | boolean
-    connect?: AIAnalysisWhereUniqueInput
-    update?: XOR<XOR<AIAnalysisUpdateToOneWithWhereWithoutCaseInput, AIAnalysisUpdateWithoutCaseInput>, AIAnalysisUncheckedUpdateWithoutCaseInput>
-  }
-
   export type CaseAssignmentUpdateManyWithoutCaseNestedInput = {
     create?: XOR<CaseAssignmentCreateWithoutCaseInput, CaseAssignmentUncheckedCreateWithoutCaseInput> | CaseAssignmentCreateWithoutCaseInput[] | CaseAssignmentUncheckedCreateWithoutCaseInput[]
     connectOrCreate?: CaseAssignmentCreateOrConnectWithoutCaseInput | CaseAssignmentCreateOrConnectWithoutCaseInput[]
@@ -15477,6 +19353,20 @@ export namespace Prisma {
     update?: CaseAssignmentUpdateWithWhereUniqueWithoutCaseInput | CaseAssignmentUpdateWithWhereUniqueWithoutCaseInput[]
     updateMany?: CaseAssignmentUpdateManyWithWhereWithoutCaseInput | CaseAssignmentUpdateManyWithWhereWithoutCaseInput[]
     deleteMany?: CaseAssignmentScalarWhereInput | CaseAssignmentScalarWhereInput[]
+  }
+
+  export type AIAnalysisUpdateManyWithoutCaseNestedInput = {
+    create?: XOR<AIAnalysisCreateWithoutCaseInput, AIAnalysisUncheckedCreateWithoutCaseInput> | AIAnalysisCreateWithoutCaseInput[] | AIAnalysisUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: AIAnalysisCreateOrConnectWithoutCaseInput | AIAnalysisCreateOrConnectWithoutCaseInput[]
+    upsert?: AIAnalysisUpsertWithWhereUniqueWithoutCaseInput | AIAnalysisUpsertWithWhereUniqueWithoutCaseInput[]
+    createMany?: AIAnalysisCreateManyCaseInputEnvelope
+    set?: AIAnalysisWhereUniqueInput | AIAnalysisWhereUniqueInput[]
+    disconnect?: AIAnalysisWhereUniqueInput | AIAnalysisWhereUniqueInput[]
+    delete?: AIAnalysisWhereUniqueInput | AIAnalysisWhereUniqueInput[]
+    connect?: AIAnalysisWhereUniqueInput | AIAnalysisWhereUniqueInput[]
+    update?: AIAnalysisUpdateWithWhereUniqueWithoutCaseInput | AIAnalysisUpdateWithWhereUniqueWithoutCaseInput[]
+    updateMany?: AIAnalysisUpdateManyWithWhereWithoutCaseInput | AIAnalysisUpdateManyWithWhereWithoutCaseInput[]
+    deleteMany?: AIAnalysisScalarWhereInput | AIAnalysisScalarWhereInput[]
   }
 
   export type MedicalOpinionUpdateManyWithoutCaseNestedInput = {
@@ -15493,6 +19383,20 @@ export namespace Prisma {
     deleteMany?: MedicalOpinionScalarWhereInput | MedicalOpinionScalarWhereInput[]
   }
 
+  export type ProfessionalPaymentUpdateManyWithoutCaseNestedInput = {
+    create?: XOR<ProfessionalPaymentCreateWithoutCaseInput, ProfessionalPaymentUncheckedCreateWithoutCaseInput> | ProfessionalPaymentCreateWithoutCaseInput[] | ProfessionalPaymentUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: ProfessionalPaymentCreateOrConnectWithoutCaseInput | ProfessionalPaymentCreateOrConnectWithoutCaseInput[]
+    upsert?: ProfessionalPaymentUpsertWithWhereUniqueWithoutCaseInput | ProfessionalPaymentUpsertWithWhereUniqueWithoutCaseInput[]
+    createMany?: ProfessionalPaymentCreateManyCaseInputEnvelope
+    set?: ProfessionalPaymentWhereUniqueInput | ProfessionalPaymentWhereUniqueInput[]
+    disconnect?: ProfessionalPaymentWhereUniqueInput | ProfessionalPaymentWhereUniqueInput[]
+    delete?: ProfessionalPaymentWhereUniqueInput | ProfessionalPaymentWhereUniqueInput[]
+    connect?: ProfessionalPaymentWhereUniqueInput | ProfessionalPaymentWhereUniqueInput[]
+    update?: ProfessionalPaymentUpdateWithWhereUniqueWithoutCaseInput | ProfessionalPaymentUpdateWithWhereUniqueWithoutCaseInput[]
+    updateMany?: ProfessionalPaymentUpdateManyWithWhereWithoutCaseInput | ProfessionalPaymentUpdateManyWithWhereWithoutCaseInput[]
+    deleteMany?: ProfessionalPaymentScalarWhereInput | ProfessionalPaymentScalarWhereInput[]
+  }
+
   export type UploadedFileUncheckedUpdateManyWithoutCaseNestedInput = {
     create?: XOR<UploadedFileCreateWithoutCaseInput, UploadedFileUncheckedCreateWithoutCaseInput> | UploadedFileCreateWithoutCaseInput[] | UploadedFileUncheckedCreateWithoutCaseInput[]
     connectOrCreate?: UploadedFileCreateOrConnectWithoutCaseInput | UploadedFileCreateOrConnectWithoutCaseInput[]
@@ -15505,16 +19409,6 @@ export namespace Prisma {
     update?: UploadedFileUpdateWithWhereUniqueWithoutCaseInput | UploadedFileUpdateWithWhereUniqueWithoutCaseInput[]
     updateMany?: UploadedFileUpdateManyWithWhereWithoutCaseInput | UploadedFileUpdateManyWithWhereWithoutCaseInput[]
     deleteMany?: UploadedFileScalarWhereInput | UploadedFileScalarWhereInput[]
-  }
-
-  export type AIAnalysisUncheckedUpdateOneWithoutCaseNestedInput = {
-    create?: XOR<AIAnalysisCreateWithoutCaseInput, AIAnalysisUncheckedCreateWithoutCaseInput>
-    connectOrCreate?: AIAnalysisCreateOrConnectWithoutCaseInput
-    upsert?: AIAnalysisUpsertWithoutCaseInput
-    disconnect?: AIAnalysisWhereInput | boolean
-    delete?: AIAnalysisWhereInput | boolean
-    connect?: AIAnalysisWhereUniqueInput
-    update?: XOR<XOR<AIAnalysisUpdateToOneWithWhereWithoutCaseInput, AIAnalysisUpdateWithoutCaseInput>, AIAnalysisUncheckedUpdateWithoutCaseInput>
   }
 
   export type CaseAssignmentUncheckedUpdateManyWithoutCaseNestedInput = {
@@ -15531,6 +19425,20 @@ export namespace Prisma {
     deleteMany?: CaseAssignmentScalarWhereInput | CaseAssignmentScalarWhereInput[]
   }
 
+  export type AIAnalysisUncheckedUpdateManyWithoutCaseNestedInput = {
+    create?: XOR<AIAnalysisCreateWithoutCaseInput, AIAnalysisUncheckedCreateWithoutCaseInput> | AIAnalysisCreateWithoutCaseInput[] | AIAnalysisUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: AIAnalysisCreateOrConnectWithoutCaseInput | AIAnalysisCreateOrConnectWithoutCaseInput[]
+    upsert?: AIAnalysisUpsertWithWhereUniqueWithoutCaseInput | AIAnalysisUpsertWithWhereUniqueWithoutCaseInput[]
+    createMany?: AIAnalysisCreateManyCaseInputEnvelope
+    set?: AIAnalysisWhereUniqueInput | AIAnalysisWhereUniqueInput[]
+    disconnect?: AIAnalysisWhereUniqueInput | AIAnalysisWhereUniqueInput[]
+    delete?: AIAnalysisWhereUniqueInput | AIAnalysisWhereUniqueInput[]
+    connect?: AIAnalysisWhereUniqueInput | AIAnalysisWhereUniqueInput[]
+    update?: AIAnalysisUpdateWithWhereUniqueWithoutCaseInput | AIAnalysisUpdateWithWhereUniqueWithoutCaseInput[]
+    updateMany?: AIAnalysisUpdateManyWithWhereWithoutCaseInput | AIAnalysisUpdateManyWithWhereWithoutCaseInput[]
+    deleteMany?: AIAnalysisScalarWhereInput | AIAnalysisScalarWhereInput[]
+  }
+
   export type MedicalOpinionUncheckedUpdateManyWithoutCaseNestedInput = {
     create?: XOR<MedicalOpinionCreateWithoutCaseInput, MedicalOpinionUncheckedCreateWithoutCaseInput> | MedicalOpinionCreateWithoutCaseInput[] | MedicalOpinionUncheckedCreateWithoutCaseInput[]
     connectOrCreate?: MedicalOpinionCreateOrConnectWithoutCaseInput | MedicalOpinionCreateOrConnectWithoutCaseInput[]
@@ -15543,6 +19451,20 @@ export namespace Prisma {
     update?: MedicalOpinionUpdateWithWhereUniqueWithoutCaseInput | MedicalOpinionUpdateWithWhereUniqueWithoutCaseInput[]
     updateMany?: MedicalOpinionUpdateManyWithWhereWithoutCaseInput | MedicalOpinionUpdateManyWithWhereWithoutCaseInput[]
     deleteMany?: MedicalOpinionScalarWhereInput | MedicalOpinionScalarWhereInput[]
+  }
+
+  export type ProfessionalPaymentUncheckedUpdateManyWithoutCaseNestedInput = {
+    create?: XOR<ProfessionalPaymentCreateWithoutCaseInput, ProfessionalPaymentUncheckedCreateWithoutCaseInput> | ProfessionalPaymentCreateWithoutCaseInput[] | ProfessionalPaymentUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: ProfessionalPaymentCreateOrConnectWithoutCaseInput | ProfessionalPaymentCreateOrConnectWithoutCaseInput[]
+    upsert?: ProfessionalPaymentUpsertWithWhereUniqueWithoutCaseInput | ProfessionalPaymentUpsertWithWhereUniqueWithoutCaseInput[]
+    createMany?: ProfessionalPaymentCreateManyCaseInputEnvelope
+    set?: ProfessionalPaymentWhereUniqueInput | ProfessionalPaymentWhereUniqueInput[]
+    disconnect?: ProfessionalPaymentWhereUniqueInput | ProfessionalPaymentWhereUniqueInput[]
+    delete?: ProfessionalPaymentWhereUniqueInput | ProfessionalPaymentWhereUniqueInput[]
+    connect?: ProfessionalPaymentWhereUniqueInput | ProfessionalPaymentWhereUniqueInput[]
+    update?: ProfessionalPaymentUpdateWithWhereUniqueWithoutCaseInput | ProfessionalPaymentUpdateWithWhereUniqueWithoutCaseInput[]
+    updateMany?: ProfessionalPaymentUpdateManyWithWhereWithoutCaseInput | ProfessionalPaymentUpdateManyWithWhereWithoutCaseInput[]
+    deleteMany?: ProfessionalPaymentScalarWhereInput | ProfessionalPaymentScalarWhereInput[]
   }
 
   export type CaseCreateNestedOneWithoutUploadedFilesInput = {
@@ -15574,17 +19496,10 @@ export namespace Prisma {
     connect?: CaseAssignmentWhereUniqueInput | CaseAssignmentWhereUniqueInput[]
   }
 
-  export type MedicalOpinionCreateNestedManyWithoutPrimaryProfessionalInput = {
-    create?: XOR<MedicalOpinionCreateWithoutPrimaryProfessionalInput, MedicalOpinionUncheckedCreateWithoutPrimaryProfessionalInput> | MedicalOpinionCreateWithoutPrimaryProfessionalInput[] | MedicalOpinionUncheckedCreateWithoutPrimaryProfessionalInput[]
-    connectOrCreate?: MedicalOpinionCreateOrConnectWithoutPrimaryProfessionalInput | MedicalOpinionCreateOrConnectWithoutPrimaryProfessionalInput[]
-    createMany?: MedicalOpinionCreateManyPrimaryProfessionalInputEnvelope
-    connect?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
-  }
-
-  export type MedicalOpinionCreateNestedManyWithoutReviewerProfessionalInput = {
-    create?: XOR<MedicalOpinionCreateWithoutReviewerProfessionalInput, MedicalOpinionUncheckedCreateWithoutReviewerProfessionalInput> | MedicalOpinionCreateWithoutReviewerProfessionalInput[] | MedicalOpinionUncheckedCreateWithoutReviewerProfessionalInput[]
-    connectOrCreate?: MedicalOpinionCreateOrConnectWithoutReviewerProfessionalInput | MedicalOpinionCreateOrConnectWithoutReviewerProfessionalInput[]
-    createMany?: MedicalOpinionCreateManyReviewerProfessionalInputEnvelope
+  export type MedicalOpinionCreateNestedManyWithoutProfessionalInput = {
+    create?: XOR<MedicalOpinionCreateWithoutProfessionalInput, MedicalOpinionUncheckedCreateWithoutProfessionalInput> | MedicalOpinionCreateWithoutProfessionalInput[] | MedicalOpinionUncheckedCreateWithoutProfessionalInput[]
+    connectOrCreate?: MedicalOpinionCreateOrConnectWithoutProfessionalInput | MedicalOpinionCreateOrConnectWithoutProfessionalInput[]
+    createMany?: MedicalOpinionCreateManyProfessionalInputEnvelope
     connect?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
   }
 
@@ -15595,6 +19510,13 @@ export namespace Prisma {
     connect?: ProfessionalPaymentWhereUniqueInput | ProfessionalPaymentWhereUniqueInput[]
   }
 
+  export type ProfessionalSessionCreateNestedManyWithoutProfessionalInput = {
+    create?: XOR<ProfessionalSessionCreateWithoutProfessionalInput, ProfessionalSessionUncheckedCreateWithoutProfessionalInput> | ProfessionalSessionCreateWithoutProfessionalInput[] | ProfessionalSessionUncheckedCreateWithoutProfessionalInput[]
+    connectOrCreate?: ProfessionalSessionCreateOrConnectWithoutProfessionalInput | ProfessionalSessionCreateOrConnectWithoutProfessionalInput[]
+    createMany?: ProfessionalSessionCreateManyProfessionalInputEnvelope
+    connect?: ProfessionalSessionWhereUniqueInput | ProfessionalSessionWhereUniqueInput[]
+  }
+
   export type CaseAssignmentUncheckedCreateNestedManyWithoutProfessionalInput = {
     create?: XOR<CaseAssignmentCreateWithoutProfessionalInput, CaseAssignmentUncheckedCreateWithoutProfessionalInput> | CaseAssignmentCreateWithoutProfessionalInput[] | CaseAssignmentUncheckedCreateWithoutProfessionalInput[]
     connectOrCreate?: CaseAssignmentCreateOrConnectWithoutProfessionalInput | CaseAssignmentCreateOrConnectWithoutProfessionalInput[]
@@ -15602,17 +19524,10 @@ export namespace Prisma {
     connect?: CaseAssignmentWhereUniqueInput | CaseAssignmentWhereUniqueInput[]
   }
 
-  export type MedicalOpinionUncheckedCreateNestedManyWithoutPrimaryProfessionalInput = {
-    create?: XOR<MedicalOpinionCreateWithoutPrimaryProfessionalInput, MedicalOpinionUncheckedCreateWithoutPrimaryProfessionalInput> | MedicalOpinionCreateWithoutPrimaryProfessionalInput[] | MedicalOpinionUncheckedCreateWithoutPrimaryProfessionalInput[]
-    connectOrCreate?: MedicalOpinionCreateOrConnectWithoutPrimaryProfessionalInput | MedicalOpinionCreateOrConnectWithoutPrimaryProfessionalInput[]
-    createMany?: MedicalOpinionCreateManyPrimaryProfessionalInputEnvelope
-    connect?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
-  }
-
-  export type MedicalOpinionUncheckedCreateNestedManyWithoutReviewerProfessionalInput = {
-    create?: XOR<MedicalOpinionCreateWithoutReviewerProfessionalInput, MedicalOpinionUncheckedCreateWithoutReviewerProfessionalInput> | MedicalOpinionCreateWithoutReviewerProfessionalInput[] | MedicalOpinionUncheckedCreateWithoutReviewerProfessionalInput[]
-    connectOrCreate?: MedicalOpinionCreateOrConnectWithoutReviewerProfessionalInput | MedicalOpinionCreateOrConnectWithoutReviewerProfessionalInput[]
-    createMany?: MedicalOpinionCreateManyReviewerProfessionalInputEnvelope
+  export type MedicalOpinionUncheckedCreateNestedManyWithoutProfessionalInput = {
+    create?: XOR<MedicalOpinionCreateWithoutProfessionalInput, MedicalOpinionUncheckedCreateWithoutProfessionalInput> | MedicalOpinionCreateWithoutProfessionalInput[] | MedicalOpinionUncheckedCreateWithoutProfessionalInput[]
+    connectOrCreate?: MedicalOpinionCreateOrConnectWithoutProfessionalInput | MedicalOpinionCreateOrConnectWithoutProfessionalInput[]
+    createMany?: MedicalOpinionCreateManyProfessionalInputEnvelope
     connect?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
   }
 
@@ -15621,6 +19536,41 @@ export namespace Prisma {
     connectOrCreate?: ProfessionalPaymentCreateOrConnectWithoutProfessionalInput | ProfessionalPaymentCreateOrConnectWithoutProfessionalInput[]
     createMany?: ProfessionalPaymentCreateManyProfessionalInputEnvelope
     connect?: ProfessionalPaymentWhereUniqueInput | ProfessionalPaymentWhereUniqueInput[]
+  }
+
+  export type ProfessionalSessionUncheckedCreateNestedManyWithoutProfessionalInput = {
+    create?: XOR<ProfessionalSessionCreateWithoutProfessionalInput, ProfessionalSessionUncheckedCreateWithoutProfessionalInput> | ProfessionalSessionCreateWithoutProfessionalInput[] | ProfessionalSessionUncheckedCreateWithoutProfessionalInput[]
+    connectOrCreate?: ProfessionalSessionCreateOrConnectWithoutProfessionalInput | ProfessionalSessionCreateOrConnectWithoutProfessionalInput[]
+    createMany?: ProfessionalSessionCreateManyProfessionalInputEnvelope
+    connect?: ProfessionalSessionWhereUniqueInput | ProfessionalSessionWhereUniqueInput[]
+  }
+
+  export type EnumProLevelFieldUpdateOperationsInput = {
+    set?: $Enums.ProLevel
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type EnumTwoFactorMethodFieldUpdateOperationsInput = {
+    set?: $Enums.TwoFactorMethod
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type CaseAssignmentUpdateManyWithoutProfessionalNestedInput = {
@@ -15637,31 +19587,17 @@ export namespace Prisma {
     deleteMany?: CaseAssignmentScalarWhereInput | CaseAssignmentScalarWhereInput[]
   }
 
-  export type MedicalOpinionUpdateManyWithoutPrimaryProfessionalNestedInput = {
-    create?: XOR<MedicalOpinionCreateWithoutPrimaryProfessionalInput, MedicalOpinionUncheckedCreateWithoutPrimaryProfessionalInput> | MedicalOpinionCreateWithoutPrimaryProfessionalInput[] | MedicalOpinionUncheckedCreateWithoutPrimaryProfessionalInput[]
-    connectOrCreate?: MedicalOpinionCreateOrConnectWithoutPrimaryProfessionalInput | MedicalOpinionCreateOrConnectWithoutPrimaryProfessionalInput[]
-    upsert?: MedicalOpinionUpsertWithWhereUniqueWithoutPrimaryProfessionalInput | MedicalOpinionUpsertWithWhereUniqueWithoutPrimaryProfessionalInput[]
-    createMany?: MedicalOpinionCreateManyPrimaryProfessionalInputEnvelope
+  export type MedicalOpinionUpdateManyWithoutProfessionalNestedInput = {
+    create?: XOR<MedicalOpinionCreateWithoutProfessionalInput, MedicalOpinionUncheckedCreateWithoutProfessionalInput> | MedicalOpinionCreateWithoutProfessionalInput[] | MedicalOpinionUncheckedCreateWithoutProfessionalInput[]
+    connectOrCreate?: MedicalOpinionCreateOrConnectWithoutProfessionalInput | MedicalOpinionCreateOrConnectWithoutProfessionalInput[]
+    upsert?: MedicalOpinionUpsertWithWhereUniqueWithoutProfessionalInput | MedicalOpinionUpsertWithWhereUniqueWithoutProfessionalInput[]
+    createMany?: MedicalOpinionCreateManyProfessionalInputEnvelope
     set?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
     disconnect?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
     delete?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
     connect?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
-    update?: MedicalOpinionUpdateWithWhereUniqueWithoutPrimaryProfessionalInput | MedicalOpinionUpdateWithWhereUniqueWithoutPrimaryProfessionalInput[]
-    updateMany?: MedicalOpinionUpdateManyWithWhereWithoutPrimaryProfessionalInput | MedicalOpinionUpdateManyWithWhereWithoutPrimaryProfessionalInput[]
-    deleteMany?: MedicalOpinionScalarWhereInput | MedicalOpinionScalarWhereInput[]
-  }
-
-  export type MedicalOpinionUpdateManyWithoutReviewerProfessionalNestedInput = {
-    create?: XOR<MedicalOpinionCreateWithoutReviewerProfessionalInput, MedicalOpinionUncheckedCreateWithoutReviewerProfessionalInput> | MedicalOpinionCreateWithoutReviewerProfessionalInput[] | MedicalOpinionUncheckedCreateWithoutReviewerProfessionalInput[]
-    connectOrCreate?: MedicalOpinionCreateOrConnectWithoutReviewerProfessionalInput | MedicalOpinionCreateOrConnectWithoutReviewerProfessionalInput[]
-    upsert?: MedicalOpinionUpsertWithWhereUniqueWithoutReviewerProfessionalInput | MedicalOpinionUpsertWithWhereUniqueWithoutReviewerProfessionalInput[]
-    createMany?: MedicalOpinionCreateManyReviewerProfessionalInputEnvelope
-    set?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
-    disconnect?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
-    delete?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
-    connect?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
-    update?: MedicalOpinionUpdateWithWhereUniqueWithoutReviewerProfessionalInput | MedicalOpinionUpdateWithWhereUniqueWithoutReviewerProfessionalInput[]
-    updateMany?: MedicalOpinionUpdateManyWithWhereWithoutReviewerProfessionalInput | MedicalOpinionUpdateManyWithWhereWithoutReviewerProfessionalInput[]
+    update?: MedicalOpinionUpdateWithWhereUniqueWithoutProfessionalInput | MedicalOpinionUpdateWithWhereUniqueWithoutProfessionalInput[]
+    updateMany?: MedicalOpinionUpdateManyWithWhereWithoutProfessionalInput | MedicalOpinionUpdateManyWithWhereWithoutProfessionalInput[]
     deleteMany?: MedicalOpinionScalarWhereInput | MedicalOpinionScalarWhereInput[]
   }
 
@@ -15679,6 +19615,20 @@ export namespace Prisma {
     deleteMany?: ProfessionalPaymentScalarWhereInput | ProfessionalPaymentScalarWhereInput[]
   }
 
+  export type ProfessionalSessionUpdateManyWithoutProfessionalNestedInput = {
+    create?: XOR<ProfessionalSessionCreateWithoutProfessionalInput, ProfessionalSessionUncheckedCreateWithoutProfessionalInput> | ProfessionalSessionCreateWithoutProfessionalInput[] | ProfessionalSessionUncheckedCreateWithoutProfessionalInput[]
+    connectOrCreate?: ProfessionalSessionCreateOrConnectWithoutProfessionalInput | ProfessionalSessionCreateOrConnectWithoutProfessionalInput[]
+    upsert?: ProfessionalSessionUpsertWithWhereUniqueWithoutProfessionalInput | ProfessionalSessionUpsertWithWhereUniqueWithoutProfessionalInput[]
+    createMany?: ProfessionalSessionCreateManyProfessionalInputEnvelope
+    set?: ProfessionalSessionWhereUniqueInput | ProfessionalSessionWhereUniqueInput[]
+    disconnect?: ProfessionalSessionWhereUniqueInput | ProfessionalSessionWhereUniqueInput[]
+    delete?: ProfessionalSessionWhereUniqueInput | ProfessionalSessionWhereUniqueInput[]
+    connect?: ProfessionalSessionWhereUniqueInput | ProfessionalSessionWhereUniqueInput[]
+    update?: ProfessionalSessionUpdateWithWhereUniqueWithoutProfessionalInput | ProfessionalSessionUpdateWithWhereUniqueWithoutProfessionalInput[]
+    updateMany?: ProfessionalSessionUpdateManyWithWhereWithoutProfessionalInput | ProfessionalSessionUpdateManyWithWhereWithoutProfessionalInput[]
+    deleteMany?: ProfessionalSessionScalarWhereInput | ProfessionalSessionScalarWhereInput[]
+  }
+
   export type CaseAssignmentUncheckedUpdateManyWithoutProfessionalNestedInput = {
     create?: XOR<CaseAssignmentCreateWithoutProfessionalInput, CaseAssignmentUncheckedCreateWithoutProfessionalInput> | CaseAssignmentCreateWithoutProfessionalInput[] | CaseAssignmentUncheckedCreateWithoutProfessionalInput[]
     connectOrCreate?: CaseAssignmentCreateOrConnectWithoutProfessionalInput | CaseAssignmentCreateOrConnectWithoutProfessionalInput[]
@@ -15693,31 +19643,17 @@ export namespace Prisma {
     deleteMany?: CaseAssignmentScalarWhereInput | CaseAssignmentScalarWhereInput[]
   }
 
-  export type MedicalOpinionUncheckedUpdateManyWithoutPrimaryProfessionalNestedInput = {
-    create?: XOR<MedicalOpinionCreateWithoutPrimaryProfessionalInput, MedicalOpinionUncheckedCreateWithoutPrimaryProfessionalInput> | MedicalOpinionCreateWithoutPrimaryProfessionalInput[] | MedicalOpinionUncheckedCreateWithoutPrimaryProfessionalInput[]
-    connectOrCreate?: MedicalOpinionCreateOrConnectWithoutPrimaryProfessionalInput | MedicalOpinionCreateOrConnectWithoutPrimaryProfessionalInput[]
-    upsert?: MedicalOpinionUpsertWithWhereUniqueWithoutPrimaryProfessionalInput | MedicalOpinionUpsertWithWhereUniqueWithoutPrimaryProfessionalInput[]
-    createMany?: MedicalOpinionCreateManyPrimaryProfessionalInputEnvelope
+  export type MedicalOpinionUncheckedUpdateManyWithoutProfessionalNestedInput = {
+    create?: XOR<MedicalOpinionCreateWithoutProfessionalInput, MedicalOpinionUncheckedCreateWithoutProfessionalInput> | MedicalOpinionCreateWithoutProfessionalInput[] | MedicalOpinionUncheckedCreateWithoutProfessionalInput[]
+    connectOrCreate?: MedicalOpinionCreateOrConnectWithoutProfessionalInput | MedicalOpinionCreateOrConnectWithoutProfessionalInput[]
+    upsert?: MedicalOpinionUpsertWithWhereUniqueWithoutProfessionalInput | MedicalOpinionUpsertWithWhereUniqueWithoutProfessionalInput[]
+    createMany?: MedicalOpinionCreateManyProfessionalInputEnvelope
     set?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
     disconnect?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
     delete?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
     connect?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
-    update?: MedicalOpinionUpdateWithWhereUniqueWithoutPrimaryProfessionalInput | MedicalOpinionUpdateWithWhereUniqueWithoutPrimaryProfessionalInput[]
-    updateMany?: MedicalOpinionUpdateManyWithWhereWithoutPrimaryProfessionalInput | MedicalOpinionUpdateManyWithWhereWithoutPrimaryProfessionalInput[]
-    deleteMany?: MedicalOpinionScalarWhereInput | MedicalOpinionScalarWhereInput[]
-  }
-
-  export type MedicalOpinionUncheckedUpdateManyWithoutReviewerProfessionalNestedInput = {
-    create?: XOR<MedicalOpinionCreateWithoutReviewerProfessionalInput, MedicalOpinionUncheckedCreateWithoutReviewerProfessionalInput> | MedicalOpinionCreateWithoutReviewerProfessionalInput[] | MedicalOpinionUncheckedCreateWithoutReviewerProfessionalInput[]
-    connectOrCreate?: MedicalOpinionCreateOrConnectWithoutReviewerProfessionalInput | MedicalOpinionCreateOrConnectWithoutReviewerProfessionalInput[]
-    upsert?: MedicalOpinionUpsertWithWhereUniqueWithoutReviewerProfessionalInput | MedicalOpinionUpsertWithWhereUniqueWithoutReviewerProfessionalInput[]
-    createMany?: MedicalOpinionCreateManyReviewerProfessionalInputEnvelope
-    set?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
-    disconnect?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
-    delete?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
-    connect?: MedicalOpinionWhereUniqueInput | MedicalOpinionWhereUniqueInput[]
-    update?: MedicalOpinionUpdateWithWhereUniqueWithoutReviewerProfessionalInput | MedicalOpinionUpdateWithWhereUniqueWithoutReviewerProfessionalInput[]
-    updateMany?: MedicalOpinionUpdateManyWithWhereWithoutReviewerProfessionalInput | MedicalOpinionUpdateManyWithWhereWithoutReviewerProfessionalInput[]
+    update?: MedicalOpinionUpdateWithWhereUniqueWithoutProfessionalInput | MedicalOpinionUpdateWithWhereUniqueWithoutProfessionalInput[]
+    updateMany?: MedicalOpinionUpdateManyWithWhereWithoutProfessionalInput | MedicalOpinionUpdateManyWithWhereWithoutProfessionalInput[]
     deleteMany?: MedicalOpinionScalarWhereInput | MedicalOpinionScalarWhereInput[]
   }
 
@@ -15733,6 +19669,34 @@ export namespace Prisma {
     update?: ProfessionalPaymentUpdateWithWhereUniqueWithoutProfessionalInput | ProfessionalPaymentUpdateWithWhereUniqueWithoutProfessionalInput[]
     updateMany?: ProfessionalPaymentUpdateManyWithWhereWithoutProfessionalInput | ProfessionalPaymentUpdateManyWithWhereWithoutProfessionalInput[]
     deleteMany?: ProfessionalPaymentScalarWhereInput | ProfessionalPaymentScalarWhereInput[]
+  }
+
+  export type ProfessionalSessionUncheckedUpdateManyWithoutProfessionalNestedInput = {
+    create?: XOR<ProfessionalSessionCreateWithoutProfessionalInput, ProfessionalSessionUncheckedCreateWithoutProfessionalInput> | ProfessionalSessionCreateWithoutProfessionalInput[] | ProfessionalSessionUncheckedCreateWithoutProfessionalInput[]
+    connectOrCreate?: ProfessionalSessionCreateOrConnectWithoutProfessionalInput | ProfessionalSessionCreateOrConnectWithoutProfessionalInput[]
+    upsert?: ProfessionalSessionUpsertWithWhereUniqueWithoutProfessionalInput | ProfessionalSessionUpsertWithWhereUniqueWithoutProfessionalInput[]
+    createMany?: ProfessionalSessionCreateManyProfessionalInputEnvelope
+    set?: ProfessionalSessionWhereUniqueInput | ProfessionalSessionWhereUniqueInput[]
+    disconnect?: ProfessionalSessionWhereUniqueInput | ProfessionalSessionWhereUniqueInput[]
+    delete?: ProfessionalSessionWhereUniqueInput | ProfessionalSessionWhereUniqueInput[]
+    connect?: ProfessionalSessionWhereUniqueInput | ProfessionalSessionWhereUniqueInput[]
+    update?: ProfessionalSessionUpdateWithWhereUniqueWithoutProfessionalInput | ProfessionalSessionUpdateWithWhereUniqueWithoutProfessionalInput[]
+    updateMany?: ProfessionalSessionUpdateManyWithWhereWithoutProfessionalInput | ProfessionalSessionUpdateManyWithWhereWithoutProfessionalInput[]
+    deleteMany?: ProfessionalSessionScalarWhereInput | ProfessionalSessionScalarWhereInput[]
+  }
+
+  export type MedicalProfessionalCreateNestedOneWithoutProfessionalSessionsInput = {
+    create?: XOR<MedicalProfessionalCreateWithoutProfessionalSessionsInput, MedicalProfessionalUncheckedCreateWithoutProfessionalSessionsInput>
+    connectOrCreate?: MedicalProfessionalCreateOrConnectWithoutProfessionalSessionsInput
+    connect?: MedicalProfessionalWhereUniqueInput
+  }
+
+  export type MedicalProfessionalUpdateOneRequiredWithoutProfessionalSessionsNestedInput = {
+    create?: XOR<MedicalProfessionalCreateWithoutProfessionalSessionsInput, MedicalProfessionalUncheckedCreateWithoutProfessionalSessionsInput>
+    connectOrCreate?: MedicalProfessionalCreateOrConnectWithoutProfessionalSessionsInput
+    upsert?: MedicalProfessionalUpsertWithoutProfessionalSessionsInput
+    connect?: MedicalProfessionalWhereUniqueInput
+    update?: XOR<XOR<MedicalProfessionalUpdateToOneWithWhereWithoutProfessionalSessionsInput, MedicalProfessionalUpdateWithoutProfessionalSessionsInput>, MedicalProfessionalUncheckedUpdateWithoutProfessionalSessionsInput>
   }
 
   export type CaseCreateNestedOneWithoutCaseAssignmentsInput = {
@@ -15763,26 +19727,18 @@ export namespace Prisma {
     update?: XOR<XOR<MedicalProfessionalUpdateToOneWithWhereWithoutCaseAssignmentsInput, MedicalProfessionalUpdateWithoutCaseAssignmentsInput>, MedicalProfessionalUncheckedUpdateWithoutCaseAssignmentsInput>
   }
 
-  export type CaseCreateNestedOneWithoutAiAnalysisInput = {
-    create?: XOR<CaseCreateWithoutAiAnalysisInput, CaseUncheckedCreateWithoutAiAnalysisInput>
-    connectOrCreate?: CaseCreateOrConnectWithoutAiAnalysisInput
+  export type CaseCreateNestedOneWithoutAiAnalysesInput = {
+    create?: XOR<CaseCreateWithoutAiAnalysesInput, CaseUncheckedCreateWithoutAiAnalysesInput>
+    connectOrCreate?: CaseCreateOrConnectWithoutAiAnalysesInput
     connect?: CaseWhereUniqueInput
   }
 
-  export type NullableFloatFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
-  }
-
-  export type CaseUpdateOneRequiredWithoutAiAnalysisNestedInput = {
-    create?: XOR<CaseCreateWithoutAiAnalysisInput, CaseUncheckedCreateWithoutAiAnalysisInput>
-    connectOrCreate?: CaseCreateOrConnectWithoutAiAnalysisInput
-    upsert?: CaseUpsertWithoutAiAnalysisInput
+  export type CaseUpdateOneRequiredWithoutAiAnalysesNestedInput = {
+    create?: XOR<CaseCreateWithoutAiAnalysesInput, CaseUncheckedCreateWithoutAiAnalysesInput>
+    connectOrCreate?: CaseCreateOrConnectWithoutAiAnalysesInput
+    upsert?: CaseUpsertWithoutAiAnalysesInput
     connect?: CaseWhereUniqueInput
-    update?: XOR<XOR<CaseUpdateToOneWithWhereWithoutAiAnalysisInput, CaseUpdateWithoutAiAnalysisInput>, CaseUncheckedUpdateWithoutAiAnalysisInput>
+    update?: XOR<XOR<CaseUpdateToOneWithWhereWithoutAiAnalysesInput, CaseUpdateWithoutAiAnalysesInput>, CaseUncheckedUpdateWithoutAiAnalysesInput>
   }
 
   export type CaseCreateNestedOneWithoutMedicalOpinionsInput = {
@@ -15791,15 +19747,9 @@ export namespace Prisma {
     connect?: CaseWhereUniqueInput
   }
 
-  export type MedicalProfessionalCreateNestedOneWithoutPrimaryOpinionsInput = {
-    create?: XOR<MedicalProfessionalCreateWithoutPrimaryOpinionsInput, MedicalProfessionalUncheckedCreateWithoutPrimaryOpinionsInput>
-    connectOrCreate?: MedicalProfessionalCreateOrConnectWithoutPrimaryOpinionsInput
-    connect?: MedicalProfessionalWhereUniqueInput
-  }
-
-  export type MedicalProfessionalCreateNestedOneWithoutReviewedOpinionsInput = {
-    create?: XOR<MedicalProfessionalCreateWithoutReviewedOpinionsInput, MedicalProfessionalUncheckedCreateWithoutReviewedOpinionsInput>
-    connectOrCreate?: MedicalProfessionalCreateOrConnectWithoutReviewedOpinionsInput
+  export type MedicalProfessionalCreateNestedOneWithoutMedicalOpinionsInput = {
+    create?: XOR<MedicalProfessionalCreateWithoutMedicalOpinionsInput, MedicalProfessionalUncheckedCreateWithoutMedicalOpinionsInput>
+    connectOrCreate?: MedicalProfessionalCreateOrConnectWithoutMedicalOpinionsInput
     connect?: MedicalProfessionalWhereUniqueInput
   }
 
@@ -15811,27 +19761,23 @@ export namespace Prisma {
     update?: XOR<XOR<CaseUpdateToOneWithWhereWithoutMedicalOpinionsInput, CaseUpdateWithoutMedicalOpinionsInput>, CaseUncheckedUpdateWithoutMedicalOpinionsInput>
   }
 
-  export type MedicalProfessionalUpdateOneRequiredWithoutPrimaryOpinionsNestedInput = {
-    create?: XOR<MedicalProfessionalCreateWithoutPrimaryOpinionsInput, MedicalProfessionalUncheckedCreateWithoutPrimaryOpinionsInput>
-    connectOrCreate?: MedicalProfessionalCreateOrConnectWithoutPrimaryOpinionsInput
-    upsert?: MedicalProfessionalUpsertWithoutPrimaryOpinionsInput
+  export type MedicalProfessionalUpdateOneRequiredWithoutMedicalOpinionsNestedInput = {
+    create?: XOR<MedicalProfessionalCreateWithoutMedicalOpinionsInput, MedicalProfessionalUncheckedCreateWithoutMedicalOpinionsInput>
+    connectOrCreate?: MedicalProfessionalCreateOrConnectWithoutMedicalOpinionsInput
+    upsert?: MedicalProfessionalUpsertWithoutMedicalOpinionsInput
     connect?: MedicalProfessionalWhereUniqueInput
-    update?: XOR<XOR<MedicalProfessionalUpdateToOneWithWhereWithoutPrimaryOpinionsInput, MedicalProfessionalUpdateWithoutPrimaryOpinionsInput>, MedicalProfessionalUncheckedUpdateWithoutPrimaryOpinionsInput>
+    update?: XOR<XOR<MedicalProfessionalUpdateToOneWithWhereWithoutMedicalOpinionsInput, MedicalProfessionalUpdateWithoutMedicalOpinionsInput>, MedicalProfessionalUncheckedUpdateWithoutMedicalOpinionsInput>
   }
 
-  export type MedicalProfessionalUpdateOneWithoutReviewedOpinionsNestedInput = {
-    create?: XOR<MedicalProfessionalCreateWithoutReviewedOpinionsInput, MedicalProfessionalUncheckedCreateWithoutReviewedOpinionsInput>
-    connectOrCreate?: MedicalProfessionalCreateOrConnectWithoutReviewedOpinionsInput
-    upsert?: MedicalProfessionalUpsertWithoutReviewedOpinionsInput
-    disconnect?: MedicalProfessionalWhereInput | boolean
-    delete?: MedicalProfessionalWhereInput | boolean
-    connect?: MedicalProfessionalWhereUniqueInput
-    update?: XOR<XOR<MedicalProfessionalUpdateToOneWithWhereWithoutReviewedOpinionsInput, MedicalProfessionalUpdateWithoutReviewedOpinionsInput>, MedicalProfessionalUncheckedUpdateWithoutReviewedOpinionsInput>
+  export type CaseCreateNestedOneWithoutProfessionalPaymentsInput = {
+    create?: XOR<CaseCreateWithoutProfessionalPaymentsInput, CaseUncheckedCreateWithoutProfessionalPaymentsInput>
+    connectOrCreate?: CaseCreateOrConnectWithoutProfessionalPaymentsInput
+    connect?: CaseWhereUniqueInput
   }
 
-  export type MedicalProfessionalCreateNestedOneWithoutPaymentsInput = {
-    create?: XOR<MedicalProfessionalCreateWithoutPaymentsInput, MedicalProfessionalUncheckedCreateWithoutPaymentsInput>
-    connectOrCreate?: MedicalProfessionalCreateOrConnectWithoutPaymentsInput
+  export type MedicalProfessionalCreateNestedOneWithoutProfessionalPaymentsInput = {
+    create?: XOR<MedicalProfessionalCreateWithoutProfessionalPaymentsInput, MedicalProfessionalUncheckedCreateWithoutProfessionalPaymentsInput>
+    connectOrCreate?: MedicalProfessionalCreateOrConnectWithoutProfessionalPaymentsInput
     connect?: MedicalProfessionalWhereUniqueInput
   }
 
@@ -15843,12 +19789,20 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type MedicalProfessionalUpdateOneRequiredWithoutPaymentsNestedInput = {
-    create?: XOR<MedicalProfessionalCreateWithoutPaymentsInput, MedicalProfessionalUncheckedCreateWithoutPaymentsInput>
-    connectOrCreate?: MedicalProfessionalCreateOrConnectWithoutPaymentsInput
-    upsert?: MedicalProfessionalUpsertWithoutPaymentsInput
+  export type CaseUpdateOneRequiredWithoutProfessionalPaymentsNestedInput = {
+    create?: XOR<CaseCreateWithoutProfessionalPaymentsInput, CaseUncheckedCreateWithoutProfessionalPaymentsInput>
+    connectOrCreate?: CaseCreateOrConnectWithoutProfessionalPaymentsInput
+    upsert?: CaseUpsertWithoutProfessionalPaymentsInput
+    connect?: CaseWhereUniqueInput
+    update?: XOR<XOR<CaseUpdateToOneWithWhereWithoutProfessionalPaymentsInput, CaseUpdateWithoutProfessionalPaymentsInput>, CaseUncheckedUpdateWithoutProfessionalPaymentsInput>
+  }
+
+  export type MedicalProfessionalUpdateOneRequiredWithoutProfessionalPaymentsNestedInput = {
+    create?: XOR<MedicalProfessionalCreateWithoutProfessionalPaymentsInput, MedicalProfessionalUncheckedCreateWithoutProfessionalPaymentsInput>
+    connectOrCreate?: MedicalProfessionalCreateOrConnectWithoutProfessionalPaymentsInput
+    upsert?: MedicalProfessionalUpsertWithoutProfessionalPaymentsInput
     connect?: MedicalProfessionalWhereUniqueInput
-    update?: XOR<XOR<MedicalProfessionalUpdateToOneWithWhereWithoutPaymentsInput, MedicalProfessionalUpdateWithoutPaymentsInput>, MedicalProfessionalUncheckedUpdateWithoutPaymentsInput>
+    update?: XOR<XOR<MedicalProfessionalUpdateToOneWithWhereWithoutProfessionalPaymentsInput, MedicalProfessionalUpdateWithoutProfessionalPaymentsInput>, MedicalProfessionalUncheckedUpdateWithoutProfessionalPaymentsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -15863,36 +19817,6 @@ export namespace Prisma {
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     not?: NestedStringFilter<$PrismaModel> | string
-  }
-
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
-  export type NestedStringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
@@ -15934,37 +19858,39 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
-  }
-
-  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | null
-    notIn?: Date[] | string[] | null
+  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[]
+    notIn?: Date[] | string[]
     lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type NestedIntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedEnumCommunicationChannelFilter<$PrismaModel = never> = {
+    equals?: $Enums.CommunicationChannel | EnumCommunicationChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.CommunicationChannel[]
+    notIn?: $Enums.CommunicationChannel[]
+    not?: NestedEnumCommunicationChannelFilter<$PrismaModel> | $Enums.CommunicationChannel
   }
 
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -15984,23 +19910,53 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
-  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[]
-    notIn?: Date[] | string[]
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedEnumCommunicationChannelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CommunicationChannel | EnumCommunicationChannelFieldRefInput<$PrismaModel>
+    in?: $Enums.CommunicationChannel[]
+    notIn?: $Enums.CommunicationChannel[]
+    not?: NestedEnumCommunicationChannelWithAggregatesFilter<$PrismaModel> | $Enums.CommunicationChannel
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
+    _min?: NestedEnumCommunicationChannelFilter<$PrismaModel>
+    _max?: NestedEnumCommunicationChannelFilter<$PrismaModel>
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedBoolNullableFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
     not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -16009,6 +19965,14 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedBoolNullableFilter<$PrismaModel>
     _max?: NestedBoolNullableFilter<$PrismaModel>
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -16038,6 +20002,31 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type NestedEnumProLevelFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProLevel | EnumProLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.ProLevel[]
+    notIn?: $Enums.ProLevel[]
+    not?: NestedEnumProLevelFilter<$PrismaModel> | $Enums.ProLevel
+  }
+
+  export type NestedEnumTwoFactorMethodFilter<$PrismaModel = never> = {
+    equals?: $Enums.TwoFactorMethod | EnumTwoFactorMethodFieldRefInput<$PrismaModel>
+    in?: $Enums.TwoFactorMethod[]
+    notIn?: $Enums.TwoFactorMethod[]
+    not?: NestedEnumTwoFactorMethodFilter<$PrismaModel> | $Enums.TwoFactorMethod
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedFloatNullableFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel> | null
     in?: number[] | null
@@ -16047,6 +20036,74 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedEnumProLevelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProLevel | EnumProLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.ProLevel[]
+    notIn?: $Enums.ProLevel[]
+    not?: NestedEnumProLevelWithAggregatesFilter<$PrismaModel> | $Enums.ProLevel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProLevelFilter<$PrismaModel>
+    _max?: NestedEnumProLevelFilter<$PrismaModel>
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumTwoFactorMethodWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TwoFactorMethod | EnumTwoFactorMethodFieldRefInput<$PrismaModel>
+    in?: $Enums.TwoFactorMethod[]
+    notIn?: $Enums.TwoFactorMethod[]
+    not?: NestedEnumTwoFactorMethodWithAggregatesFilter<$PrismaModel> | $Enums.TwoFactorMethod
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTwoFactorMethodFilter<$PrismaModel>
+    _max?: NestedEnumTwoFactorMethodFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | null
+    notIn?: Date[] | string[] | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -16081,9 +20138,102 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
+  export type CustomerCreateWithoutUserInput = {
+    id?: string
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    dateOfBirth: Date | string
+    email: string
+    phone?: string | null
+    preferredChannel?: $Enums.CommunicationChannel
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    cases?: CaseCreateNestedManyWithoutCustomerInput
+  }
+
+  export type CustomerUncheckedCreateWithoutUserInput = {
+    id?: string
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    dateOfBirth: Date | string
+    email: string
+    phone?: string | null
+    preferredChannel?: $Enums.CommunicationChannel
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    cases?: CaseUncheckedCreateNestedManyWithoutCustomerInput
+  }
+
+  export type CustomerCreateOrConnectWithoutUserInput = {
+    where: CustomerWhereUniqueInput
+    create: XOR<CustomerCreateWithoutUserInput, CustomerUncheckedCreateWithoutUserInput>
+  }
+
+  export type CustomerUpsertWithoutUserInput = {
+    update: XOR<CustomerUpdateWithoutUserInput, CustomerUncheckedUpdateWithoutUserInput>
+    create: XOR<CustomerCreateWithoutUserInput, CustomerUncheckedCreateWithoutUserInput>
+    where?: CustomerWhereInput
+  }
+
+  export type CustomerUpdateToOneWithWhereWithoutUserInput = {
+    where?: CustomerWhereInput
+    data: XOR<CustomerUpdateWithoutUserInput, CustomerUncheckedUpdateWithoutUserInput>
+  }
+
+  export type CustomerUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    preferredChannel?: EnumCommunicationChannelFieldUpdateOperationsInput | $Enums.CommunicationChannel
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    cases?: CaseUpdateManyWithoutCustomerNestedInput
+  }
+
+  export type CustomerUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    preferredChannel?: EnumCommunicationChannelFieldUpdateOperationsInput | $Enums.CommunicationChannel
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    cases?: CaseUncheckedUpdateManyWithoutCustomerNestedInput
+  }
+
+  export type UserCreateWithoutCustomerInput = {
+    id?: string
+    email: string
+    hashedPassword: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UserUncheckedCreateWithoutCustomerInput = {
+    id?: string
+    email: string
+    hashedPassword: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UserCreateOrConnectWithoutCustomerInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutCustomerInput, UserUncheckedCreateWithoutCustomerInput>
+  }
+
   export type CaseCreateWithoutCustomerInput = {
     id?: string
-    caseNumber?: string
+    caseNumber: string
     firstName: string
     middleName?: string | null
     lastName: string
@@ -16096,19 +20246,19 @@ export namespace Prisma {
     isFirstOccurrence?: boolean | null
     geneticFamilyHistory?: string | null
     paymentId?: string | null
-    consentAccepted?: boolean
-    status?: string
+    consentAccepted: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     uploadedFiles?: UploadedFileCreateNestedManyWithoutCaseInput
-    aiAnalysis?: AIAnalysisCreateNestedOneWithoutCaseInput
     caseAssignments?: CaseAssignmentCreateNestedManyWithoutCaseInput
+    aiAnalyses?: AIAnalysisCreateNestedManyWithoutCaseInput
     medicalOpinions?: MedicalOpinionCreateNestedManyWithoutCaseInput
+    professionalPayments?: ProfessionalPaymentCreateNestedManyWithoutCaseInput
   }
 
   export type CaseUncheckedCreateWithoutCustomerInput = {
     id?: string
-    caseNumber?: string
+    caseNumber: string
     firstName: string
     middleName?: string | null
     lastName: string
@@ -16121,14 +20271,14 @@ export namespace Prisma {
     isFirstOccurrence?: boolean | null
     geneticFamilyHistory?: string | null
     paymentId?: string | null
-    consentAccepted?: boolean
-    status?: string
+    consentAccepted: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     uploadedFiles?: UploadedFileUncheckedCreateNestedManyWithoutCaseInput
-    aiAnalysis?: AIAnalysisUncheckedCreateNestedOneWithoutCaseInput
     caseAssignments?: CaseAssignmentUncheckedCreateNestedManyWithoutCaseInput
+    aiAnalyses?: AIAnalysisUncheckedCreateNestedManyWithoutCaseInput
     medicalOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutCaseInput
+    professionalPayments?: ProfessionalPaymentUncheckedCreateNestedManyWithoutCaseInput
   }
 
   export type CaseCreateOrConnectWithoutCustomerInput = {
@@ -16138,6 +20288,33 @@ export namespace Prisma {
 
   export type CaseCreateManyCustomerInputEnvelope = {
     data: CaseCreateManyCustomerInput | CaseCreateManyCustomerInput[]
+  }
+
+  export type UserUpsertWithoutCustomerInput = {
+    update: XOR<UserUpdateWithoutCustomerInput, UserUncheckedUpdateWithoutCustomerInput>
+    create: XOR<UserCreateWithoutCustomerInput, UserUncheckedCreateWithoutCustomerInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutCustomerInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutCustomerInput, UserUncheckedUpdateWithoutCustomerInput>
+  }
+
+  export type UserUpdateWithoutCustomerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserUncheckedUpdateWithoutCustomerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    hashedPassword?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CaseUpsertWithWhereUniqueWithoutCustomerInput = {
@@ -16162,7 +20339,6 @@ export namespace Prisma {
     NOT?: CaseScalarWhereInput | CaseScalarWhereInput[]
     id?: StringFilter<"Case"> | string
     caseNumber?: StringFilter<"Case"> | string
-    customerId?: StringFilter<"Case"> | string
     firstName?: StringFilter<"Case"> | string
     middleName?: StringNullableFilter<"Case"> | string | null
     lastName?: StringFilter<"Case"> | string
@@ -16176,45 +20352,35 @@ export namespace Prisma {
     geneticFamilyHistory?: StringNullableFilter<"Case"> | string | null
     paymentId?: StringNullableFilter<"Case"> | string | null
     consentAccepted?: BoolFilter<"Case"> | boolean
-    status?: StringFilter<"Case"> | string
+    customerId?: StringFilter<"Case"> | string
     createdAt?: DateTimeFilter<"Case"> | Date | string
     updatedAt?: DateTimeFilter<"Case"> | Date | string
   }
 
   export type CustomerCreateWithoutCasesInput = {
     id?: string
-    customerId?: string
-    email: string
-    passwordHash: string
-    isActive?: boolean
-    lastLoginAt?: Date | string | null
     firstName: string
     middleName?: string | null
     lastName: string
     dateOfBirth: Date | string
+    email: string
     phone?: string | null
-    preferredContact?: string
-    emailNotifications?: boolean
-    smsNotifications?: boolean
+    preferredChannel?: $Enums.CommunicationChannel
     createdAt?: Date | string
     updatedAt?: Date | string
+    user?: UserCreateNestedOneWithoutCustomerInput
   }
 
   export type CustomerUncheckedCreateWithoutCasesInput = {
     id?: string
-    customerId?: string
-    email: string
-    passwordHash: string
-    isActive?: boolean
-    lastLoginAt?: Date | string | null
     firstName: string
     middleName?: string | null
     lastName: string
     dateOfBirth: Date | string
+    email: string
     phone?: string | null
-    preferredContact?: string
-    emailNotifications?: boolean
-    smsNotifications?: boolean
+    preferredChannel?: $Enums.CommunicationChannel
+    userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -16226,24 +20392,22 @@ export namespace Prisma {
 
   export type UploadedFileCreateWithoutCaseInput = {
     id?: string
-    fileName: string
-    originalName: string
-    fileSize: number
-    mimeType: string
+    filename: string
+    s3Key: string
+    mimetype: string
+    size: number
     category: string
-    s3Key?: string | null
-    uploadedAt?: Date | string
+    createdAt?: Date | string
   }
 
   export type UploadedFileUncheckedCreateWithoutCaseInput = {
     id?: string
-    fileName: string
-    originalName: string
-    fileSize: number
-    mimeType: string
+    filename: string
+    s3Key: string
+    mimetype: string
+    size: number
     category: string
-    s3Key?: string | null
-    uploadedAt?: Date | string
+    createdAt?: Date | string
   }
 
   export type UploadedFileCreateOrConnectWithoutCaseInput = {
@@ -16255,35 +20419,10 @@ export namespace Prisma {
     data: UploadedFileCreateManyCaseInput | UploadedFileCreateManyCaseInput[]
   }
 
-  export type AIAnalysisCreateWithoutCaseInput = {
-    id?: string
-    analysisType: string
-    findings: string
-    confidence?: number | null
-    initiatedAt?: Date | string
-    completedAt?: Date | string | null
-  }
-
-  export type AIAnalysisUncheckedCreateWithoutCaseInput = {
-    id?: string
-    analysisType: string
-    findings: string
-    confidence?: number | null
-    initiatedAt?: Date | string
-    completedAt?: Date | string | null
-  }
-
-  export type AIAnalysisCreateOrConnectWithoutCaseInput = {
-    where: AIAnalysisWhereUniqueInput
-    create: XOR<AIAnalysisCreateWithoutCaseInput, AIAnalysisUncheckedCreateWithoutCaseInput>
-  }
-
   export type CaseAssignmentCreateWithoutCaseInput = {
     id?: string
-    assignedBy: string
-    assignedAt?: Date | string
     status?: string
-    startedAt?: Date | string | null
+    assignedAt?: Date | string
     completedAt?: Date | string | null
     professional: MedicalProfessionalCreateNestedOneWithoutCaseAssignmentsInput
   }
@@ -16291,10 +20430,8 @@ export namespace Prisma {
   export type CaseAssignmentUncheckedCreateWithoutCaseInput = {
     id?: string
     professionalId: string
-    assignedBy: string
-    assignedAt?: Date | string
     status?: string
-    startedAt?: Date | string | null
+    assignedAt?: Date | string
     completedAt?: Date | string | null
   }
 
@@ -16307,40 +20444,45 @@ export namespace Prisma {
     data: CaseAssignmentCreateManyCaseInput | CaseAssignmentCreateManyCaseInput[]
   }
 
+  export type AIAnalysisCreateWithoutCaseInput = {
+    id?: string
+    analysisType: string
+    results: string
+    createdAt?: Date | string
+  }
+
+  export type AIAnalysisUncheckedCreateWithoutCaseInput = {
+    id?: string
+    analysisType: string
+    results: string
+    createdAt?: Date | string
+  }
+
+  export type AIAnalysisCreateOrConnectWithoutCaseInput = {
+    where: AIAnalysisWhereUniqueInput
+    create: XOR<AIAnalysisCreateWithoutCaseInput, AIAnalysisUncheckedCreateWithoutCaseInput>
+  }
+
+  export type AIAnalysisCreateManyCaseInputEnvelope = {
+    data: AIAnalysisCreateManyCaseInput | AIAnalysisCreateManyCaseInput[]
+  }
+
   export type MedicalOpinionCreateWithoutCaseInput = {
     id?: string
-    diagnosis?: string | null
-    recommendations: string
-    riskAssessment?: string | null
-    additionalTests?: string | null
-    notes?: string | null
+    content: string
     status?: string
-    peerReviewNotes?: string | null
     createdAt?: Date | string
-    submittedAt?: Date | string | null
-    reviewedAt?: Date | string | null
-    approvedAt?: Date | string | null
-    deliveredAt?: Date | string | null
-    primaryProfessional: MedicalProfessionalCreateNestedOneWithoutPrimaryOpinionsInput
-    reviewerProfessional?: MedicalProfessionalCreateNestedOneWithoutReviewedOpinionsInput
+    updatedAt?: Date | string
+    professional: MedicalProfessionalCreateNestedOneWithoutMedicalOpinionsInput
   }
 
   export type MedicalOpinionUncheckedCreateWithoutCaseInput = {
     id?: string
-    primaryProfessionalId: string
-    reviewerProfessionalId?: string | null
-    diagnosis?: string | null
-    recommendations: string
-    riskAssessment?: string | null
-    additionalTests?: string | null
-    notes?: string | null
+    professionalId: string
+    content: string
     status?: string
-    peerReviewNotes?: string | null
     createdAt?: Date | string
-    submittedAt?: Date | string | null
-    reviewedAt?: Date | string | null
-    approvedAt?: Date | string | null
-    deliveredAt?: Date | string | null
+    updatedAt?: Date | string
   }
 
   export type MedicalOpinionCreateOrConnectWithoutCaseInput = {
@@ -16350,6 +20492,31 @@ export namespace Prisma {
 
   export type MedicalOpinionCreateManyCaseInputEnvelope = {
     data: MedicalOpinionCreateManyCaseInput | MedicalOpinionCreateManyCaseInput[]
+  }
+
+  export type ProfessionalPaymentCreateWithoutCaseInput = {
+    id?: string
+    amount: number
+    status?: string
+    createdAt?: Date | string
+    professional: MedicalProfessionalCreateNestedOneWithoutProfessionalPaymentsInput
+  }
+
+  export type ProfessionalPaymentUncheckedCreateWithoutCaseInput = {
+    id?: string
+    professionalId: string
+    amount: number
+    status?: string
+    createdAt?: Date | string
+  }
+
+  export type ProfessionalPaymentCreateOrConnectWithoutCaseInput = {
+    where: ProfessionalPaymentWhereUniqueInput
+    create: XOR<ProfessionalPaymentCreateWithoutCaseInput, ProfessionalPaymentUncheckedCreateWithoutCaseInput>
+  }
+
+  export type ProfessionalPaymentCreateManyCaseInputEnvelope = {
+    data: ProfessionalPaymentCreateManyCaseInput | ProfessionalPaymentCreateManyCaseInput[]
   }
 
   export type CustomerUpsertWithoutCasesInput = {
@@ -16365,38 +20532,28 @@ export namespace Prisma {
 
   export type CustomerUpdateWithoutCasesInput = {
     id?: StringFieldUpdateOperationsInput | string
-    customerId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
-    preferredContact?: StringFieldUpdateOperationsInput | string
-    emailNotifications?: BoolFieldUpdateOperationsInput | boolean
-    smsNotifications?: BoolFieldUpdateOperationsInput | boolean
+    preferredChannel?: EnumCommunicationChannelFieldUpdateOperationsInput | $Enums.CommunicationChannel
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutCustomerNestedInput
   }
 
   export type CustomerUncheckedUpdateWithoutCasesInput = {
     id?: StringFieldUpdateOperationsInput | string
-    customerId?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     firstName?: StringFieldUpdateOperationsInput | string
     middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
     dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
-    preferredContact?: StringFieldUpdateOperationsInput | string
-    emailNotifications?: BoolFieldUpdateOperationsInput | boolean
-    smsNotifications?: BoolFieldUpdateOperationsInput | boolean
+    preferredChannel?: EnumCommunicationChannelFieldUpdateOperationsInput | $Enums.CommunicationChannel
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -16423,42 +20580,12 @@ export namespace Prisma {
     NOT?: UploadedFileScalarWhereInput | UploadedFileScalarWhereInput[]
     id?: StringFilter<"UploadedFile"> | string
     caseId?: StringFilter<"UploadedFile"> | string
-    fileName?: StringFilter<"UploadedFile"> | string
-    originalName?: StringFilter<"UploadedFile"> | string
-    fileSize?: IntFilter<"UploadedFile"> | number
-    mimeType?: StringFilter<"UploadedFile"> | string
+    filename?: StringFilter<"UploadedFile"> | string
+    s3Key?: StringFilter<"UploadedFile"> | string
+    mimetype?: StringFilter<"UploadedFile"> | string
+    size?: IntFilter<"UploadedFile"> | number
     category?: StringFilter<"UploadedFile"> | string
-    s3Key?: StringNullableFilter<"UploadedFile"> | string | null
-    uploadedAt?: DateTimeFilter<"UploadedFile"> | Date | string
-  }
-
-  export type AIAnalysisUpsertWithoutCaseInput = {
-    update: XOR<AIAnalysisUpdateWithoutCaseInput, AIAnalysisUncheckedUpdateWithoutCaseInput>
-    create: XOR<AIAnalysisCreateWithoutCaseInput, AIAnalysisUncheckedCreateWithoutCaseInput>
-    where?: AIAnalysisWhereInput
-  }
-
-  export type AIAnalysisUpdateToOneWithWhereWithoutCaseInput = {
-    where?: AIAnalysisWhereInput
-    data: XOR<AIAnalysisUpdateWithoutCaseInput, AIAnalysisUncheckedUpdateWithoutCaseInput>
-  }
-
-  export type AIAnalysisUpdateWithoutCaseInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    analysisType?: StringFieldUpdateOperationsInput | string
-    findings?: StringFieldUpdateOperationsInput | string
-    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
-    initiatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type AIAnalysisUncheckedUpdateWithoutCaseInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    analysisType?: StringFieldUpdateOperationsInput | string
-    findings?: StringFieldUpdateOperationsInput | string
-    confidence?: NullableFloatFieldUpdateOperationsInput | number | null
-    initiatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFilter<"UploadedFile"> | Date | string
   }
 
   export type CaseAssignmentUpsertWithWhereUniqueWithoutCaseInput = {
@@ -16484,11 +20611,36 @@ export namespace Prisma {
     id?: StringFilter<"CaseAssignment"> | string
     caseId?: StringFilter<"CaseAssignment"> | string
     professionalId?: StringFilter<"CaseAssignment"> | string
-    assignedBy?: StringFilter<"CaseAssignment"> | string
-    assignedAt?: DateTimeFilter<"CaseAssignment"> | Date | string
     status?: StringFilter<"CaseAssignment"> | string
-    startedAt?: DateTimeNullableFilter<"CaseAssignment"> | Date | string | null
+    assignedAt?: DateTimeFilter<"CaseAssignment"> | Date | string
     completedAt?: DateTimeNullableFilter<"CaseAssignment"> | Date | string | null
+  }
+
+  export type AIAnalysisUpsertWithWhereUniqueWithoutCaseInput = {
+    where: AIAnalysisWhereUniqueInput
+    update: XOR<AIAnalysisUpdateWithoutCaseInput, AIAnalysisUncheckedUpdateWithoutCaseInput>
+    create: XOR<AIAnalysisCreateWithoutCaseInput, AIAnalysisUncheckedCreateWithoutCaseInput>
+  }
+
+  export type AIAnalysisUpdateWithWhereUniqueWithoutCaseInput = {
+    where: AIAnalysisWhereUniqueInput
+    data: XOR<AIAnalysisUpdateWithoutCaseInput, AIAnalysisUncheckedUpdateWithoutCaseInput>
+  }
+
+  export type AIAnalysisUpdateManyWithWhereWithoutCaseInput = {
+    where: AIAnalysisScalarWhereInput
+    data: XOR<AIAnalysisUpdateManyMutationInput, AIAnalysisUncheckedUpdateManyWithoutCaseInput>
+  }
+
+  export type AIAnalysisScalarWhereInput = {
+    AND?: AIAnalysisScalarWhereInput | AIAnalysisScalarWhereInput[]
+    OR?: AIAnalysisScalarWhereInput[]
+    NOT?: AIAnalysisScalarWhereInput | AIAnalysisScalarWhereInput[]
+    id?: StringFilter<"AIAnalysis"> | string
+    caseId?: StringFilter<"AIAnalysis"> | string
+    analysisType?: StringFilter<"AIAnalysis"> | string
+    results?: StringFilter<"AIAnalysis"> | string
+    createdAt?: DateTimeFilter<"AIAnalysis"> | Date | string
   }
 
   export type MedicalOpinionUpsertWithWhereUniqueWithoutCaseInput = {
@@ -16513,25 +20665,44 @@ export namespace Prisma {
     NOT?: MedicalOpinionScalarWhereInput | MedicalOpinionScalarWhereInput[]
     id?: StringFilter<"MedicalOpinion"> | string
     caseId?: StringFilter<"MedicalOpinion"> | string
-    primaryProfessionalId?: StringFilter<"MedicalOpinion"> | string
-    reviewerProfessionalId?: StringNullableFilter<"MedicalOpinion"> | string | null
-    diagnosis?: StringNullableFilter<"MedicalOpinion"> | string | null
-    recommendations?: StringFilter<"MedicalOpinion"> | string
-    riskAssessment?: StringNullableFilter<"MedicalOpinion"> | string | null
-    additionalTests?: StringNullableFilter<"MedicalOpinion"> | string | null
-    notes?: StringNullableFilter<"MedicalOpinion"> | string | null
+    professionalId?: StringFilter<"MedicalOpinion"> | string
+    content?: StringFilter<"MedicalOpinion"> | string
     status?: StringFilter<"MedicalOpinion"> | string
-    peerReviewNotes?: StringNullableFilter<"MedicalOpinion"> | string | null
     createdAt?: DateTimeFilter<"MedicalOpinion"> | Date | string
-    submittedAt?: DateTimeNullableFilter<"MedicalOpinion"> | Date | string | null
-    reviewedAt?: DateTimeNullableFilter<"MedicalOpinion"> | Date | string | null
-    approvedAt?: DateTimeNullableFilter<"MedicalOpinion"> | Date | string | null
-    deliveredAt?: DateTimeNullableFilter<"MedicalOpinion"> | Date | string | null
+    updatedAt?: DateTimeFilter<"MedicalOpinion"> | Date | string
+  }
+
+  export type ProfessionalPaymentUpsertWithWhereUniqueWithoutCaseInput = {
+    where: ProfessionalPaymentWhereUniqueInput
+    update: XOR<ProfessionalPaymentUpdateWithoutCaseInput, ProfessionalPaymentUncheckedUpdateWithoutCaseInput>
+    create: XOR<ProfessionalPaymentCreateWithoutCaseInput, ProfessionalPaymentUncheckedCreateWithoutCaseInput>
+  }
+
+  export type ProfessionalPaymentUpdateWithWhereUniqueWithoutCaseInput = {
+    where: ProfessionalPaymentWhereUniqueInput
+    data: XOR<ProfessionalPaymentUpdateWithoutCaseInput, ProfessionalPaymentUncheckedUpdateWithoutCaseInput>
+  }
+
+  export type ProfessionalPaymentUpdateManyWithWhereWithoutCaseInput = {
+    where: ProfessionalPaymentScalarWhereInput
+    data: XOR<ProfessionalPaymentUpdateManyMutationInput, ProfessionalPaymentUncheckedUpdateManyWithoutCaseInput>
+  }
+
+  export type ProfessionalPaymentScalarWhereInput = {
+    AND?: ProfessionalPaymentScalarWhereInput | ProfessionalPaymentScalarWhereInput[]
+    OR?: ProfessionalPaymentScalarWhereInput[]
+    NOT?: ProfessionalPaymentScalarWhereInput | ProfessionalPaymentScalarWhereInput[]
+    id?: StringFilter<"ProfessionalPayment"> | string
+    caseId?: StringFilter<"ProfessionalPayment"> | string
+    professionalId?: StringFilter<"ProfessionalPayment"> | string
+    amount?: FloatFilter<"ProfessionalPayment"> | number
+    status?: StringFilter<"ProfessionalPayment"> | string
+    createdAt?: DateTimeFilter<"ProfessionalPayment"> | Date | string
   }
 
   export type CaseCreateWithoutUploadedFilesInput = {
     id?: string
-    caseNumber?: string
+    caseNumber: string
     firstName: string
     middleName?: string | null
     lastName: string
@@ -16544,20 +20715,19 @@ export namespace Prisma {
     isFirstOccurrence?: boolean | null
     geneticFamilyHistory?: string | null
     paymentId?: string | null
-    consentAccepted?: boolean
-    status?: string
+    consentAccepted: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     customer: CustomerCreateNestedOneWithoutCasesInput
-    aiAnalysis?: AIAnalysisCreateNestedOneWithoutCaseInput
     caseAssignments?: CaseAssignmentCreateNestedManyWithoutCaseInput
+    aiAnalyses?: AIAnalysisCreateNestedManyWithoutCaseInput
     medicalOpinions?: MedicalOpinionCreateNestedManyWithoutCaseInput
+    professionalPayments?: ProfessionalPaymentCreateNestedManyWithoutCaseInput
   }
 
   export type CaseUncheckedCreateWithoutUploadedFilesInput = {
     id?: string
-    caseNumber?: string
-    customerId: string
+    caseNumber: string
     firstName: string
     middleName?: string | null
     lastName: string
@@ -16570,13 +20740,14 @@ export namespace Prisma {
     isFirstOccurrence?: boolean | null
     geneticFamilyHistory?: string | null
     paymentId?: string | null
-    consentAccepted?: boolean
-    status?: string
+    consentAccepted: boolean
+    customerId: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    aiAnalysis?: AIAnalysisUncheckedCreateNestedOneWithoutCaseInput
     caseAssignments?: CaseAssignmentUncheckedCreateNestedManyWithoutCaseInput
+    aiAnalyses?: AIAnalysisUncheckedCreateNestedManyWithoutCaseInput
     medicalOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutCaseInput
+    professionalPayments?: ProfessionalPaymentUncheckedCreateNestedManyWithoutCaseInput
   }
 
   export type CaseCreateOrConnectWithoutUploadedFilesInput = {
@@ -16611,19 +20782,18 @@ export namespace Prisma {
     geneticFamilyHistory?: NullableStringFieldUpdateOperationsInput | string | null
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     consentAccepted?: BoolFieldUpdateOperationsInput | boolean
-    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customer?: CustomerUpdateOneRequiredWithoutCasesNestedInput
-    aiAnalysis?: AIAnalysisUpdateOneWithoutCaseNestedInput
     caseAssignments?: CaseAssignmentUpdateManyWithoutCaseNestedInput
+    aiAnalyses?: AIAnalysisUpdateManyWithoutCaseNestedInput
     medicalOpinions?: MedicalOpinionUpdateManyWithoutCaseNestedInput
+    professionalPayments?: ProfessionalPaymentUpdateManyWithoutCaseNestedInput
   }
 
   export type CaseUncheckedUpdateWithoutUploadedFilesInput = {
     id?: StringFieldUpdateOperationsInput | string
     caseNumber?: StringFieldUpdateOperationsInput | string
-    customerId?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
@@ -16637,20 +20807,19 @@ export namespace Prisma {
     geneticFamilyHistory?: NullableStringFieldUpdateOperationsInput | string | null
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     consentAccepted?: BoolFieldUpdateOperationsInput | boolean
-    status?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    aiAnalysis?: AIAnalysisUncheckedUpdateOneWithoutCaseNestedInput
     caseAssignments?: CaseAssignmentUncheckedUpdateManyWithoutCaseNestedInput
+    aiAnalyses?: AIAnalysisUncheckedUpdateManyWithoutCaseNestedInput
     medicalOpinions?: MedicalOpinionUncheckedUpdateManyWithoutCaseNestedInput
+    professionalPayments?: ProfessionalPaymentUncheckedUpdateManyWithoutCaseNestedInput
   }
 
   export type CaseAssignmentCreateWithoutProfessionalInput = {
     id?: string
-    assignedBy: string
-    assignedAt?: Date | string
     status?: string
-    startedAt?: Date | string | null
+    assignedAt?: Date | string
     completedAt?: Date | string | null
     case: CaseCreateNestedOneWithoutCaseAssignmentsInput
   }
@@ -16658,10 +20827,8 @@ export namespace Prisma {
   export type CaseAssignmentUncheckedCreateWithoutProfessionalInput = {
     id?: string
     caseId: string
-    assignedBy: string
-    assignedAt?: Date | string
     status?: string
-    startedAt?: Date | string | null
+    assignedAt?: Date | string
     completedAt?: Date | string | null
   }
 
@@ -16674,120 +20841,47 @@ export namespace Prisma {
     data: CaseAssignmentCreateManyProfessionalInput | CaseAssignmentCreateManyProfessionalInput[]
   }
 
-  export type MedicalOpinionCreateWithoutPrimaryProfessionalInput = {
+  export type MedicalOpinionCreateWithoutProfessionalInput = {
     id?: string
-    diagnosis?: string | null
-    recommendations: string
-    riskAssessment?: string | null
-    additionalTests?: string | null
-    notes?: string | null
+    content: string
     status?: string
-    peerReviewNotes?: string | null
     createdAt?: Date | string
-    submittedAt?: Date | string | null
-    reviewedAt?: Date | string | null
-    approvedAt?: Date | string | null
-    deliveredAt?: Date | string | null
+    updatedAt?: Date | string
     case: CaseCreateNestedOneWithoutMedicalOpinionsInput
-    reviewerProfessional?: MedicalProfessionalCreateNestedOneWithoutReviewedOpinionsInput
   }
 
-  export type MedicalOpinionUncheckedCreateWithoutPrimaryProfessionalInput = {
+  export type MedicalOpinionUncheckedCreateWithoutProfessionalInput = {
     id?: string
     caseId: string
-    reviewerProfessionalId?: string | null
-    diagnosis?: string | null
-    recommendations: string
-    riskAssessment?: string | null
-    additionalTests?: string | null
-    notes?: string | null
+    content: string
     status?: string
-    peerReviewNotes?: string | null
     createdAt?: Date | string
-    submittedAt?: Date | string | null
-    reviewedAt?: Date | string | null
-    approvedAt?: Date | string | null
-    deliveredAt?: Date | string | null
+    updatedAt?: Date | string
   }
 
-  export type MedicalOpinionCreateOrConnectWithoutPrimaryProfessionalInput = {
+  export type MedicalOpinionCreateOrConnectWithoutProfessionalInput = {
     where: MedicalOpinionWhereUniqueInput
-    create: XOR<MedicalOpinionCreateWithoutPrimaryProfessionalInput, MedicalOpinionUncheckedCreateWithoutPrimaryProfessionalInput>
+    create: XOR<MedicalOpinionCreateWithoutProfessionalInput, MedicalOpinionUncheckedCreateWithoutProfessionalInput>
   }
 
-  export type MedicalOpinionCreateManyPrimaryProfessionalInputEnvelope = {
-    data: MedicalOpinionCreateManyPrimaryProfessionalInput | MedicalOpinionCreateManyPrimaryProfessionalInput[]
-  }
-
-  export type MedicalOpinionCreateWithoutReviewerProfessionalInput = {
-    id?: string
-    diagnosis?: string | null
-    recommendations: string
-    riskAssessment?: string | null
-    additionalTests?: string | null
-    notes?: string | null
-    status?: string
-    peerReviewNotes?: string | null
-    createdAt?: Date | string
-    submittedAt?: Date | string | null
-    reviewedAt?: Date | string | null
-    approvedAt?: Date | string | null
-    deliveredAt?: Date | string | null
-    case: CaseCreateNestedOneWithoutMedicalOpinionsInput
-    primaryProfessional: MedicalProfessionalCreateNestedOneWithoutPrimaryOpinionsInput
-  }
-
-  export type MedicalOpinionUncheckedCreateWithoutReviewerProfessionalInput = {
-    id?: string
-    caseId: string
-    primaryProfessionalId: string
-    diagnosis?: string | null
-    recommendations: string
-    riskAssessment?: string | null
-    additionalTests?: string | null
-    notes?: string | null
-    status?: string
-    peerReviewNotes?: string | null
-    createdAt?: Date | string
-    submittedAt?: Date | string | null
-    reviewedAt?: Date | string | null
-    approvedAt?: Date | string | null
-    deliveredAt?: Date | string | null
-  }
-
-  export type MedicalOpinionCreateOrConnectWithoutReviewerProfessionalInput = {
-    where: MedicalOpinionWhereUniqueInput
-    create: XOR<MedicalOpinionCreateWithoutReviewerProfessionalInput, MedicalOpinionUncheckedCreateWithoutReviewerProfessionalInput>
-  }
-
-  export type MedicalOpinionCreateManyReviewerProfessionalInputEnvelope = {
-    data: MedicalOpinionCreateManyReviewerProfessionalInput | MedicalOpinionCreateManyReviewerProfessionalInput[]
+  export type MedicalOpinionCreateManyProfessionalInputEnvelope = {
+    data: MedicalOpinionCreateManyProfessionalInput | MedicalOpinionCreateManyProfessionalInput[]
   }
 
   export type ProfessionalPaymentCreateWithoutProfessionalInput = {
     id?: string
-    caseId?: string | null
     amount: number
-    currency?: string
-    paymentType: string
-    paymentMethod: string
     status?: string
-    transactionId?: string | null
-    initiatedAt?: Date | string
-    processedAt?: Date | string | null
+    createdAt?: Date | string
+    case: CaseCreateNestedOneWithoutProfessionalPaymentsInput
   }
 
   export type ProfessionalPaymentUncheckedCreateWithoutProfessionalInput = {
     id?: string
-    caseId?: string | null
+    caseId: string
     amount: number
-    currency?: string
-    paymentType: string
-    paymentMethod: string
     status?: string
-    transactionId?: string | null
-    initiatedAt?: Date | string
-    processedAt?: Date | string | null
+    createdAt?: Date | string
   }
 
   export type ProfessionalPaymentCreateOrConnectWithoutProfessionalInput = {
@@ -16797,6 +20891,31 @@ export namespace Prisma {
 
   export type ProfessionalPaymentCreateManyProfessionalInputEnvelope = {
     data: ProfessionalPaymentCreateManyProfessionalInput | ProfessionalPaymentCreateManyProfessionalInput[]
+  }
+
+  export type ProfessionalSessionCreateWithoutProfessionalInput = {
+    id?: string
+    sessionToken: string
+    twoFactorVerified?: boolean
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ProfessionalSessionUncheckedCreateWithoutProfessionalInput = {
+    id?: string
+    sessionToken: string
+    twoFactorVerified?: boolean
+    expiresAt: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ProfessionalSessionCreateOrConnectWithoutProfessionalInput = {
+    where: ProfessionalSessionWhereUniqueInput
+    create: XOR<ProfessionalSessionCreateWithoutProfessionalInput, ProfessionalSessionUncheckedCreateWithoutProfessionalInput>
+  }
+
+  export type ProfessionalSessionCreateManyProfessionalInputEnvelope = {
+    data: ProfessionalSessionCreateManyProfessionalInput | ProfessionalSessionCreateManyProfessionalInput[]
   }
 
   export type CaseAssignmentUpsertWithWhereUniqueWithoutProfessionalInput = {
@@ -16815,36 +20934,20 @@ export namespace Prisma {
     data: XOR<CaseAssignmentUpdateManyMutationInput, CaseAssignmentUncheckedUpdateManyWithoutProfessionalInput>
   }
 
-  export type MedicalOpinionUpsertWithWhereUniqueWithoutPrimaryProfessionalInput = {
+  export type MedicalOpinionUpsertWithWhereUniqueWithoutProfessionalInput = {
     where: MedicalOpinionWhereUniqueInput
-    update: XOR<MedicalOpinionUpdateWithoutPrimaryProfessionalInput, MedicalOpinionUncheckedUpdateWithoutPrimaryProfessionalInput>
-    create: XOR<MedicalOpinionCreateWithoutPrimaryProfessionalInput, MedicalOpinionUncheckedCreateWithoutPrimaryProfessionalInput>
+    update: XOR<MedicalOpinionUpdateWithoutProfessionalInput, MedicalOpinionUncheckedUpdateWithoutProfessionalInput>
+    create: XOR<MedicalOpinionCreateWithoutProfessionalInput, MedicalOpinionUncheckedCreateWithoutProfessionalInput>
   }
 
-  export type MedicalOpinionUpdateWithWhereUniqueWithoutPrimaryProfessionalInput = {
+  export type MedicalOpinionUpdateWithWhereUniqueWithoutProfessionalInput = {
     where: MedicalOpinionWhereUniqueInput
-    data: XOR<MedicalOpinionUpdateWithoutPrimaryProfessionalInput, MedicalOpinionUncheckedUpdateWithoutPrimaryProfessionalInput>
+    data: XOR<MedicalOpinionUpdateWithoutProfessionalInput, MedicalOpinionUncheckedUpdateWithoutProfessionalInput>
   }
 
-  export type MedicalOpinionUpdateManyWithWhereWithoutPrimaryProfessionalInput = {
+  export type MedicalOpinionUpdateManyWithWhereWithoutProfessionalInput = {
     where: MedicalOpinionScalarWhereInput
-    data: XOR<MedicalOpinionUpdateManyMutationInput, MedicalOpinionUncheckedUpdateManyWithoutPrimaryProfessionalInput>
-  }
-
-  export type MedicalOpinionUpsertWithWhereUniqueWithoutReviewerProfessionalInput = {
-    where: MedicalOpinionWhereUniqueInput
-    update: XOR<MedicalOpinionUpdateWithoutReviewerProfessionalInput, MedicalOpinionUncheckedUpdateWithoutReviewerProfessionalInput>
-    create: XOR<MedicalOpinionCreateWithoutReviewerProfessionalInput, MedicalOpinionUncheckedCreateWithoutReviewerProfessionalInput>
-  }
-
-  export type MedicalOpinionUpdateWithWhereUniqueWithoutReviewerProfessionalInput = {
-    where: MedicalOpinionWhereUniqueInput
-    data: XOR<MedicalOpinionUpdateWithoutReviewerProfessionalInput, MedicalOpinionUncheckedUpdateWithoutReviewerProfessionalInput>
-  }
-
-  export type MedicalOpinionUpdateManyWithWhereWithoutReviewerProfessionalInput = {
-    where: MedicalOpinionScalarWhereInput
-    data: XOR<MedicalOpinionUpdateManyMutationInput, MedicalOpinionUncheckedUpdateManyWithoutReviewerProfessionalInput>
+    data: XOR<MedicalOpinionUpdateManyMutationInput, MedicalOpinionUncheckedUpdateManyWithoutProfessionalInput>
   }
 
   export type ProfessionalPaymentUpsertWithWhereUniqueWithoutProfessionalInput = {
@@ -16863,26 +20966,217 @@ export namespace Prisma {
     data: XOR<ProfessionalPaymentUpdateManyMutationInput, ProfessionalPaymentUncheckedUpdateManyWithoutProfessionalInput>
   }
 
-  export type ProfessionalPaymentScalarWhereInput = {
-    AND?: ProfessionalPaymentScalarWhereInput | ProfessionalPaymentScalarWhereInput[]
-    OR?: ProfessionalPaymentScalarWhereInput[]
-    NOT?: ProfessionalPaymentScalarWhereInput | ProfessionalPaymentScalarWhereInput[]
-    id?: StringFilter<"ProfessionalPayment"> | string
-    professionalId?: StringFilter<"ProfessionalPayment"> | string
-    caseId?: StringNullableFilter<"ProfessionalPayment"> | string | null
-    amount?: FloatFilter<"ProfessionalPayment"> | number
-    currency?: StringFilter<"ProfessionalPayment"> | string
-    paymentType?: StringFilter<"ProfessionalPayment"> | string
-    paymentMethod?: StringFilter<"ProfessionalPayment"> | string
-    status?: StringFilter<"ProfessionalPayment"> | string
-    transactionId?: StringNullableFilter<"ProfessionalPayment"> | string | null
-    initiatedAt?: DateTimeFilter<"ProfessionalPayment"> | Date | string
-    processedAt?: DateTimeNullableFilter<"ProfessionalPayment"> | Date | string | null
+  export type ProfessionalSessionUpsertWithWhereUniqueWithoutProfessionalInput = {
+    where: ProfessionalSessionWhereUniqueInput
+    update: XOR<ProfessionalSessionUpdateWithoutProfessionalInput, ProfessionalSessionUncheckedUpdateWithoutProfessionalInput>
+    create: XOR<ProfessionalSessionCreateWithoutProfessionalInput, ProfessionalSessionUncheckedCreateWithoutProfessionalInput>
+  }
+
+  export type ProfessionalSessionUpdateWithWhereUniqueWithoutProfessionalInput = {
+    where: ProfessionalSessionWhereUniqueInput
+    data: XOR<ProfessionalSessionUpdateWithoutProfessionalInput, ProfessionalSessionUncheckedUpdateWithoutProfessionalInput>
+  }
+
+  export type ProfessionalSessionUpdateManyWithWhereWithoutProfessionalInput = {
+    where: ProfessionalSessionScalarWhereInput
+    data: XOR<ProfessionalSessionUpdateManyMutationInput, ProfessionalSessionUncheckedUpdateManyWithoutProfessionalInput>
+  }
+
+  export type ProfessionalSessionScalarWhereInput = {
+    AND?: ProfessionalSessionScalarWhereInput | ProfessionalSessionScalarWhereInput[]
+    OR?: ProfessionalSessionScalarWhereInput[]
+    NOT?: ProfessionalSessionScalarWhereInput | ProfessionalSessionScalarWhereInput[]
+    id?: StringFilter<"ProfessionalSession"> | string
+    professionalId?: StringFilter<"ProfessionalSession"> | string
+    sessionToken?: StringFilter<"ProfessionalSession"> | string
+    twoFactorVerified?: BoolFilter<"ProfessionalSession"> | boolean
+    expiresAt?: DateTimeFilter<"ProfessionalSession"> | Date | string
+    createdAt?: DateTimeFilter<"ProfessionalSession"> | Date | string
+  }
+
+  export type MedicalProfessionalCreateWithoutProfessionalSessionsInput = {
+    id?: string
+    proNumber: string
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    dob: Date | string
+    email: string
+    phone?: string | null
+    nationality?: string | null
+    licenseNumber: string
+    licenseCountry: string
+    licenseExpiry: Date | string
+    vetted?: boolean
+    level?: $Enums.ProLevel
+    cvUrl?: string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: string | null
+    yearsPractice: number
+    publications: number
+    trialInvolved: boolean
+    leadership?: string | null
+    societyMemberships?: string | null
+    score?: number | null
+    hashedPassword?: string | null
+    twoFactorMethod?: $Enums.TwoFactorMethod
+    twoFactorSecret?: string | null
+    profileLastUpdated?: Date | string | null
+    codeOfConductAcknowledged?: Date | string | null
+    address?: string | null
+    billingAddress?: string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: string | null
+    billingRate?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    caseAssignments?: CaseAssignmentCreateNestedManyWithoutProfessionalInput
+    medicalOpinions?: MedicalOpinionCreateNestedManyWithoutProfessionalInput
+    professionalPayments?: ProfessionalPaymentCreateNestedManyWithoutProfessionalInput
+  }
+
+  export type MedicalProfessionalUncheckedCreateWithoutProfessionalSessionsInput = {
+    id?: string
+    proNumber: string
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    dob: Date | string
+    email: string
+    phone?: string | null
+    nationality?: string | null
+    licenseNumber: string
+    licenseCountry: string
+    licenseExpiry: Date | string
+    vetted?: boolean
+    level?: $Enums.ProLevel
+    cvUrl?: string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: string | null
+    yearsPractice: number
+    publications: number
+    trialInvolved: boolean
+    leadership?: string | null
+    societyMemberships?: string | null
+    score?: number | null
+    hashedPassword?: string | null
+    twoFactorMethod?: $Enums.TwoFactorMethod
+    twoFactorSecret?: string | null
+    profileLastUpdated?: Date | string | null
+    codeOfConductAcknowledged?: Date | string | null
+    address?: string | null
+    billingAddress?: string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: string | null
+    billingRate?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    caseAssignments?: CaseAssignmentUncheckedCreateNestedManyWithoutProfessionalInput
+    medicalOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutProfessionalInput
+    professionalPayments?: ProfessionalPaymentUncheckedCreateNestedManyWithoutProfessionalInput
+  }
+
+  export type MedicalProfessionalCreateOrConnectWithoutProfessionalSessionsInput = {
+    where: MedicalProfessionalWhereUniqueInput
+    create: XOR<MedicalProfessionalCreateWithoutProfessionalSessionsInput, MedicalProfessionalUncheckedCreateWithoutProfessionalSessionsInput>
+  }
+
+  export type MedicalProfessionalUpsertWithoutProfessionalSessionsInput = {
+    update: XOR<MedicalProfessionalUpdateWithoutProfessionalSessionsInput, MedicalProfessionalUncheckedUpdateWithoutProfessionalSessionsInput>
+    create: XOR<MedicalProfessionalCreateWithoutProfessionalSessionsInput, MedicalProfessionalUncheckedCreateWithoutProfessionalSessionsInput>
+    where?: MedicalProfessionalWhereInput
+  }
+
+  export type MedicalProfessionalUpdateToOneWithWhereWithoutProfessionalSessionsInput = {
+    where?: MedicalProfessionalWhereInput
+    data: XOR<MedicalProfessionalUpdateWithoutProfessionalSessionsInput, MedicalProfessionalUncheckedUpdateWithoutProfessionalSessionsInput>
+  }
+
+  export type MedicalProfessionalUpdateWithoutProfessionalSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    proNumber?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: StringFieldUpdateOperationsInput | string
+    dob?: DateTimeFieldUpdateOperationsInput | Date | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseNumber?: StringFieldUpdateOperationsInput | string
+    licenseCountry?: StringFieldUpdateOperationsInput | string
+    licenseExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
+    vetted?: BoolFieldUpdateOperationsInput | boolean
+    level?: EnumProLevelFieldUpdateOperationsInput | $Enums.ProLevel
+    cvUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: NullableStringFieldUpdateOperationsInput | string | null
+    yearsPractice?: IntFieldUpdateOperationsInput | number
+    publications?: IntFieldUpdateOperationsInput | number
+    trialInvolved?: BoolFieldUpdateOperationsInput | boolean
+    leadership?: NullableStringFieldUpdateOperationsInput | string | null
+    societyMemberships?: NullableStringFieldUpdateOperationsInput | string | null
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorMethod?: EnumTwoFactorMethodFieldUpdateOperationsInput | $Enums.TwoFactorMethod
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    profileLastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    codeOfConductAcknowledged?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    caseAssignments?: CaseAssignmentUpdateManyWithoutProfessionalNestedInput
+    medicalOpinions?: MedicalOpinionUpdateManyWithoutProfessionalNestedInput
+    professionalPayments?: ProfessionalPaymentUpdateManyWithoutProfessionalNestedInput
+  }
+
+  export type MedicalProfessionalUncheckedUpdateWithoutProfessionalSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    proNumber?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: StringFieldUpdateOperationsInput | string
+    dob?: DateTimeFieldUpdateOperationsInput | Date | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseNumber?: StringFieldUpdateOperationsInput | string
+    licenseCountry?: StringFieldUpdateOperationsInput | string
+    licenseExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
+    vetted?: BoolFieldUpdateOperationsInput | boolean
+    level?: EnumProLevelFieldUpdateOperationsInput | $Enums.ProLevel
+    cvUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: NullableStringFieldUpdateOperationsInput | string | null
+    yearsPractice?: IntFieldUpdateOperationsInput | number
+    publications?: IntFieldUpdateOperationsInput | number
+    trialInvolved?: BoolFieldUpdateOperationsInput | boolean
+    leadership?: NullableStringFieldUpdateOperationsInput | string | null
+    societyMemberships?: NullableStringFieldUpdateOperationsInput | string | null
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorMethod?: EnumTwoFactorMethodFieldUpdateOperationsInput | $Enums.TwoFactorMethod
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    profileLastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    codeOfConductAcknowledged?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    caseAssignments?: CaseAssignmentUncheckedUpdateManyWithoutProfessionalNestedInput
+    medicalOpinions?: MedicalOpinionUncheckedUpdateManyWithoutProfessionalNestedInput
+    professionalPayments?: ProfessionalPaymentUncheckedUpdateManyWithoutProfessionalNestedInput
   }
 
   export type CaseCreateWithoutCaseAssignmentsInput = {
     id?: string
-    caseNumber?: string
+    caseNumber: string
     firstName: string
     middleName?: string | null
     lastName: string
@@ -16895,20 +21189,19 @@ export namespace Prisma {
     isFirstOccurrence?: boolean | null
     geneticFamilyHistory?: string | null
     paymentId?: string | null
-    consentAccepted?: boolean
-    status?: string
+    consentAccepted: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     customer: CustomerCreateNestedOneWithoutCasesInput
     uploadedFiles?: UploadedFileCreateNestedManyWithoutCaseInput
-    aiAnalysis?: AIAnalysisCreateNestedOneWithoutCaseInput
+    aiAnalyses?: AIAnalysisCreateNestedManyWithoutCaseInput
     medicalOpinions?: MedicalOpinionCreateNestedManyWithoutCaseInput
+    professionalPayments?: ProfessionalPaymentCreateNestedManyWithoutCaseInput
   }
 
   export type CaseUncheckedCreateWithoutCaseAssignmentsInput = {
     id?: string
-    caseNumber?: string
-    customerId: string
+    caseNumber: string
     firstName: string
     middleName?: string | null
     lastName: string
@@ -16921,13 +21214,14 @@ export namespace Prisma {
     isFirstOccurrence?: boolean | null
     geneticFamilyHistory?: string | null
     paymentId?: string | null
-    consentAccepted?: boolean
-    status?: string
+    consentAccepted: boolean
+    customerId: string
     createdAt?: Date | string
     updatedAt?: Date | string
     uploadedFiles?: UploadedFileUncheckedCreateNestedManyWithoutCaseInput
-    aiAnalysis?: AIAnalysisUncheckedCreateNestedOneWithoutCaseInput
+    aiAnalyses?: AIAnalysisUncheckedCreateNestedManyWithoutCaseInput
     medicalOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutCaseInput
+    professionalPayments?: ProfessionalPaymentUncheckedCreateNestedManyWithoutCaseInput
   }
 
   export type CaseCreateOrConnectWithoutCaseAssignmentsInput = {
@@ -16937,44 +21231,84 @@ export namespace Prisma {
 
   export type MedicalProfessionalCreateWithoutCaseAssignmentsInput = {
     id?: string
-    professionalId?: string
+    proNumber: string
     firstName: string
+    middleName?: string | null
     lastName: string
+    dob: Date | string
     email: string
     phone?: string | null
+    nationality?: string | null
     licenseNumber: string
-    specialty: string
-    yearsExperience: number
-    qualifications: string
-    vettingStatus?: string
-    vettedBy?: string | null
-    vettedAt?: Date | string | null
-    appliedAt?: Date | string
+    licenseCountry: string
+    licenseExpiry: Date | string
+    vetted?: boolean
+    level?: $Enums.ProLevel
+    cvUrl?: string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: string | null
+    yearsPractice: number
+    publications: number
+    trialInvolved: boolean
+    leadership?: string | null
+    societyMemberships?: string | null
+    score?: number | null
+    hashedPassword?: string | null
+    twoFactorMethod?: $Enums.TwoFactorMethod
+    twoFactorSecret?: string | null
+    profileLastUpdated?: Date | string | null
+    codeOfConductAcknowledged?: Date | string | null
+    address?: string | null
+    billingAddress?: string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: string | null
+    billingRate?: number | null
+    createdAt?: Date | string
     updatedAt?: Date | string
-    primaryOpinions?: MedicalOpinionCreateNestedManyWithoutPrimaryProfessionalInput
-    reviewedOpinions?: MedicalOpinionCreateNestedManyWithoutReviewerProfessionalInput
-    payments?: ProfessionalPaymentCreateNestedManyWithoutProfessionalInput
+    medicalOpinions?: MedicalOpinionCreateNestedManyWithoutProfessionalInput
+    professionalPayments?: ProfessionalPaymentCreateNestedManyWithoutProfessionalInput
+    professionalSessions?: ProfessionalSessionCreateNestedManyWithoutProfessionalInput
   }
 
   export type MedicalProfessionalUncheckedCreateWithoutCaseAssignmentsInput = {
     id?: string
-    professionalId?: string
+    proNumber: string
     firstName: string
+    middleName?: string | null
     lastName: string
+    dob: Date | string
     email: string
     phone?: string | null
+    nationality?: string | null
     licenseNumber: string
-    specialty: string
-    yearsExperience: number
-    qualifications: string
-    vettingStatus?: string
-    vettedBy?: string | null
-    vettedAt?: Date | string | null
-    appliedAt?: Date | string
+    licenseCountry: string
+    licenseExpiry: Date | string
+    vetted?: boolean
+    level?: $Enums.ProLevel
+    cvUrl?: string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: string | null
+    yearsPractice: number
+    publications: number
+    trialInvolved: boolean
+    leadership?: string | null
+    societyMemberships?: string | null
+    score?: number | null
+    hashedPassword?: string | null
+    twoFactorMethod?: $Enums.TwoFactorMethod
+    twoFactorSecret?: string | null
+    profileLastUpdated?: Date | string | null
+    codeOfConductAcknowledged?: Date | string | null
+    address?: string | null
+    billingAddress?: string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: string | null
+    billingRate?: number | null
+    createdAt?: Date | string
     updatedAt?: Date | string
-    primaryOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutPrimaryProfessionalInput
-    reviewedOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutReviewerProfessionalInput
-    payments?: ProfessionalPaymentUncheckedCreateNestedManyWithoutProfessionalInput
+    medicalOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutProfessionalInput
+    professionalPayments?: ProfessionalPaymentUncheckedCreateNestedManyWithoutProfessionalInput
+    professionalSessions?: ProfessionalSessionUncheckedCreateNestedManyWithoutProfessionalInput
   }
 
   export type MedicalProfessionalCreateOrConnectWithoutCaseAssignmentsInput = {
@@ -17009,19 +21343,18 @@ export namespace Prisma {
     geneticFamilyHistory?: NullableStringFieldUpdateOperationsInput | string | null
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     consentAccepted?: BoolFieldUpdateOperationsInput | boolean
-    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customer?: CustomerUpdateOneRequiredWithoutCasesNestedInput
     uploadedFiles?: UploadedFileUpdateManyWithoutCaseNestedInput
-    aiAnalysis?: AIAnalysisUpdateOneWithoutCaseNestedInput
+    aiAnalyses?: AIAnalysisUpdateManyWithoutCaseNestedInput
     medicalOpinions?: MedicalOpinionUpdateManyWithoutCaseNestedInput
+    professionalPayments?: ProfessionalPaymentUpdateManyWithoutCaseNestedInput
   }
 
   export type CaseUncheckedUpdateWithoutCaseAssignmentsInput = {
     id?: StringFieldUpdateOperationsInput | string
     caseNumber?: StringFieldUpdateOperationsInput | string
-    customerId?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
@@ -17035,12 +21368,13 @@ export namespace Prisma {
     geneticFamilyHistory?: NullableStringFieldUpdateOperationsInput | string | null
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     consentAccepted?: BoolFieldUpdateOperationsInput | boolean
-    status?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     uploadedFiles?: UploadedFileUncheckedUpdateManyWithoutCaseNestedInput
-    aiAnalysis?: AIAnalysisUncheckedUpdateOneWithoutCaseNestedInput
+    aiAnalyses?: AIAnalysisUncheckedUpdateManyWithoutCaseNestedInput
     medicalOpinions?: MedicalOpinionUncheckedUpdateManyWithoutCaseNestedInput
+    professionalPayments?: ProfessionalPaymentUncheckedUpdateManyWithoutCaseNestedInput
   }
 
   export type MedicalProfessionalUpsertWithoutCaseAssignmentsInput = {
@@ -17056,49 +21390,89 @@ export namespace Prisma {
 
   export type MedicalProfessionalUpdateWithoutCaseAssignmentsInput = {
     id?: StringFieldUpdateOperationsInput | string
-    professionalId?: StringFieldUpdateOperationsInput | string
+    proNumber?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
+    dob?: DateTimeFieldUpdateOperationsInput | Date | string
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
     licenseNumber?: StringFieldUpdateOperationsInput | string
-    specialty?: StringFieldUpdateOperationsInput | string
-    yearsExperience?: IntFieldUpdateOperationsInput | number
-    qualifications?: StringFieldUpdateOperationsInput | string
-    vettingStatus?: StringFieldUpdateOperationsInput | string
-    vettedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    vettedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    appliedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    licenseCountry?: StringFieldUpdateOperationsInput | string
+    licenseExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
+    vetted?: BoolFieldUpdateOperationsInput | boolean
+    level?: EnumProLevelFieldUpdateOperationsInput | $Enums.ProLevel
+    cvUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: NullableStringFieldUpdateOperationsInput | string | null
+    yearsPractice?: IntFieldUpdateOperationsInput | number
+    publications?: IntFieldUpdateOperationsInput | number
+    trialInvolved?: BoolFieldUpdateOperationsInput | boolean
+    leadership?: NullableStringFieldUpdateOperationsInput | string | null
+    societyMemberships?: NullableStringFieldUpdateOperationsInput | string | null
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorMethod?: EnumTwoFactorMethodFieldUpdateOperationsInput | $Enums.TwoFactorMethod
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    profileLastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    codeOfConductAcknowledged?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    primaryOpinions?: MedicalOpinionUpdateManyWithoutPrimaryProfessionalNestedInput
-    reviewedOpinions?: MedicalOpinionUpdateManyWithoutReviewerProfessionalNestedInput
-    payments?: ProfessionalPaymentUpdateManyWithoutProfessionalNestedInput
+    medicalOpinions?: MedicalOpinionUpdateManyWithoutProfessionalNestedInput
+    professionalPayments?: ProfessionalPaymentUpdateManyWithoutProfessionalNestedInput
+    professionalSessions?: ProfessionalSessionUpdateManyWithoutProfessionalNestedInput
   }
 
   export type MedicalProfessionalUncheckedUpdateWithoutCaseAssignmentsInput = {
     id?: StringFieldUpdateOperationsInput | string
-    professionalId?: StringFieldUpdateOperationsInput | string
+    proNumber?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
+    dob?: DateTimeFieldUpdateOperationsInput | Date | string
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
     licenseNumber?: StringFieldUpdateOperationsInput | string
-    specialty?: StringFieldUpdateOperationsInput | string
-    yearsExperience?: IntFieldUpdateOperationsInput | number
-    qualifications?: StringFieldUpdateOperationsInput | string
-    vettingStatus?: StringFieldUpdateOperationsInput | string
-    vettedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    vettedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    appliedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    licenseCountry?: StringFieldUpdateOperationsInput | string
+    licenseExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
+    vetted?: BoolFieldUpdateOperationsInput | boolean
+    level?: EnumProLevelFieldUpdateOperationsInput | $Enums.ProLevel
+    cvUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: NullableStringFieldUpdateOperationsInput | string | null
+    yearsPractice?: IntFieldUpdateOperationsInput | number
+    publications?: IntFieldUpdateOperationsInput | number
+    trialInvolved?: BoolFieldUpdateOperationsInput | boolean
+    leadership?: NullableStringFieldUpdateOperationsInput | string | null
+    societyMemberships?: NullableStringFieldUpdateOperationsInput | string | null
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorMethod?: EnumTwoFactorMethodFieldUpdateOperationsInput | $Enums.TwoFactorMethod
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    profileLastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    codeOfConductAcknowledged?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    primaryOpinions?: MedicalOpinionUncheckedUpdateManyWithoutPrimaryProfessionalNestedInput
-    reviewedOpinions?: MedicalOpinionUncheckedUpdateManyWithoutReviewerProfessionalNestedInput
-    payments?: ProfessionalPaymentUncheckedUpdateManyWithoutProfessionalNestedInput
+    medicalOpinions?: MedicalOpinionUncheckedUpdateManyWithoutProfessionalNestedInput
+    professionalPayments?: ProfessionalPaymentUncheckedUpdateManyWithoutProfessionalNestedInput
+    professionalSessions?: ProfessionalSessionUncheckedUpdateManyWithoutProfessionalNestedInput
   }
 
-  export type CaseCreateWithoutAiAnalysisInput = {
+  export type CaseCreateWithoutAiAnalysesInput = {
     id?: string
-    caseNumber?: string
+    caseNumber: string
     firstName: string
     middleName?: string | null
     lastName: string
@@ -17111,20 +21485,19 @@ export namespace Prisma {
     isFirstOccurrence?: boolean | null
     geneticFamilyHistory?: string | null
     paymentId?: string | null
-    consentAccepted?: boolean
-    status?: string
+    consentAccepted: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     customer: CustomerCreateNestedOneWithoutCasesInput
     uploadedFiles?: UploadedFileCreateNestedManyWithoutCaseInput
     caseAssignments?: CaseAssignmentCreateNestedManyWithoutCaseInput
     medicalOpinions?: MedicalOpinionCreateNestedManyWithoutCaseInput
+    professionalPayments?: ProfessionalPaymentCreateNestedManyWithoutCaseInput
   }
 
-  export type CaseUncheckedCreateWithoutAiAnalysisInput = {
+  export type CaseUncheckedCreateWithoutAiAnalysesInput = {
     id?: string
-    caseNumber?: string
-    customerId: string
+    caseNumber: string
     firstName: string
     middleName?: string | null
     lastName: string
@@ -17137,32 +21510,33 @@ export namespace Prisma {
     isFirstOccurrence?: boolean | null
     geneticFamilyHistory?: string | null
     paymentId?: string | null
-    consentAccepted?: boolean
-    status?: string
+    consentAccepted: boolean
+    customerId: string
     createdAt?: Date | string
     updatedAt?: Date | string
     uploadedFiles?: UploadedFileUncheckedCreateNestedManyWithoutCaseInput
     caseAssignments?: CaseAssignmentUncheckedCreateNestedManyWithoutCaseInput
     medicalOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutCaseInput
+    professionalPayments?: ProfessionalPaymentUncheckedCreateNestedManyWithoutCaseInput
   }
 
-  export type CaseCreateOrConnectWithoutAiAnalysisInput = {
+  export type CaseCreateOrConnectWithoutAiAnalysesInput = {
     where: CaseWhereUniqueInput
-    create: XOR<CaseCreateWithoutAiAnalysisInput, CaseUncheckedCreateWithoutAiAnalysisInput>
+    create: XOR<CaseCreateWithoutAiAnalysesInput, CaseUncheckedCreateWithoutAiAnalysesInput>
   }
 
-  export type CaseUpsertWithoutAiAnalysisInput = {
-    update: XOR<CaseUpdateWithoutAiAnalysisInput, CaseUncheckedUpdateWithoutAiAnalysisInput>
-    create: XOR<CaseCreateWithoutAiAnalysisInput, CaseUncheckedCreateWithoutAiAnalysisInput>
+  export type CaseUpsertWithoutAiAnalysesInput = {
+    update: XOR<CaseUpdateWithoutAiAnalysesInput, CaseUncheckedUpdateWithoutAiAnalysesInput>
+    create: XOR<CaseCreateWithoutAiAnalysesInput, CaseUncheckedCreateWithoutAiAnalysesInput>
     where?: CaseWhereInput
   }
 
-  export type CaseUpdateToOneWithWhereWithoutAiAnalysisInput = {
+  export type CaseUpdateToOneWithWhereWithoutAiAnalysesInput = {
     where?: CaseWhereInput
-    data: XOR<CaseUpdateWithoutAiAnalysisInput, CaseUncheckedUpdateWithoutAiAnalysisInput>
+    data: XOR<CaseUpdateWithoutAiAnalysesInput, CaseUncheckedUpdateWithoutAiAnalysesInput>
   }
 
-  export type CaseUpdateWithoutAiAnalysisInput = {
+  export type CaseUpdateWithoutAiAnalysesInput = {
     id?: StringFieldUpdateOperationsInput | string
     caseNumber?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
@@ -17178,19 +21552,18 @@ export namespace Prisma {
     geneticFamilyHistory?: NullableStringFieldUpdateOperationsInput | string | null
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     consentAccepted?: BoolFieldUpdateOperationsInput | boolean
-    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customer?: CustomerUpdateOneRequiredWithoutCasesNestedInput
     uploadedFiles?: UploadedFileUpdateManyWithoutCaseNestedInput
     caseAssignments?: CaseAssignmentUpdateManyWithoutCaseNestedInput
     medicalOpinions?: MedicalOpinionUpdateManyWithoutCaseNestedInput
+    professionalPayments?: ProfessionalPaymentUpdateManyWithoutCaseNestedInput
   }
 
-  export type CaseUncheckedUpdateWithoutAiAnalysisInput = {
+  export type CaseUncheckedUpdateWithoutAiAnalysesInput = {
     id?: StringFieldUpdateOperationsInput | string
     caseNumber?: StringFieldUpdateOperationsInput | string
-    customerId?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
@@ -17204,17 +21577,18 @@ export namespace Prisma {
     geneticFamilyHistory?: NullableStringFieldUpdateOperationsInput | string | null
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     consentAccepted?: BoolFieldUpdateOperationsInput | boolean
-    status?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     uploadedFiles?: UploadedFileUncheckedUpdateManyWithoutCaseNestedInput
     caseAssignments?: CaseAssignmentUncheckedUpdateManyWithoutCaseNestedInput
     medicalOpinions?: MedicalOpinionUncheckedUpdateManyWithoutCaseNestedInput
+    professionalPayments?: ProfessionalPaymentUncheckedUpdateManyWithoutCaseNestedInput
   }
 
   export type CaseCreateWithoutMedicalOpinionsInput = {
     id?: string
-    caseNumber?: string
+    caseNumber: string
     firstName: string
     middleName?: string | null
     lastName: string
@@ -17227,20 +21601,19 @@ export namespace Prisma {
     isFirstOccurrence?: boolean | null
     geneticFamilyHistory?: string | null
     paymentId?: string | null
-    consentAccepted?: boolean
-    status?: string
+    consentAccepted: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     customer: CustomerCreateNestedOneWithoutCasesInput
     uploadedFiles?: UploadedFileCreateNestedManyWithoutCaseInput
-    aiAnalysis?: AIAnalysisCreateNestedOneWithoutCaseInput
     caseAssignments?: CaseAssignmentCreateNestedManyWithoutCaseInput
+    aiAnalyses?: AIAnalysisCreateNestedManyWithoutCaseInput
+    professionalPayments?: ProfessionalPaymentCreateNestedManyWithoutCaseInput
   }
 
   export type CaseUncheckedCreateWithoutMedicalOpinionsInput = {
     id?: string
-    caseNumber?: string
-    customerId: string
+    caseNumber: string
     firstName: string
     middleName?: string | null
     lastName: string
@@ -17253,13 +21626,14 @@ export namespace Prisma {
     isFirstOccurrence?: boolean | null
     geneticFamilyHistory?: string | null
     paymentId?: string | null
-    consentAccepted?: boolean
-    status?: string
+    consentAccepted: boolean
+    customerId: string
     createdAt?: Date | string
     updatedAt?: Date | string
     uploadedFiles?: UploadedFileUncheckedCreateNestedManyWithoutCaseInput
-    aiAnalysis?: AIAnalysisUncheckedCreateNestedOneWithoutCaseInput
     caseAssignments?: CaseAssignmentUncheckedCreateNestedManyWithoutCaseInput
+    aiAnalyses?: AIAnalysisUncheckedCreateNestedManyWithoutCaseInput
+    professionalPayments?: ProfessionalPaymentUncheckedCreateNestedManyWithoutCaseInput
   }
 
   export type CaseCreateOrConnectWithoutMedicalOpinionsInput = {
@@ -17267,98 +21641,91 @@ export namespace Prisma {
     create: XOR<CaseCreateWithoutMedicalOpinionsInput, CaseUncheckedCreateWithoutMedicalOpinionsInput>
   }
 
-  export type MedicalProfessionalCreateWithoutPrimaryOpinionsInput = {
+  export type MedicalProfessionalCreateWithoutMedicalOpinionsInput = {
     id?: string
-    professionalId?: string
+    proNumber: string
     firstName: string
+    middleName?: string | null
     lastName: string
+    dob: Date | string
     email: string
     phone?: string | null
+    nationality?: string | null
     licenseNumber: string
-    specialty: string
-    yearsExperience: number
-    qualifications: string
-    vettingStatus?: string
-    vettedBy?: string | null
-    vettedAt?: Date | string | null
-    appliedAt?: Date | string
+    licenseCountry: string
+    licenseExpiry: Date | string
+    vetted?: boolean
+    level?: $Enums.ProLevel
+    cvUrl?: string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: string | null
+    yearsPractice: number
+    publications: number
+    trialInvolved: boolean
+    leadership?: string | null
+    societyMemberships?: string | null
+    score?: number | null
+    hashedPassword?: string | null
+    twoFactorMethod?: $Enums.TwoFactorMethod
+    twoFactorSecret?: string | null
+    profileLastUpdated?: Date | string | null
+    codeOfConductAcknowledged?: Date | string | null
+    address?: string | null
+    billingAddress?: string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: string | null
+    billingRate?: number | null
+    createdAt?: Date | string
     updatedAt?: Date | string
     caseAssignments?: CaseAssignmentCreateNestedManyWithoutProfessionalInput
-    reviewedOpinions?: MedicalOpinionCreateNestedManyWithoutReviewerProfessionalInput
-    payments?: ProfessionalPaymentCreateNestedManyWithoutProfessionalInput
+    professionalPayments?: ProfessionalPaymentCreateNestedManyWithoutProfessionalInput
+    professionalSessions?: ProfessionalSessionCreateNestedManyWithoutProfessionalInput
   }
 
-  export type MedicalProfessionalUncheckedCreateWithoutPrimaryOpinionsInput = {
+  export type MedicalProfessionalUncheckedCreateWithoutMedicalOpinionsInput = {
     id?: string
-    professionalId?: string
+    proNumber: string
     firstName: string
+    middleName?: string | null
     lastName: string
+    dob: Date | string
     email: string
     phone?: string | null
+    nationality?: string | null
     licenseNumber: string
-    specialty: string
-    yearsExperience: number
-    qualifications: string
-    vettingStatus?: string
-    vettedBy?: string | null
-    vettedAt?: Date | string | null
-    appliedAt?: Date | string
+    licenseCountry: string
+    licenseExpiry: Date | string
+    vetted?: boolean
+    level?: $Enums.ProLevel
+    cvUrl?: string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: string | null
+    yearsPractice: number
+    publications: number
+    trialInvolved: boolean
+    leadership?: string | null
+    societyMemberships?: string | null
+    score?: number | null
+    hashedPassword?: string | null
+    twoFactorMethod?: $Enums.TwoFactorMethod
+    twoFactorSecret?: string | null
+    profileLastUpdated?: Date | string | null
+    codeOfConductAcknowledged?: Date | string | null
+    address?: string | null
+    billingAddress?: string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: string | null
+    billingRate?: number | null
+    createdAt?: Date | string
     updatedAt?: Date | string
     caseAssignments?: CaseAssignmentUncheckedCreateNestedManyWithoutProfessionalInput
-    reviewedOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutReviewerProfessionalInput
-    payments?: ProfessionalPaymentUncheckedCreateNestedManyWithoutProfessionalInput
+    professionalPayments?: ProfessionalPaymentUncheckedCreateNestedManyWithoutProfessionalInput
+    professionalSessions?: ProfessionalSessionUncheckedCreateNestedManyWithoutProfessionalInput
   }
 
-  export type MedicalProfessionalCreateOrConnectWithoutPrimaryOpinionsInput = {
+  export type MedicalProfessionalCreateOrConnectWithoutMedicalOpinionsInput = {
     where: MedicalProfessionalWhereUniqueInput
-    create: XOR<MedicalProfessionalCreateWithoutPrimaryOpinionsInput, MedicalProfessionalUncheckedCreateWithoutPrimaryOpinionsInput>
-  }
-
-  export type MedicalProfessionalCreateWithoutReviewedOpinionsInput = {
-    id?: string
-    professionalId?: string
-    firstName: string
-    lastName: string
-    email: string
-    phone?: string | null
-    licenseNumber: string
-    specialty: string
-    yearsExperience: number
-    qualifications: string
-    vettingStatus?: string
-    vettedBy?: string | null
-    vettedAt?: Date | string | null
-    appliedAt?: Date | string
-    updatedAt?: Date | string
-    caseAssignments?: CaseAssignmentCreateNestedManyWithoutProfessionalInput
-    primaryOpinions?: MedicalOpinionCreateNestedManyWithoutPrimaryProfessionalInput
-    payments?: ProfessionalPaymentCreateNestedManyWithoutProfessionalInput
-  }
-
-  export type MedicalProfessionalUncheckedCreateWithoutReviewedOpinionsInput = {
-    id?: string
-    professionalId?: string
-    firstName: string
-    lastName: string
-    email: string
-    phone?: string | null
-    licenseNumber: string
-    specialty: string
-    yearsExperience: number
-    qualifications: string
-    vettingStatus?: string
-    vettedBy?: string | null
-    vettedAt?: Date | string | null
-    appliedAt?: Date | string
-    updatedAt?: Date | string
-    caseAssignments?: CaseAssignmentUncheckedCreateNestedManyWithoutProfessionalInput
-    primaryOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutPrimaryProfessionalInput
-    payments?: ProfessionalPaymentUncheckedCreateNestedManyWithoutProfessionalInput
-  }
-
-  export type MedicalProfessionalCreateOrConnectWithoutReviewedOpinionsInput = {
-    where: MedicalProfessionalWhereUniqueInput
-    create: XOR<MedicalProfessionalCreateWithoutReviewedOpinionsInput, MedicalProfessionalUncheckedCreateWithoutReviewedOpinionsInput>
+    create: XOR<MedicalProfessionalCreateWithoutMedicalOpinionsInput, MedicalProfessionalUncheckedCreateWithoutMedicalOpinionsInput>
   }
 
   export type CaseUpsertWithoutMedicalOpinionsInput = {
@@ -17388,19 +21755,18 @@ export namespace Prisma {
     geneticFamilyHistory?: NullableStringFieldUpdateOperationsInput | string | null
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     consentAccepted?: BoolFieldUpdateOperationsInput | boolean
-    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customer?: CustomerUpdateOneRequiredWithoutCasesNestedInput
     uploadedFiles?: UploadedFileUpdateManyWithoutCaseNestedInput
-    aiAnalysis?: AIAnalysisUpdateOneWithoutCaseNestedInput
     caseAssignments?: CaseAssignmentUpdateManyWithoutCaseNestedInput
+    aiAnalyses?: AIAnalysisUpdateManyWithoutCaseNestedInput
+    professionalPayments?: ProfessionalPaymentUpdateManyWithoutCaseNestedInput
   }
 
   export type CaseUncheckedUpdateWithoutMedicalOpinionsInput = {
     id?: StringFieldUpdateOperationsInput | string
     caseNumber?: StringFieldUpdateOperationsInput | string
-    customerId?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
     middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
@@ -17414,223 +21780,111 @@ export namespace Prisma {
     geneticFamilyHistory?: NullableStringFieldUpdateOperationsInput | string | null
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     consentAccepted?: BoolFieldUpdateOperationsInput | boolean
-    status?: StringFieldUpdateOperationsInput | string
+    customerId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     uploadedFiles?: UploadedFileUncheckedUpdateManyWithoutCaseNestedInput
-    aiAnalysis?: AIAnalysisUncheckedUpdateOneWithoutCaseNestedInput
     caseAssignments?: CaseAssignmentUncheckedUpdateManyWithoutCaseNestedInput
+    aiAnalyses?: AIAnalysisUncheckedUpdateManyWithoutCaseNestedInput
+    professionalPayments?: ProfessionalPaymentUncheckedUpdateManyWithoutCaseNestedInput
   }
 
-  export type MedicalProfessionalUpsertWithoutPrimaryOpinionsInput = {
-    update: XOR<MedicalProfessionalUpdateWithoutPrimaryOpinionsInput, MedicalProfessionalUncheckedUpdateWithoutPrimaryOpinionsInput>
-    create: XOR<MedicalProfessionalCreateWithoutPrimaryOpinionsInput, MedicalProfessionalUncheckedCreateWithoutPrimaryOpinionsInput>
+  export type MedicalProfessionalUpsertWithoutMedicalOpinionsInput = {
+    update: XOR<MedicalProfessionalUpdateWithoutMedicalOpinionsInput, MedicalProfessionalUncheckedUpdateWithoutMedicalOpinionsInput>
+    create: XOR<MedicalProfessionalCreateWithoutMedicalOpinionsInput, MedicalProfessionalUncheckedCreateWithoutMedicalOpinionsInput>
     where?: MedicalProfessionalWhereInput
   }
 
-  export type MedicalProfessionalUpdateToOneWithWhereWithoutPrimaryOpinionsInput = {
+  export type MedicalProfessionalUpdateToOneWithWhereWithoutMedicalOpinionsInput = {
     where?: MedicalProfessionalWhereInput
-    data: XOR<MedicalProfessionalUpdateWithoutPrimaryOpinionsInput, MedicalProfessionalUncheckedUpdateWithoutPrimaryOpinionsInput>
+    data: XOR<MedicalProfessionalUpdateWithoutMedicalOpinionsInput, MedicalProfessionalUncheckedUpdateWithoutMedicalOpinionsInput>
   }
 
-  export type MedicalProfessionalUpdateWithoutPrimaryOpinionsInput = {
+  export type MedicalProfessionalUpdateWithoutMedicalOpinionsInput = {
     id?: StringFieldUpdateOperationsInput | string
-    professionalId?: StringFieldUpdateOperationsInput | string
+    proNumber?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
+    dob?: DateTimeFieldUpdateOperationsInput | Date | string
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
     licenseNumber?: StringFieldUpdateOperationsInput | string
-    specialty?: StringFieldUpdateOperationsInput | string
-    yearsExperience?: IntFieldUpdateOperationsInput | number
-    qualifications?: StringFieldUpdateOperationsInput | string
-    vettingStatus?: StringFieldUpdateOperationsInput | string
-    vettedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    vettedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    appliedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    licenseCountry?: StringFieldUpdateOperationsInput | string
+    licenseExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
+    vetted?: BoolFieldUpdateOperationsInput | boolean
+    level?: EnumProLevelFieldUpdateOperationsInput | $Enums.ProLevel
+    cvUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: NullableStringFieldUpdateOperationsInput | string | null
+    yearsPractice?: IntFieldUpdateOperationsInput | number
+    publications?: IntFieldUpdateOperationsInput | number
+    trialInvolved?: BoolFieldUpdateOperationsInput | boolean
+    leadership?: NullableStringFieldUpdateOperationsInput | string | null
+    societyMemberships?: NullableStringFieldUpdateOperationsInput | string | null
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorMethod?: EnumTwoFactorMethodFieldUpdateOperationsInput | $Enums.TwoFactorMethod
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    profileLastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    codeOfConductAcknowledged?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     caseAssignments?: CaseAssignmentUpdateManyWithoutProfessionalNestedInput
-    reviewedOpinions?: MedicalOpinionUpdateManyWithoutReviewerProfessionalNestedInput
-    payments?: ProfessionalPaymentUpdateManyWithoutProfessionalNestedInput
+    professionalPayments?: ProfessionalPaymentUpdateManyWithoutProfessionalNestedInput
+    professionalSessions?: ProfessionalSessionUpdateManyWithoutProfessionalNestedInput
   }
 
-  export type MedicalProfessionalUncheckedUpdateWithoutPrimaryOpinionsInput = {
+  export type MedicalProfessionalUncheckedUpdateWithoutMedicalOpinionsInput = {
     id?: StringFieldUpdateOperationsInput | string
-    professionalId?: StringFieldUpdateOperationsInput | string
+    proNumber?: StringFieldUpdateOperationsInput | string
     firstName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
     lastName?: StringFieldUpdateOperationsInput | string
+    dob?: DateTimeFieldUpdateOperationsInput | Date | string
     email?: StringFieldUpdateOperationsInput | string
     phone?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
     licenseNumber?: StringFieldUpdateOperationsInput | string
-    specialty?: StringFieldUpdateOperationsInput | string
-    yearsExperience?: IntFieldUpdateOperationsInput | number
-    qualifications?: StringFieldUpdateOperationsInput | string
-    vettingStatus?: StringFieldUpdateOperationsInput | string
-    vettedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    vettedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    appliedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    licenseCountry?: StringFieldUpdateOperationsInput | string
+    licenseExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
+    vetted?: BoolFieldUpdateOperationsInput | boolean
+    level?: EnumProLevelFieldUpdateOperationsInput | $Enums.ProLevel
+    cvUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: NullableStringFieldUpdateOperationsInput | string | null
+    yearsPractice?: IntFieldUpdateOperationsInput | number
+    publications?: IntFieldUpdateOperationsInput | number
+    trialInvolved?: BoolFieldUpdateOperationsInput | boolean
+    leadership?: NullableStringFieldUpdateOperationsInput | string | null
+    societyMemberships?: NullableStringFieldUpdateOperationsInput | string | null
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorMethod?: EnumTwoFactorMethodFieldUpdateOperationsInput | $Enums.TwoFactorMethod
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    profileLastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    codeOfConductAcknowledged?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     caseAssignments?: CaseAssignmentUncheckedUpdateManyWithoutProfessionalNestedInput
-    reviewedOpinions?: MedicalOpinionUncheckedUpdateManyWithoutReviewerProfessionalNestedInput
-    payments?: ProfessionalPaymentUncheckedUpdateManyWithoutProfessionalNestedInput
+    professionalPayments?: ProfessionalPaymentUncheckedUpdateManyWithoutProfessionalNestedInput
+    professionalSessions?: ProfessionalSessionUncheckedUpdateManyWithoutProfessionalNestedInput
   }
 
-  export type MedicalProfessionalUpsertWithoutReviewedOpinionsInput = {
-    update: XOR<MedicalProfessionalUpdateWithoutReviewedOpinionsInput, MedicalProfessionalUncheckedUpdateWithoutReviewedOpinionsInput>
-    create: XOR<MedicalProfessionalCreateWithoutReviewedOpinionsInput, MedicalProfessionalUncheckedCreateWithoutReviewedOpinionsInput>
-    where?: MedicalProfessionalWhereInput
-  }
-
-  export type MedicalProfessionalUpdateToOneWithWhereWithoutReviewedOpinionsInput = {
-    where?: MedicalProfessionalWhereInput
-    data: XOR<MedicalProfessionalUpdateWithoutReviewedOpinionsInput, MedicalProfessionalUncheckedUpdateWithoutReviewedOpinionsInput>
-  }
-
-  export type MedicalProfessionalUpdateWithoutReviewedOpinionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    professionalId?: StringFieldUpdateOperationsInput | string
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    licenseNumber?: StringFieldUpdateOperationsInput | string
-    specialty?: StringFieldUpdateOperationsInput | string
-    yearsExperience?: IntFieldUpdateOperationsInput | number
-    qualifications?: StringFieldUpdateOperationsInput | string
-    vettingStatus?: StringFieldUpdateOperationsInput | string
-    vettedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    vettedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    appliedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    caseAssignments?: CaseAssignmentUpdateManyWithoutProfessionalNestedInput
-    primaryOpinions?: MedicalOpinionUpdateManyWithoutPrimaryProfessionalNestedInput
-    payments?: ProfessionalPaymentUpdateManyWithoutProfessionalNestedInput
-  }
-
-  export type MedicalProfessionalUncheckedUpdateWithoutReviewedOpinionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    professionalId?: StringFieldUpdateOperationsInput | string
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    licenseNumber?: StringFieldUpdateOperationsInput | string
-    specialty?: StringFieldUpdateOperationsInput | string
-    yearsExperience?: IntFieldUpdateOperationsInput | number
-    qualifications?: StringFieldUpdateOperationsInput | string
-    vettingStatus?: StringFieldUpdateOperationsInput | string
-    vettedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    vettedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    appliedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    caseAssignments?: CaseAssignmentUncheckedUpdateManyWithoutProfessionalNestedInput
-    primaryOpinions?: MedicalOpinionUncheckedUpdateManyWithoutPrimaryProfessionalNestedInput
-    payments?: ProfessionalPaymentUncheckedUpdateManyWithoutProfessionalNestedInput
-  }
-
-  export type MedicalProfessionalCreateWithoutPaymentsInput = {
+  export type CaseCreateWithoutProfessionalPaymentsInput = {
     id?: string
-    professionalId?: string
-    firstName: string
-    lastName: string
-    email: string
-    phone?: string | null
-    licenseNumber: string
-    specialty: string
-    yearsExperience: number
-    qualifications: string
-    vettingStatus?: string
-    vettedBy?: string | null
-    vettedAt?: Date | string | null
-    appliedAt?: Date | string
-    updatedAt?: Date | string
-    caseAssignments?: CaseAssignmentCreateNestedManyWithoutProfessionalInput
-    primaryOpinions?: MedicalOpinionCreateNestedManyWithoutPrimaryProfessionalInput
-    reviewedOpinions?: MedicalOpinionCreateNestedManyWithoutReviewerProfessionalInput
-  }
-
-  export type MedicalProfessionalUncheckedCreateWithoutPaymentsInput = {
-    id?: string
-    professionalId?: string
-    firstName: string
-    lastName: string
-    email: string
-    phone?: string | null
-    licenseNumber: string
-    specialty: string
-    yearsExperience: number
-    qualifications: string
-    vettingStatus?: string
-    vettedBy?: string | null
-    vettedAt?: Date | string | null
-    appliedAt?: Date | string
-    updatedAt?: Date | string
-    caseAssignments?: CaseAssignmentUncheckedCreateNestedManyWithoutProfessionalInput
-    primaryOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutPrimaryProfessionalInput
-    reviewedOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutReviewerProfessionalInput
-  }
-
-  export type MedicalProfessionalCreateOrConnectWithoutPaymentsInput = {
-    where: MedicalProfessionalWhereUniqueInput
-    create: XOR<MedicalProfessionalCreateWithoutPaymentsInput, MedicalProfessionalUncheckedCreateWithoutPaymentsInput>
-  }
-
-  export type MedicalProfessionalUpsertWithoutPaymentsInput = {
-    update: XOR<MedicalProfessionalUpdateWithoutPaymentsInput, MedicalProfessionalUncheckedUpdateWithoutPaymentsInput>
-    create: XOR<MedicalProfessionalCreateWithoutPaymentsInput, MedicalProfessionalUncheckedCreateWithoutPaymentsInput>
-    where?: MedicalProfessionalWhereInput
-  }
-
-  export type MedicalProfessionalUpdateToOneWithWhereWithoutPaymentsInput = {
-    where?: MedicalProfessionalWhereInput
-    data: XOR<MedicalProfessionalUpdateWithoutPaymentsInput, MedicalProfessionalUncheckedUpdateWithoutPaymentsInput>
-  }
-
-  export type MedicalProfessionalUpdateWithoutPaymentsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    professionalId?: StringFieldUpdateOperationsInput | string
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    licenseNumber?: StringFieldUpdateOperationsInput | string
-    specialty?: StringFieldUpdateOperationsInput | string
-    yearsExperience?: IntFieldUpdateOperationsInput | number
-    qualifications?: StringFieldUpdateOperationsInput | string
-    vettingStatus?: StringFieldUpdateOperationsInput | string
-    vettedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    vettedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    appliedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    caseAssignments?: CaseAssignmentUpdateManyWithoutProfessionalNestedInput
-    primaryOpinions?: MedicalOpinionUpdateManyWithoutPrimaryProfessionalNestedInput
-    reviewedOpinions?: MedicalOpinionUpdateManyWithoutReviewerProfessionalNestedInput
-  }
-
-  export type MedicalProfessionalUncheckedUpdateWithoutPaymentsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    professionalId?: StringFieldUpdateOperationsInput | string
-    firstName?: StringFieldUpdateOperationsInput | string
-    lastName?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    licenseNumber?: StringFieldUpdateOperationsInput | string
-    specialty?: StringFieldUpdateOperationsInput | string
-    yearsExperience?: IntFieldUpdateOperationsInput | number
-    qualifications?: StringFieldUpdateOperationsInput | string
-    vettingStatus?: StringFieldUpdateOperationsInput | string
-    vettedBy?: NullableStringFieldUpdateOperationsInput | string | null
-    vettedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    appliedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    caseAssignments?: CaseAssignmentUncheckedUpdateManyWithoutProfessionalNestedInput
-    primaryOpinions?: MedicalOpinionUncheckedUpdateManyWithoutPrimaryProfessionalNestedInput
-    reviewedOpinions?: MedicalOpinionUncheckedUpdateManyWithoutReviewerProfessionalNestedInput
-  }
-
-  export type CaseCreateManyCustomerInput = {
-    id?: string
-    caseNumber?: string
+    caseNumber: string
     firstName: string
     middleName?: string | null
     lastName: string
@@ -17643,8 +21897,303 @@ export namespace Prisma {
     isFirstOccurrence?: boolean | null
     geneticFamilyHistory?: string | null
     paymentId?: string | null
-    consentAccepted?: boolean
-    status?: string
+    consentAccepted: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    customer: CustomerCreateNestedOneWithoutCasesInput
+    uploadedFiles?: UploadedFileCreateNestedManyWithoutCaseInput
+    caseAssignments?: CaseAssignmentCreateNestedManyWithoutCaseInput
+    aiAnalyses?: AIAnalysisCreateNestedManyWithoutCaseInput
+    medicalOpinions?: MedicalOpinionCreateNestedManyWithoutCaseInput
+  }
+
+  export type CaseUncheckedCreateWithoutProfessionalPaymentsInput = {
+    id?: string
+    caseNumber: string
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    dateOfBirth: Date | string
+    email: string
+    phone?: string | null
+    ethnicity?: string | null
+    gender?: string | null
+    diseaseType?: string | null
+    isFirstOccurrence?: boolean | null
+    geneticFamilyHistory?: string | null
+    paymentId?: string | null
+    consentAccepted: boolean
+    customerId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    uploadedFiles?: UploadedFileUncheckedCreateNestedManyWithoutCaseInput
+    caseAssignments?: CaseAssignmentUncheckedCreateNestedManyWithoutCaseInput
+    aiAnalyses?: AIAnalysisUncheckedCreateNestedManyWithoutCaseInput
+    medicalOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutCaseInput
+  }
+
+  export type CaseCreateOrConnectWithoutProfessionalPaymentsInput = {
+    where: CaseWhereUniqueInput
+    create: XOR<CaseCreateWithoutProfessionalPaymentsInput, CaseUncheckedCreateWithoutProfessionalPaymentsInput>
+  }
+
+  export type MedicalProfessionalCreateWithoutProfessionalPaymentsInput = {
+    id?: string
+    proNumber: string
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    dob: Date | string
+    email: string
+    phone?: string | null
+    nationality?: string | null
+    licenseNumber: string
+    licenseCountry: string
+    licenseExpiry: Date | string
+    vetted?: boolean
+    level?: $Enums.ProLevel
+    cvUrl?: string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: string | null
+    yearsPractice: number
+    publications: number
+    trialInvolved: boolean
+    leadership?: string | null
+    societyMemberships?: string | null
+    score?: number | null
+    hashedPassword?: string | null
+    twoFactorMethod?: $Enums.TwoFactorMethod
+    twoFactorSecret?: string | null
+    profileLastUpdated?: Date | string | null
+    codeOfConductAcknowledged?: Date | string | null
+    address?: string | null
+    billingAddress?: string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: string | null
+    billingRate?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    caseAssignments?: CaseAssignmentCreateNestedManyWithoutProfessionalInput
+    medicalOpinions?: MedicalOpinionCreateNestedManyWithoutProfessionalInput
+    professionalSessions?: ProfessionalSessionCreateNestedManyWithoutProfessionalInput
+  }
+
+  export type MedicalProfessionalUncheckedCreateWithoutProfessionalPaymentsInput = {
+    id?: string
+    proNumber: string
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    dob: Date | string
+    email: string
+    phone?: string | null
+    nationality?: string | null
+    licenseNumber: string
+    licenseCountry: string
+    licenseExpiry: Date | string
+    vetted?: boolean
+    level?: $Enums.ProLevel
+    cvUrl?: string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: string | null
+    yearsPractice: number
+    publications: number
+    trialInvolved: boolean
+    leadership?: string | null
+    societyMemberships?: string | null
+    score?: number | null
+    hashedPassword?: string | null
+    twoFactorMethod?: $Enums.TwoFactorMethod
+    twoFactorSecret?: string | null
+    profileLastUpdated?: Date | string | null
+    codeOfConductAcknowledged?: Date | string | null
+    address?: string | null
+    billingAddress?: string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: string | null
+    billingRate?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    caseAssignments?: CaseAssignmentUncheckedCreateNestedManyWithoutProfessionalInput
+    medicalOpinions?: MedicalOpinionUncheckedCreateNestedManyWithoutProfessionalInput
+    professionalSessions?: ProfessionalSessionUncheckedCreateNestedManyWithoutProfessionalInput
+  }
+
+  export type MedicalProfessionalCreateOrConnectWithoutProfessionalPaymentsInput = {
+    where: MedicalProfessionalWhereUniqueInput
+    create: XOR<MedicalProfessionalCreateWithoutProfessionalPaymentsInput, MedicalProfessionalUncheckedCreateWithoutProfessionalPaymentsInput>
+  }
+
+  export type CaseUpsertWithoutProfessionalPaymentsInput = {
+    update: XOR<CaseUpdateWithoutProfessionalPaymentsInput, CaseUncheckedUpdateWithoutProfessionalPaymentsInput>
+    create: XOR<CaseCreateWithoutProfessionalPaymentsInput, CaseUncheckedCreateWithoutProfessionalPaymentsInput>
+    where?: CaseWhereInput
+  }
+
+  export type CaseUpdateToOneWithWhereWithoutProfessionalPaymentsInput = {
+    where?: CaseWhereInput
+    data: XOR<CaseUpdateWithoutProfessionalPaymentsInput, CaseUncheckedUpdateWithoutProfessionalPaymentsInput>
+  }
+
+  export type CaseUpdateWithoutProfessionalPaymentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseNumber?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    ethnicity?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    diseaseType?: NullableStringFieldUpdateOperationsInput | string | null
+    isFirstOccurrence?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    geneticFamilyHistory?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    consentAccepted?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    customer?: CustomerUpdateOneRequiredWithoutCasesNestedInput
+    uploadedFiles?: UploadedFileUpdateManyWithoutCaseNestedInput
+    caseAssignments?: CaseAssignmentUpdateManyWithoutCaseNestedInput
+    aiAnalyses?: AIAnalysisUpdateManyWithoutCaseNestedInput
+    medicalOpinions?: MedicalOpinionUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CaseUncheckedUpdateWithoutProfessionalPaymentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseNumber?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: DateTimeFieldUpdateOperationsInput | Date | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    ethnicity?: NullableStringFieldUpdateOperationsInput | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    diseaseType?: NullableStringFieldUpdateOperationsInput | string | null
+    isFirstOccurrence?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    geneticFamilyHistory?: NullableStringFieldUpdateOperationsInput | string | null
+    paymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    consentAccepted?: BoolFieldUpdateOperationsInput | boolean
+    customerId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    uploadedFiles?: UploadedFileUncheckedUpdateManyWithoutCaseNestedInput
+    caseAssignments?: CaseAssignmentUncheckedUpdateManyWithoutCaseNestedInput
+    aiAnalyses?: AIAnalysisUncheckedUpdateManyWithoutCaseNestedInput
+    medicalOpinions?: MedicalOpinionUncheckedUpdateManyWithoutCaseNestedInput
+  }
+
+  export type MedicalProfessionalUpsertWithoutProfessionalPaymentsInput = {
+    update: XOR<MedicalProfessionalUpdateWithoutProfessionalPaymentsInput, MedicalProfessionalUncheckedUpdateWithoutProfessionalPaymentsInput>
+    create: XOR<MedicalProfessionalCreateWithoutProfessionalPaymentsInput, MedicalProfessionalUncheckedCreateWithoutProfessionalPaymentsInput>
+    where?: MedicalProfessionalWhereInput
+  }
+
+  export type MedicalProfessionalUpdateToOneWithWhereWithoutProfessionalPaymentsInput = {
+    where?: MedicalProfessionalWhereInput
+    data: XOR<MedicalProfessionalUpdateWithoutProfessionalPaymentsInput, MedicalProfessionalUncheckedUpdateWithoutProfessionalPaymentsInput>
+  }
+
+  export type MedicalProfessionalUpdateWithoutProfessionalPaymentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    proNumber?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: StringFieldUpdateOperationsInput | string
+    dob?: DateTimeFieldUpdateOperationsInput | Date | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseNumber?: StringFieldUpdateOperationsInput | string
+    licenseCountry?: StringFieldUpdateOperationsInput | string
+    licenseExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
+    vetted?: BoolFieldUpdateOperationsInput | boolean
+    level?: EnumProLevelFieldUpdateOperationsInput | $Enums.ProLevel
+    cvUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: NullableStringFieldUpdateOperationsInput | string | null
+    yearsPractice?: IntFieldUpdateOperationsInput | number
+    publications?: IntFieldUpdateOperationsInput | number
+    trialInvolved?: BoolFieldUpdateOperationsInput | boolean
+    leadership?: NullableStringFieldUpdateOperationsInput | string | null
+    societyMemberships?: NullableStringFieldUpdateOperationsInput | string | null
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorMethod?: EnumTwoFactorMethodFieldUpdateOperationsInput | $Enums.TwoFactorMethod
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    profileLastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    codeOfConductAcknowledged?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    caseAssignments?: CaseAssignmentUpdateManyWithoutProfessionalNestedInput
+    medicalOpinions?: MedicalOpinionUpdateManyWithoutProfessionalNestedInput
+    professionalSessions?: ProfessionalSessionUpdateManyWithoutProfessionalNestedInput
+  }
+
+  export type MedicalProfessionalUncheckedUpdateWithoutProfessionalPaymentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    proNumber?: StringFieldUpdateOperationsInput | string
+    firstName?: StringFieldUpdateOperationsInput | string
+    middleName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: StringFieldUpdateOperationsInput | string
+    dob?: DateTimeFieldUpdateOperationsInput | Date | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    licenseNumber?: StringFieldUpdateOperationsInput | string
+    licenseCountry?: StringFieldUpdateOperationsInput | string
+    licenseExpiry?: DateTimeFieldUpdateOperationsInput | Date | string
+    vetted?: BoolFieldUpdateOperationsInput | boolean
+    level?: EnumProLevelFieldUpdateOperationsInput | $Enums.ProLevel
+    cvUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documents?: NullableJsonNullValueInput | InputJsonValue
+    subspecialties?: NullableStringFieldUpdateOperationsInput | string | null
+    yearsPractice?: IntFieldUpdateOperationsInput | number
+    publications?: IntFieldUpdateOperationsInput | number
+    trialInvolved?: BoolFieldUpdateOperationsInput | boolean
+    leadership?: NullableStringFieldUpdateOperationsInput | string | null
+    societyMemberships?: NullableStringFieldUpdateOperationsInput | string | null
+    score?: NullableIntFieldUpdateOperationsInput | number | null
+    hashedPassword?: NullableStringFieldUpdateOperationsInput | string | null
+    twoFactorMethod?: EnumTwoFactorMethodFieldUpdateOperationsInput | $Enums.TwoFactorMethod
+    twoFactorSecret?: NullableStringFieldUpdateOperationsInput | string | null
+    profileLastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    codeOfConductAcknowledged?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    billingAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    bankDetails?: NullableJsonNullValueInput | InputJsonValue
+    vatNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    billingRate?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    caseAssignments?: CaseAssignmentUncheckedUpdateManyWithoutProfessionalNestedInput
+    medicalOpinions?: MedicalOpinionUncheckedUpdateManyWithoutProfessionalNestedInput
+    professionalSessions?: ProfessionalSessionUncheckedUpdateManyWithoutProfessionalNestedInput
+  }
+
+  export type CaseCreateManyCustomerInput = {
+    id?: string
+    caseNumber: string
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    dateOfBirth: Date | string
+    email: string
+    phone?: string | null
+    ethnicity?: string | null
+    gender?: string | null
+    diseaseType?: string | null
+    isFirstOccurrence?: boolean | null
+    geneticFamilyHistory?: string | null
+    paymentId?: string | null
+    consentAccepted: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -17665,13 +22214,13 @@ export namespace Prisma {
     geneticFamilyHistory?: NullableStringFieldUpdateOperationsInput | string | null
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     consentAccepted?: BoolFieldUpdateOperationsInput | boolean
-    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     uploadedFiles?: UploadedFileUpdateManyWithoutCaseNestedInput
-    aiAnalysis?: AIAnalysisUpdateOneWithoutCaseNestedInput
     caseAssignments?: CaseAssignmentUpdateManyWithoutCaseNestedInput
+    aiAnalyses?: AIAnalysisUpdateManyWithoutCaseNestedInput
     medicalOpinions?: MedicalOpinionUpdateManyWithoutCaseNestedInput
+    professionalPayments?: ProfessionalPaymentUpdateManyWithoutCaseNestedInput
   }
 
   export type CaseUncheckedUpdateWithoutCustomerInput = {
@@ -17690,13 +22239,13 @@ export namespace Prisma {
     geneticFamilyHistory?: NullableStringFieldUpdateOperationsInput | string | null
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     consentAccepted?: BoolFieldUpdateOperationsInput | boolean
-    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     uploadedFiles?: UploadedFileUncheckedUpdateManyWithoutCaseNestedInput
-    aiAnalysis?: AIAnalysisUncheckedUpdateOneWithoutCaseNestedInput
     caseAssignments?: CaseAssignmentUncheckedUpdateManyWithoutCaseNestedInput
+    aiAnalyses?: AIAnalysisUncheckedUpdateManyWithoutCaseNestedInput
     medicalOpinions?: MedicalOpinionUncheckedUpdateManyWithoutCaseNestedInput
+    professionalPayments?: ProfessionalPaymentUncheckedUpdateManyWithoutCaseNestedInput
   }
 
   export type CaseUncheckedUpdateManyWithoutCustomerInput = {
@@ -17715,89 +22264,86 @@ export namespace Prisma {
     geneticFamilyHistory?: NullableStringFieldUpdateOperationsInput | string | null
     paymentId?: NullableStringFieldUpdateOperationsInput | string | null
     consentAccepted?: BoolFieldUpdateOperationsInput | boolean
-    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UploadedFileCreateManyCaseInput = {
     id?: string
-    fileName: string
-    originalName: string
-    fileSize: number
-    mimeType: string
+    filename: string
+    s3Key: string
+    mimetype: string
+    size: number
     category: string
-    s3Key?: string | null
-    uploadedAt?: Date | string
+    createdAt?: Date | string
   }
 
   export type CaseAssignmentCreateManyCaseInput = {
     id?: string
     professionalId: string
-    assignedBy: string
-    assignedAt?: Date | string
     status?: string
-    startedAt?: Date | string | null
+    assignedAt?: Date | string
     completedAt?: Date | string | null
+  }
+
+  export type AIAnalysisCreateManyCaseInput = {
+    id?: string
+    analysisType: string
+    results: string
+    createdAt?: Date | string
   }
 
   export type MedicalOpinionCreateManyCaseInput = {
     id?: string
-    primaryProfessionalId: string
-    reviewerProfessionalId?: string | null
-    diagnosis?: string | null
-    recommendations: string
-    riskAssessment?: string | null
-    additionalTests?: string | null
-    notes?: string | null
+    professionalId: string
+    content: string
     status?: string
-    peerReviewNotes?: string | null
     createdAt?: Date | string
-    submittedAt?: Date | string | null
-    reviewedAt?: Date | string | null
-    approvedAt?: Date | string | null
-    deliveredAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type ProfessionalPaymentCreateManyCaseInput = {
+    id?: string
+    professionalId: string
+    amount: number
+    status?: string
+    createdAt?: Date | string
   }
 
   export type UploadedFileUpdateWithoutCaseInput = {
     id?: StringFieldUpdateOperationsInput | string
-    fileName?: StringFieldUpdateOperationsInput | string
-    originalName?: StringFieldUpdateOperationsInput | string
-    fileSize?: IntFieldUpdateOperationsInput | number
-    mimeType?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    s3Key?: StringFieldUpdateOperationsInput | string
+    mimetype?: StringFieldUpdateOperationsInput | string
+    size?: IntFieldUpdateOperationsInput | number
     category?: StringFieldUpdateOperationsInput | string
-    s3Key?: NullableStringFieldUpdateOperationsInput | string | null
-    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UploadedFileUncheckedUpdateWithoutCaseInput = {
     id?: StringFieldUpdateOperationsInput | string
-    fileName?: StringFieldUpdateOperationsInput | string
-    originalName?: StringFieldUpdateOperationsInput | string
-    fileSize?: IntFieldUpdateOperationsInput | number
-    mimeType?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    s3Key?: StringFieldUpdateOperationsInput | string
+    mimetype?: StringFieldUpdateOperationsInput | string
+    size?: IntFieldUpdateOperationsInput | number
     category?: StringFieldUpdateOperationsInput | string
-    s3Key?: NullableStringFieldUpdateOperationsInput | string | null
-    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UploadedFileUncheckedUpdateManyWithoutCaseInput = {
     id?: StringFieldUpdateOperationsInput | string
-    fileName?: StringFieldUpdateOperationsInput | string
-    originalName?: StringFieldUpdateOperationsInput | string
-    fileSize?: IntFieldUpdateOperationsInput | number
-    mimeType?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    s3Key?: StringFieldUpdateOperationsInput | string
+    mimetype?: StringFieldUpdateOperationsInput | string
+    size?: IntFieldUpdateOperationsInput | number
     category?: StringFieldUpdateOperationsInput | string
-    s3Key?: NullableStringFieldUpdateOperationsInput | string | null
-    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CaseAssignmentUpdateWithoutCaseInput = {
     id?: StringFieldUpdateOperationsInput | string
-    assignedBy?: StringFieldUpdateOperationsInput | string
-    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     professional?: MedicalProfessionalUpdateOneRequiredWithoutCaseAssignmentsNestedInput
   }
@@ -17805,142 +22351,128 @@ export namespace Prisma {
   export type CaseAssignmentUncheckedUpdateWithoutCaseInput = {
     id?: StringFieldUpdateOperationsInput | string
     professionalId?: StringFieldUpdateOperationsInput | string
-    assignedBy?: StringFieldUpdateOperationsInput | string
-    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type CaseAssignmentUncheckedUpdateManyWithoutCaseInput = {
     id?: StringFieldUpdateOperationsInput | string
     professionalId?: StringFieldUpdateOperationsInput | string
-    assignedBy?: StringFieldUpdateOperationsInput | string
-    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AIAnalysisUpdateWithoutCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    analysisType?: StringFieldUpdateOperationsInput | string
+    results?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AIAnalysisUncheckedUpdateWithoutCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    analysisType?: StringFieldUpdateOperationsInput | string
+    results?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AIAnalysisUncheckedUpdateManyWithoutCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    analysisType?: StringFieldUpdateOperationsInput | string
+    results?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MedicalOpinionUpdateWithoutCaseInput = {
     id?: StringFieldUpdateOperationsInput | string
-    diagnosis?: NullableStringFieldUpdateOperationsInput | string | null
-    recommendations?: StringFieldUpdateOperationsInput | string
-    riskAssessment?: NullableStringFieldUpdateOperationsInput | string | null
-    additionalTests?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    peerReviewNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    primaryProfessional?: MedicalProfessionalUpdateOneRequiredWithoutPrimaryOpinionsNestedInput
-    reviewerProfessional?: MedicalProfessionalUpdateOneWithoutReviewedOpinionsNestedInput
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    professional?: MedicalProfessionalUpdateOneRequiredWithoutMedicalOpinionsNestedInput
   }
 
   export type MedicalOpinionUncheckedUpdateWithoutCaseInput = {
     id?: StringFieldUpdateOperationsInput | string
-    primaryProfessionalId?: StringFieldUpdateOperationsInput | string
-    reviewerProfessionalId?: NullableStringFieldUpdateOperationsInput | string | null
-    diagnosis?: NullableStringFieldUpdateOperationsInput | string | null
-    recommendations?: StringFieldUpdateOperationsInput | string
-    riskAssessment?: NullableStringFieldUpdateOperationsInput | string | null
-    additionalTests?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    professionalId?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    peerReviewNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MedicalOpinionUncheckedUpdateManyWithoutCaseInput = {
     id?: StringFieldUpdateOperationsInput | string
-    primaryProfessionalId?: StringFieldUpdateOperationsInput | string
-    reviewerProfessionalId?: NullableStringFieldUpdateOperationsInput | string | null
-    diagnosis?: NullableStringFieldUpdateOperationsInput | string | null
-    recommendations?: StringFieldUpdateOperationsInput | string
-    riskAssessment?: NullableStringFieldUpdateOperationsInput | string | null
-    additionalTests?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    professionalId?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    peerReviewNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProfessionalPaymentUpdateWithoutCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    professional?: MedicalProfessionalUpdateOneRequiredWithoutProfessionalPaymentsNestedInput
+  }
+
+  export type ProfessionalPaymentUncheckedUpdateWithoutCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    professionalId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProfessionalPaymentUncheckedUpdateManyWithoutCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    professionalId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CaseAssignmentCreateManyProfessionalInput = {
     id?: string
     caseId: string
-    assignedBy: string
-    assignedAt?: Date | string
     status?: string
-    startedAt?: Date | string | null
+    assignedAt?: Date | string
     completedAt?: Date | string | null
   }
 
-  export type MedicalOpinionCreateManyPrimaryProfessionalInput = {
+  export type MedicalOpinionCreateManyProfessionalInput = {
     id?: string
     caseId: string
-    reviewerProfessionalId?: string | null
-    diagnosis?: string | null
-    recommendations: string
-    riskAssessment?: string | null
-    additionalTests?: string | null
-    notes?: string | null
+    content: string
     status?: string
-    peerReviewNotes?: string | null
     createdAt?: Date | string
-    submittedAt?: Date | string | null
-    reviewedAt?: Date | string | null
-    approvedAt?: Date | string | null
-    deliveredAt?: Date | string | null
-  }
-
-  export type MedicalOpinionCreateManyReviewerProfessionalInput = {
-    id?: string
-    caseId: string
-    primaryProfessionalId: string
-    diagnosis?: string | null
-    recommendations: string
-    riskAssessment?: string | null
-    additionalTests?: string | null
-    notes?: string | null
-    status?: string
-    peerReviewNotes?: string | null
-    createdAt?: Date | string
-    submittedAt?: Date | string | null
-    reviewedAt?: Date | string | null
-    approvedAt?: Date | string | null
-    deliveredAt?: Date | string | null
+    updatedAt?: Date | string
   }
 
   export type ProfessionalPaymentCreateManyProfessionalInput = {
     id?: string
-    caseId?: string | null
+    caseId: string
     amount: number
-    currency?: string
-    paymentType: string
-    paymentMethod: string
     status?: string
-    transactionId?: string | null
-    initiatedAt?: Date | string
-    processedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type ProfessionalSessionCreateManyProfessionalInput = {
+    id?: string
+    sessionToken: string
+    twoFactorVerified?: boolean
+    expiresAt: Date | string
+    createdAt?: Date | string
   }
 
   export type CaseAssignmentUpdateWithoutProfessionalInput = {
     id?: StringFieldUpdateOperationsInput | string
-    assignedBy?: StringFieldUpdateOperationsInput | string
-    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     case?: CaseUpdateOneRequiredWithoutCaseAssignmentsNestedInput
   }
@@ -17948,168 +22480,92 @@ export namespace Prisma {
   export type CaseAssignmentUncheckedUpdateWithoutProfessionalInput = {
     id?: StringFieldUpdateOperationsInput | string
     caseId?: StringFieldUpdateOperationsInput | string
-    assignedBy?: StringFieldUpdateOperationsInput | string
-    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type CaseAssignmentUncheckedUpdateManyWithoutProfessionalInput = {
     id?: StringFieldUpdateOperationsInput | string
     caseId?: StringFieldUpdateOperationsInput | string
-    assignedBy?: StringFieldUpdateOperationsInput | string
-    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: StringFieldUpdateOperationsInput | string
-    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
-  export type MedicalOpinionUpdateWithoutPrimaryProfessionalInput = {
+  export type MedicalOpinionUpdateWithoutProfessionalInput = {
     id?: StringFieldUpdateOperationsInput | string
-    diagnosis?: NullableStringFieldUpdateOperationsInput | string | null
-    recommendations?: StringFieldUpdateOperationsInput | string
-    riskAssessment?: NullableStringFieldUpdateOperationsInput | string | null
-    additionalTests?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    peerReviewNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     case?: CaseUpdateOneRequiredWithoutMedicalOpinionsNestedInput
-    reviewerProfessional?: MedicalProfessionalUpdateOneWithoutReviewedOpinionsNestedInput
   }
 
-  export type MedicalOpinionUncheckedUpdateWithoutPrimaryProfessionalInput = {
+  export type MedicalOpinionUncheckedUpdateWithoutProfessionalInput = {
     id?: StringFieldUpdateOperationsInput | string
     caseId?: StringFieldUpdateOperationsInput | string
-    reviewerProfessionalId?: NullableStringFieldUpdateOperationsInput | string | null
-    diagnosis?: NullableStringFieldUpdateOperationsInput | string | null
-    recommendations?: StringFieldUpdateOperationsInput | string
-    riskAssessment?: NullableStringFieldUpdateOperationsInput | string | null
-    additionalTests?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    peerReviewNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type MedicalOpinionUncheckedUpdateManyWithoutPrimaryProfessionalInput = {
+  export type MedicalOpinionUncheckedUpdateManyWithoutProfessionalInput = {
     id?: StringFieldUpdateOperationsInput | string
     caseId?: StringFieldUpdateOperationsInput | string
-    reviewerProfessionalId?: NullableStringFieldUpdateOperationsInput | string | null
-    diagnosis?: NullableStringFieldUpdateOperationsInput | string | null
-    recommendations?: StringFieldUpdateOperationsInput | string
-    riskAssessment?: NullableStringFieldUpdateOperationsInput | string | null
-    additionalTests?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    content?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    peerReviewNotes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type MedicalOpinionUpdateWithoutReviewerProfessionalInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    diagnosis?: NullableStringFieldUpdateOperationsInput | string | null
-    recommendations?: StringFieldUpdateOperationsInput | string
-    riskAssessment?: NullableStringFieldUpdateOperationsInput | string | null
-    additionalTests?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    peerReviewNotes?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    case?: CaseUpdateOneRequiredWithoutMedicalOpinionsNestedInput
-    primaryProfessional?: MedicalProfessionalUpdateOneRequiredWithoutPrimaryOpinionsNestedInput
-  }
-
-  export type MedicalOpinionUncheckedUpdateWithoutReviewerProfessionalInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    caseId?: StringFieldUpdateOperationsInput | string
-    primaryProfessionalId?: StringFieldUpdateOperationsInput | string
-    diagnosis?: NullableStringFieldUpdateOperationsInput | string | null
-    recommendations?: StringFieldUpdateOperationsInput | string
-    riskAssessment?: NullableStringFieldUpdateOperationsInput | string | null
-    additionalTests?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    peerReviewNotes?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type MedicalOpinionUncheckedUpdateManyWithoutReviewerProfessionalInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    caseId?: StringFieldUpdateOperationsInput | string
-    primaryProfessionalId?: StringFieldUpdateOperationsInput | string
-    diagnosis?: NullableStringFieldUpdateOperationsInput | string | null
-    recommendations?: StringFieldUpdateOperationsInput | string
-    riskAssessment?: NullableStringFieldUpdateOperationsInput | string | null
-    additionalTests?: NullableStringFieldUpdateOperationsInput | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    peerReviewNotes?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    submittedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    reviewedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    deliveredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProfessionalPaymentUpdateWithoutProfessionalInput = {
     id?: StringFieldUpdateOperationsInput | string
-    caseId?: NullableStringFieldUpdateOperationsInput | string | null
     amount?: FloatFieldUpdateOperationsInput | number
-    currency?: StringFieldUpdateOperationsInput | string
-    paymentType?: StringFieldUpdateOperationsInput | string
-    paymentMethod?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
-    initiatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    case?: CaseUpdateOneRequiredWithoutProfessionalPaymentsNestedInput
   }
 
   export type ProfessionalPaymentUncheckedUpdateWithoutProfessionalInput = {
     id?: StringFieldUpdateOperationsInput | string
-    caseId?: NullableStringFieldUpdateOperationsInput | string | null
+    caseId?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
-    currency?: StringFieldUpdateOperationsInput | string
-    paymentType?: StringFieldUpdateOperationsInput | string
-    paymentMethod?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
-    initiatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProfessionalPaymentUncheckedUpdateManyWithoutProfessionalInput = {
     id?: StringFieldUpdateOperationsInput | string
-    caseId?: NullableStringFieldUpdateOperationsInput | string | null
+    caseId?: StringFieldUpdateOperationsInput | string
     amount?: FloatFieldUpdateOperationsInput | number
-    currency?: StringFieldUpdateOperationsInput | string
-    paymentType?: StringFieldUpdateOperationsInput | string
-    paymentMethod?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
-    transactionId?: NullableStringFieldUpdateOperationsInput | string | null
-    initiatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProfessionalSessionUpdateWithoutProfessionalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionToken?: StringFieldUpdateOperationsInput | string
+    twoFactorVerified?: BoolFieldUpdateOperationsInput | boolean
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProfessionalSessionUncheckedUpdateWithoutProfessionalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionToken?: StringFieldUpdateOperationsInput | string
+    twoFactorVerified?: BoolFieldUpdateOperationsInput | boolean
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProfessionalSessionUncheckedUpdateManyWithoutProfessionalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionToken?: StringFieldUpdateOperationsInput | string
+    twoFactorVerified?: BoolFieldUpdateOperationsInput | boolean
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

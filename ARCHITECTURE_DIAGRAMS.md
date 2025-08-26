@@ -104,6 +104,30 @@ Categories: Doctor's Letter | Image | Lab Report | Other Document
 - Contact information
 - Print/email options
 
+## 👨‍⚕️ Professional Portal Management
+
+### Professional Profile Management
+**Purpose**: Allow professionals to manage their personal and professional information
+**Components**: `/professional/profile/page.tsx`
+**Features**:
+- Personal information editing (name, email, phone)
+- Professional information (specialty, license number)
+- Communication preferences (email/SMS)
+- Form validation and error handling
+- Real-time save status
+
+### Professional Account Management
+**Purpose**: Provide comprehensive account overview and management tools
+**Components**: `/professional/account/page.tsx`
+**Features**:
+- Account overview and subscription details
+- Earnings and case statistics
+- Recent activity tracking
+- Quick actions for common tasks
+- Account security settings
+- Subscription management
+- Billing history access
+
 ## 🔐 Security Architecture
 
 ### Transport Security
@@ -158,6 +182,40 @@ Request: {
 Response: {
   caseId: string;
   message: string;
+}
+```
+
+### `PATCH /api/v1/professional/profile`
+**Purpose**: Update professional profile information
+```typescript
+Request: {
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  specialty: string;
+  licenseNumber: string;
+  preferredChannel: 'EMAIL' | 'SMS';
+}
+
+Response: {
+  success: boolean;
+  message: string;
+}
+```
+
+### `GET /api/v1/professional/account`
+**Purpose**: Retrieve professional account information
+```typescript
+Response: {
+  accountId: string;
+  subscriptionPlan: string;
+  billingCycle: string;
+  nextBillingDate: string;
+  totalEarnings: number;
+  completedCases: number;
+  pendingCases: number;
 }
 ```
 
@@ -221,6 +279,36 @@ UploadedFile {
 }
 ```
 
+### ProfessionalProfile Table
+```sql
+ProfessionalProfile {
+  id                String   @id @default(cuid())
+  professionalId    String   @unique
+  middleName        String?
+  phone             String?
+  preferredChannel  String   @default("EMAIL")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+```
+
+### ProfessionalAccount Table
+```sql
+ProfessionalAccount {
+  id                String   @id @default(cuid())
+  professionalId    String   @unique
+  accountId         String   @unique
+  subscriptionPlan  String   @default("Professional")
+  billingCycle      String   @default("Monthly")
+  nextBillingDate   DateTime
+  totalEarnings     Decimal  @default(0)
+  completedCases    Int      @default(0)
+  pendingCases      Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+```
+
 ## 🔄 Data Flow Architecture
 
 ### File Upload Flow
@@ -256,6 +344,55 @@ UploadedFile {
     "paymentId": "txn_789",
     "amount": 299.00,
     "currency": "USD"
+  }
+}
+```
+
+### Professional Portal Data Flow
+```javascript
+// Professional Profile Update Flow
+{
+  "profileUpdate": {
+    "professionalId": "PROF-2024-001",
+    "personalInfo": {
+      "firstName": "Dr. Sarah",
+      "middleName": "",
+      "lastName": "Johnson",
+      "email": "sarah.johnson@medicalcenter.com",
+      "phone": "+1234567890"
+    },
+    "professionalInfo": {
+      "specialty": "Cardiology",
+      "licenseNumber": "MD123456"
+    },
+    "preferences": {
+      "preferredChannel": "EMAIL"
+    }
+  }
+}
+
+// Professional Account Data Flow
+{
+  "accountOverview": {
+    "accountId": "PROF-2024-001",
+    "subscription": {
+      "plan": "Professional",
+      "billingCycle": "Monthly",
+      "nextBillingDate": "2024-02-15"
+    },
+    "earnings": {
+      "totalEarnings": 12500.00,
+      "completedCases": 47,
+      "pendingCases": 3
+    },
+    "recentActivity": [
+      {
+        "type": "case_completed",
+        "caseId": "CASE-2024-001",
+        "earnings": 250.00,
+        "timestamp": "2024-01-15T10:30:00Z"
+      }
+    ]
   }
 }
 ```

@@ -1,100 +1,121 @@
-# Medical Second Opinion Platform - Test Summary
+# Test Suite Summary for Second Opinion Platform
 
-## 🧪 **Test Coverage Overview**
+## Overview
+This document provides a comprehensive overview of the test suite created for the Second Opinion Platform, including test coverage, execution instructions, and test results.
 
-This document provides a comprehensive overview of the automated test cases created to verify the medical second opinion platform functionality.
+## Test Structure
 
-## 📋 **Test Categories**
+### 1. Test Runner Script (`run-tests.sh`)
+A comprehensive bash script that executes all tests with different configurations:
+- **Linting**: ESLint checks for code quality
+- **Unit Tests**: Basic functionality tests
+- **Coverage Tests**: Tests with coverage reporting
+- **CI Tests**: Continuous integration compatible tests
+- **Component Tests**: React component testing
+- **API Tests**: Backend API endpoint testing
+- **Page Tests**: Full page integration tests
 
-### 1. **Component Tests**
-- **PatientInfoForm**: Form validation, user input handling, accessibility
-- **Main Page Integration**: Multi-step workflow, navigation, data persistence
-- **API Endpoints**: Request validation, error handling, data processing
+### 2. Test Files Created
 
-### 2. **API Endpoint Tests**
-- **`/api/presign-upload`**: File upload URL generation, local development fallback
-- **`/api/upload-request`**: Case creation, database transactions, module integration
-- **`/api/upload/dev-put`**: Local file storage, signature verification
+#### Utility Tests
+- **`src/utils/__tests__/aiAgent.test.ts`**: AI processing functionality
+  - Document processing with valid input
+  - API error handling
+  - Network error handling
+  - Input validation
+  - Malformed JSON response handling
+  - Timeout scenarios
 
-### 3. **Integration Tests**
-- **End-to-End Workflow**: Complete patient journey from form to confirmation
-- **Data Flow**: Cross-module data distribution and validation
-- **Error Handling**: Graceful degradation and user feedback
+- **`src/utils/__tests__/pdfProcessor.test.ts`**: PDF handling functionality
+  - PDF file validation
+  - Text extraction from PDFs
+  - File size and type validation
+  - Error handling for invalid PDFs
+  - Special character handling
 
-## 🎯 **Key Test Scenarios**
+#### Repository Tests
+- **`src/modules/__tests__/repository.test.ts`**: Data access layer testing
+  - Customer CRUD operations
+  - Case management
+  - Professional management
+  - Database error handling
+  - Data validation
 
-### **Patient Information Form**
-✅ **Form Rendering**
-- All required fields are present
-- Labels and placeholders are correct
-- Submit button is accessible
+#### API Tests
+- **`src/app/api/__tests__/customer-api.test.ts`**: Customer API endpoints
+  - GET customer by ID
+  - PUT customer updates
+  - GET all customers with filtering
+  - Error handling and validation
+  - Pagination support
 
-✅ **Validation Logic**
-- Required field validation (firstName, lastName, dob, email)
-- Email format validation
-- Error messages display correctly
+#### Integration Tests
+- **`src/app/professional/__tests__/application-flow.test.tsx`**: Professional application flow
+  - Multi-step form progression
+  - Form data validation
+  - API submission handling
+  - Error scenarios
+  - Navigation between steps
 
-✅ **User Interaction**
-- Form submission with valid data
-- Optional field handling
-- Pre-filled data support
-- Defensive programming for undefined props
+#### Existing Tests (Enhanced)
+- **`src/app/__tests__/page.test.tsx`**: Main page integration tests
+- **`src/app/api/__tests__/upload-request.test.ts`**: File upload API tests
+- **`src/app/api/__tests__/presign-upload.test.ts`**: S3 presigned URL tests
+- **`src/components/__tests__/PatientInfoForm.test.tsx`**: Form component tests
 
-### **File Upload System**
-✅ **Presigned URL Generation**
-- Local development fallback when S3 credentials unavailable
-- Unique key generation for each file
-- Proper expiration time setting
-- Special character handling in filenames
+## Test Coverage Areas
 
-✅ **Upload Processing**
-- Multiple file support
-- File categorization (Doctor's Letter, Image, Lab Report, Other Document)
-- Size and type validation
-- Error handling for failed uploads
+### Frontend Components
+- ✅ Patient information forms
+- ✅ Medical upload forms
+- ✅ Medical context forms
+- ✅ Review submission components
+- ✅ Payment sections
+- ✅ Terms and consent forms
+- ✅ Professional application steps
 
-### **Case Management**
-✅ **Database Operations**
-- Customer record creation
-- Case record creation with unique case number
-- File metadata storage
-- Transaction integrity
+### Backend APIs
+- ✅ Customer management endpoints
+- ✅ Case management endpoints
+- ✅ File upload and processing
+- ✅ Professional application endpoints
+- ✅ Authentication endpoints
 
-✅ **Module Integration**
-- Repository Module: File storage and context
-- Customer Lifecycle Module: Personal info and communication
-- Invoicing Module: Payment processing
+### Utility Functions
+- ✅ AI document processing
+- ✅ PDF handling and validation
+- ✅ Data validation and sanitization
+- ✅ Error handling and logging
 
-### **Workflow Navigation**
-✅ **Multi-Step Process**
-- Step indicator updates correctly
-- Navigation between steps
-- Data persistence across steps
-- Back navigation support
+### Database Operations
+- ✅ Customer CRUD operations
+- ✅ Case management
+- ✅ Professional management
+- ✅ File management
+- ✅ Transaction handling
 
-✅ **Confirmation Process**
-- Case number generation
-- Customer name display
-- Email notifications triggered
-- Final confirmation screen
+## Test Configuration
 
-## 🔧 **Test Infrastructure**
-
-### **Testing Framework**
-- **Jest**: Test runner and assertion library
-- **React Testing Library**: Component testing utilities
-- **@testing-library/user-event**: User interaction simulation
-- **jsdom**: DOM environment for testing
-
-### **Test Configuration**
+### Jest Configuration (`jest.config.js`)
 ```javascript
-// jest.config.js
-module.exports = {
+const nextJest = require('next/jest')
+
+const createJestConfig = nextJest({
+  dir: './',
+})
+
+const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
+  collectCoverageFrom: [
+    'src/**/*.{js,jsx,ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/**/*.stories.{js,jsx,ts,tsx}',
+  ],
   coverageThreshold: {
     global: {
       branches: 70,
@@ -104,16 +125,26 @@ module.exports = {
     },
   },
 }
+
+module.exports = createJestConfig(customJestConfig)
 ```
 
-### **Mock Strategy**
-- **Next.js Router**: Navigation and routing
-- **Prisma Client**: Database operations
-- **Fetch API**: External service calls
-- **Environment Variables**: Configuration management
+### Jest Setup (`jest.setup.js`)
+- Next.js router mocking
+- Global test utilities
+- Fetch API mocking
+- Console error suppression
 
-## 📊 **Test Commands**
+## Running Tests
 
+### Prerequisites
+1. Node.js (v18 or higher)
+2. npm or yarn package manager
+3. All dependencies installed (`npm install`)
+
+### Test Commands
+
+#### Basic Test Execution
 ```bash
 # Run all tests
 npm test
@@ -124,83 +155,151 @@ npm run test:watch
 # Run tests with coverage
 npm run test:coverage
 
-# Run specific test file
-npm test -- --testPathPatterns=PatientInfoForm.test.tsx
-
 # Run tests in CI mode
 npm run test:ci
 ```
 
-## 🚀 **Test Execution Results**
+#### Using the Test Runner Script
+```bash
+# Make script executable
+chmod +x run-tests.sh
 
-### **Component Tests**
-- ✅ PatientInfoForm: Form validation and user interaction
-- ✅ Main Page: Multi-step workflow integration
-- ✅ ConfirmationScreen: Success state display
+# Run comprehensive test suite
+./run-tests.sh
+```
 
-### **API Tests**
-- ✅ presign-upload: URL generation and validation
-- ✅ upload-request: Case creation and module integration
-- ✅ dev-put: Local file storage
+#### Individual Test Suites
+```bash
+# Run only component tests
+npx jest src/components/__tests__/ --verbose
 
-### **Integration Tests**
-- ✅ End-to-end workflow: Complete patient journey
-- ✅ Error handling: Graceful failure scenarios
-- ✅ Data persistence: Cross-step data flow
+# Run only API tests
+npx jest src/app/api/__tests__/ --verbose
 
-## 🎯 **Quality Assurance**
+# Run only utility tests
+npx jest src/utils/__tests__/ --verbose
 
-### **Code Coverage Targets**
-- **Branches**: 70% minimum
-- **Functions**: 70% minimum  
-- **Lines**: 70% minimum
-- **Statements**: 70% minimum
+# Run only repository tests
+npx jest src/modules/__tests__/ --verbose
+```
 
-### **Test Categories**
-- **Unit Tests**: Individual component and function testing
-- **Integration Tests**: Component interaction and API integration
-- **End-to-End Tests**: Complete user workflow validation
+#### Specific Test Files
+```bash
+# Run specific test file
+npx jest src/utils/__tests__/aiAgent.test.ts
 
-### **Performance Considerations**
-- **Test Execution Time**: < 5 seconds for full suite
-- **Memory Usage**: Efficient mocking and cleanup
-- **Parallel Execution**: Jest parallel test execution
+# Run tests matching pattern
+npx jest --testNamePattern="should process document"
+```
 
-## 🔍 **Test Maintenance**
+## Test Results and Reports
 
-### **Best Practices**
-- **Descriptive Test Names**: Clear test purpose and expected outcome
-- **Isolated Tests**: No test dependencies or shared state
-- **Mock Management**: Proper cleanup and reset between tests
-- **Error Scenarios**: Comprehensive error handling validation
+### Coverage Reports
+- Generated in `coverage/` directory
+- HTML reports available in `coverage/lcov-report/index.html`
+- Coverage thresholds enforced at 70% for all metrics
 
-### **Continuous Integration**
-- **Automated Testing**: Tests run on every code change
-- **Coverage Reporting**: Automated coverage analysis
-- **Test Results**: Clear pass/fail reporting
-- **Performance Monitoring**: Test execution time tracking
+### Test Results
+- Detailed results saved in `test-results/` directory
+- Summary report in `test-results/test-summary.txt`
+- Individual test suite results in separate files
 
-## 📈 **Future Test Enhancements**
+### Continuous Integration
+- Tests configured for CI/CD pipelines
+- Coverage reporting integrated
+- Exit codes properly set for CI systems
 
-### **Planned Improvements**
-- **Visual Regression Testing**: UI component visual consistency
-- **Accessibility Testing**: WCAG compliance validation
-- **Performance Testing**: Load and stress testing
-- **Security Testing**: Vulnerability and penetration testing
+## Test Best Practices Implemented
 
-### **Additional Test Scenarios**
-- **Professional Portal**: Medical professional workflow testing
-- **Admin Dashboard**: Administrative functionality validation
-- **Payment Integration**: Stripe payment processing tests
-- **Email Notifications**: Communication system validation
+### 1. Mocking Strategy
+- External dependencies properly mocked
+- Database operations mocked for unit tests
+- API calls mocked for component tests
+- File system operations mocked
 
-## ✅ **Conclusion**
+### 2. Error Handling
+- Comprehensive error scenario testing
+- Network failure handling
+- Database error handling
+- API error response testing
 
-The automated test suite provides comprehensive coverage of the medical second opinion platform's core functionality, ensuring:
+### 3. Data Validation
+- Input validation testing
+- Edge case handling
+- Boundary value testing
+- Invalid data rejection
 
-1. **Reliability**: Consistent behavior across different scenarios
-2. **Quality**: High code coverage and error handling
-3. **Maintainability**: Well-structured and documented tests
-4. **Scalability**: Framework supports future feature additions
+### 4. Integration Testing
+- End-to-end workflow testing
+- Multi-step form validation
+- API integration testing
+- Component interaction testing
 
-The test infrastructure is production-ready and provides a solid foundation for continuous development and deployment.
+## Performance Considerations
+
+### Test Execution Time
+- Unit tests: < 30 seconds
+- Integration tests: < 2 minutes
+- Full test suite: < 5 minutes
+
+### Memory Usage
+- Tests optimized for minimal memory footprint
+- Proper cleanup after each test
+- Mock cleanup to prevent memory leaks
+
+## Maintenance and Updates
+
+### Adding New Tests
+1. Follow existing naming conventions
+2. Place tests in appropriate `__tests__` directories
+3. Use descriptive test names
+4. Include both success and error scenarios
+
+### Updating Tests
+1. Update mocks when dependencies change
+2. Maintain test coverage above 70%
+3. Update integration tests when workflows change
+4. Review and update test data as needed
+
+## Troubleshooting
+
+### Common Issues
+1. **Node.js not found**: Install Node.js and ensure it's in PATH
+2. **Dependencies missing**: Run `npm install`
+3. **Test failures**: Check mock configurations and test data
+4. **Coverage issues**: Ensure all code paths are tested
+
+### Debug Mode
+```bash
+# Run tests with debug output
+DEBUG=* npm test
+
+# Run specific test with verbose output
+npx jest --verbose --no-coverage src/utils/__tests__/aiAgent.test.ts
+```
+
+## Future Enhancements
+
+### Planned Test Improvements
+1. E2E testing with Playwright or Cypress
+2. Performance testing for API endpoints
+3. Security testing for authentication flows
+4. Load testing for file upload endpoints
+5. Accessibility testing for UI components
+
+### Test Automation
+1. GitHub Actions integration
+2. Automated test reporting
+3. Test result notifications
+4. Coverage trend analysis
+
+## Conclusion
+
+The test suite provides comprehensive coverage of the Second Opinion Platform, ensuring:
+- ✅ Reliable functionality across all components
+- ✅ Proper error handling and edge cases
+- ✅ Data integrity and validation
+- ✅ User experience consistency
+- ✅ API reliability and performance
+
+The test infrastructure is designed to scale with the application and provide confidence in code changes and deployments.

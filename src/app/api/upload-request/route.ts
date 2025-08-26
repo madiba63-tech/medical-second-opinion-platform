@@ -1,127 +1,98 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
+import { CustomerLifecycleModule } from "@/modules/customerLifecycle";
+
+// Initialize Customer Lifecycle Module
+const customerLifecycleModule = new CustomerLifecycleModule();
+
+// Validation schemas
+const personalInfoSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  middleName: z.string().optional(),
+  lastName: z.string().min(1, "Last name is required"),
+  dob: z.string().min(1, "Date of birth is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().optional(),
+});
+
+const medicalFileSchema = z.object({
+  name: z.string(),
+  size: z.number(),
+  type: z.string(),
+  category: z.enum(["Doctor's Letter", "Image", "Lab Report", "Other Document"]),
+  s3Key: z.string(),
+});
+
+const medicalContextSchema = z.object({
+  ethnicity: z.string().optional(),
+  gender: z.string().optional(),
+  diseaseType: z.string().optional(),
+  isFirstOccurrence: z.boolean().optional(),
+  geneticFamilyHistory: z.array(z.string()).optional(),
+});
 
 const uploadRequestSchema = z.object({
-  personalInfo: z.object({
-    firstName: z.string().min(1),
-    middleName: z.string().optional(),
-    lastName: z.string().min(1),
-    dob: z.string().min(1),
-    email: z.string().email(),
-    phone: z.string().optional(),
-  }),
-  medicalFiles: z.array(z.object({
-    name: z.string(),
-    size: z.number(),
-    type: z.string(),
-    category: z.string(),
-    s3Key: z.string(),
-  })),
-  contextInfo: z.object({
-    ethnicity: z.string().optional(),
-    gender: z.string().optional(),
-    diseaseType: z.string().optional(),
-    isFirstOccurrence: z.boolean().optional(),
-    geneticFamilyHistory: z.array(z.string()).optional(),
-  }),
+  personalInfo: personalInfoSchema,
+  medicalFiles: z.array(medicalFileSchema),
+  contextInfo: medicalContextSchema,
   consentAccepted: z.boolean(),
-  paymentId: z.string(),
+  paymentId: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const data = uploadRequestSchema.parse(body);
+    const data = uploadRequestSchema.parse(await req.json());
 
-    // Start a transaction
-    const result = await prisma.$transaction(async (tx) => {
-      // Create a temporary customer for now (until full customer auth is implemented)
-      const tempCustomer = await tx.customer.create({
-        data: {
-          firstName: data.personalInfo.firstName,
-          middleName: data.personalInfo.middleName,
-          lastName: data.personalInfo.lastName,
-          dateOfBirth: new Date(data.personalInfo.dob),
-          email: data.personalInfo.email,
-          phone: data.personalInfo.phone,
-          passwordHash: "temp", // Temporary hash
-          preferredContact: "email",
-          emailNotifications: true,
-          smsNotifications: false,
-        },
-      });
-
-      // Create case record
-      const caseRecord = await tx.case.create({
-        data: {
-          firstName: data.personalInfo.firstName,
-          middleName: data.personalInfo.middleName,
-          lastName: data.personalInfo.lastName,
-          dateOfBirth: new Date(data.personalInfo.dob),
-          email: data.personalInfo.email,
-          phone: data.personalInfo.phone,
-          ethnicity: data.contextInfo.ethnicity,
-          gender: data.contextInfo.gender,
-          diseaseType: data.contextInfo.diseaseType,
-          isFirstOccurrence: data.contextInfo.isFirstOccurrence,
-          geneticFamilyHistory: JSON.stringify(data.contextInfo.geneticFamilyHistory || []),
-          paymentId: data.paymentId,
-          consentAccepted: data.consentAccepted,
-          customerId: tempCustomer.id, // Use the created customer ID
-        },
-      });
-
-      // Create uploaded file records
-      if (data.medicalFiles.length > 0) {
-        await tx.uploadedFile.createMany({
-          data: data.medicalFiles.map((file) => ({
-            caseId: caseRecord.id,
-            fileName: file.name,
-            originalName: file.name,
-            fileSize: file.size,
-            mimeType: file.type,
-            category: file.category,
-            s3Key: file.s3Key,
-          })),
-        });
-      }
-
-      return caseRecord;
+    // Process case submission through Customer Lifecycle Module
+    const result = await customerLifecycleModule.processCaseSubmission({
+      personalInfo: {
+        firstName: data.personalInfo.firstName,
+        middleName: data.personalInfo.middleName,
+        lastName: data.personalInfo.lastName,
+        dateOfBirth: new Date(data.personalInfo.dob),
+        email: data.personalInfo.email,
+        phone: data.personalInfo.phone,
+      },
+      medicalFiles: data.medicalFiles,
+      contextInfo: data.contextInfo,
+      paymentId: data.paymentId,
+      consentAccepted: data.consentAccepted,
     });
 
-    // Log data distribution to modules (for demonstration)
+    // Log data distribution to modules (now using actual repository integration)
     console.log("Data distribution to modules:");
     console.log("Repository Module:", {
-      caseId: result.id,
+      caseId: result.caseId,
+      caseNumber: result.caseNumber,
       files: data.medicalFiles,
       context: data.contextInfo,
     });
     console.log("Customer Lifecycle Module:", {
-      caseId: result.id,
+      caseId: result.caseId,
+      caseNumber: result.caseNumber,
+      customerId: result.customerId,
       personalInfo: data.personalInfo,
     });
     console.log("Invoicing Module:", {
-      caseId: result.id,
+      caseId: result.caseId,
+      caseNumber: result.caseNumber,
       paymentId: data.paymentId,
     });
-
-    // Generate case number for display (using created timestamp)
-    const caseNumber = `CASE-${Date.now()}`;
 
     // Trigger AI analysis (async)
     fetch(`${req.nextUrl.origin}/api/ai-analysis`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        caseId: result.id,
+        caseId: result.caseId,
+        caseNumber: result.caseNumber,
         analysisType: "combined"
       }),
     }).catch(console.error);
 
     return NextResponse.json({
-      caseId: caseNumber,
-      message: "Request received"
+      caseId: result.caseNumber,
+      message: "Request received and stored in repository"
     }, { status: 201 });
 
   } catch (error) {
@@ -129,7 +100,7 @@ export async function POST(req: NextRequest) {
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Validation error", details: error.errors },
+        { error: "Validation error", details: error.issues },
         { status: 400 }
       );
     }
