@@ -1,0 +1,209 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <a href="/dashboard" class="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          </a>
+          <h1 class="ml-3 text-xl font-semibold text-gray-900">Submit New Case</h1>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+            {{user.firstName.[0]}}{{user.lastName.[0]}}
+          </div>
+          <span class="text-sm text-gray-700">{{user.firstName}} {{user.lastName}}</span>
+          <a href="/logout" class="text-sm text-gray-500 hover:text-gray-700">Sign out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Form Header -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-900">Submit New Case</h2>
+      <p class="text-gray-600">Request a second opinion from our medical specialists.</p>
+    </div>
+
+    <form class="space-y-8">
+      <!-- Case Information -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Case Information</h3>
+        </div>
+        <div class="p-6 space-y-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Case Title</label>
+            <input type="text" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Brief description of your case">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Medical Specialty</label>
+            <select class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">Select a specialty</option>
+              <option value="cardiology">Cardiology</option>
+              <option value="oncology">Oncology</option>
+              <option value="neurology">Neurology</option>
+              <option value="orthopedics">Orthopedics</option>
+              <option value="dermatology">Dermatology</option>
+              <option value="gastroenterology">Gastroenterology</option>
+              <option value="endocrinology">Endocrinology</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Priority Level</label>
+            <select class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="routine">Routine (7-10 days)</option>
+              <option value="urgent">Urgent (3-5 days)</option>
+              <option value="emergency">Emergency (24-48 hours)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Current Diagnosis</label>
+            <textarea rows="3" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="What is your current diagnosis or suspected condition?"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Symptoms & History</label>
+            <textarea rows="5" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Describe your symptoms, when they started, and any relevant medical history..."></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Current Treatment</label>
+            <textarea rows="3" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="What treatments have you tried? What medications are you currently taking?"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Questions for Specialist</label>
+            <textarea rows="4" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="What specific questions would you like our specialist to address?"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Medical Records Upload -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Medical Records</h3>
+          <p class="text-sm text-gray-500">Upload relevant medical documents, test results, and imaging</p>
+        </div>
+        <div class="p-6">
+          <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+            <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            <p class="text-lg text-gray-600 mb-2">Drop files here or click to browse</p>
+            <p class="text-sm text-gray-500 mb-4">Supports: PDF, JPG, PNG, DICOM files up to 10MB each</p>
+            <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+              Choose Files
+            </button>
+          </div>
+          
+          <div class="mt-4 space-y-2">
+            <p class="text-sm font-medium text-gray-700">Recommended documents:</p>
+            <ul class="text-sm text-gray-500 space-y-1">
+              <li>• Recent test results (blood work, imaging, pathology reports)</li>
+              <li>• Previous medical records related to this condition</li>
+              <li>• Current medication list</li>
+              <li>• Physician notes and treatment summaries</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Preferences -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Contact Preferences</h3>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Contact Method</label>
+            <div class="space-y-2">
+              <label class="flex items-center">
+                <input type="radio" name="contact-method" value="email" class="text-blue-600" checked>
+                <span class="ml-2 text-sm text-gray-700">Email notifications</span>
+              </label>
+              <label class="flex items-center">
+                <input type="radio" name="contact-method" value="phone" class="text-blue-600">
+                <span class="ml-2 text-sm text-gray-700">Phone call</span>
+              </label>
+              <label class="flex items-center">
+                <input type="radio" name="contact-method" value="both" class="text-blue-600">
+                <span class="ml-2 text-sm text-gray-700">Both email and phone</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number (optional)</label>
+            <input type="tel" value="{{user.phone}}" class="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          </div>
+
+          <div>
+            <label class="flex items-center">
+              <input type="checkbox" class="text-blue-600 rounded">
+              <span class="ml-2 text-sm text-gray-700">I consent to follow-up calls from the medical specialist if needed</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Terms and Submit -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="p-6">
+          <div class="space-y-4">
+            <div>
+              <label class="flex items-start">
+                <input type="checkbox" class="text-blue-600 rounded mt-1">
+                <span class="ml-2 text-sm text-gray-700">
+                  I understand that this second opinion service is for informational purposes only and does not replace my relationship with my primary healthcare provider. I acknowledge that this is not emergency care.
+                </span>
+              </label>
+            </div>
+
+            <div>
+              <label class="flex items-start">
+                <input type="checkbox" class="text-blue-600 rounded mt-1">
+                <span class="ml-2 text-sm text-gray-700">
+                  I consent to the sharing of my medical information with qualified specialists for the purpose of obtaining a second opinion.
+                </span>
+              </label>
+            </div>
+
+            <div>
+              <label class="flex items-start">
+                <input type="checkbox" class="text-blue-600 rounded mt-1">
+                <span class="ml-2 text-sm text-gray-700">
+                  I agree to the <a href="#" class="text-blue-600 hover:text-blue-700">Terms of Service</a> and <a href="#" class="text-blue-600 hover:text-blue-700">Privacy Policy</a>.
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Buttons -->
+      <div class="flex justify-between items-center">
+        <a href="/cases" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+          Cancel
+        </a>
+        <div class="space-x-4">
+          <button type="button" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors">
+            Save as Draft
+          </button>
+          <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+            Submit Case
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

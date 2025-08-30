@@ -21,16 +21,21 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Handlebars setup with helpers
-app.engine('handlebars', engine({
+const hbs = engine({
   defaultLayout: 'main',
   layoutsDir: path.join(__dirname, 'views/layouts'),
   partialsDir: path.join(__dirname, 'views/partials'),
   helpers: {
     eq: function(a, b) {
       return a === b;
+    },
+    ne: function(a, b) {
+      return a !== b;
     }
   }
-}));
+});
+
+app.engine('handlebars', hbs);
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -203,6 +208,84 @@ app.get('/cases', authenticate, (req, res) => {
     title: 'My Cases',
     user: req.user,
     cases 
+  });
+});
+
+app.get('/documents', authenticate, (req, res) => {
+  const documents = [
+    {
+      id: '1',
+      filename: 'chest_xray_2025.jpg',
+      fileType: 'image/jpeg',
+      category: 'Medical Imaging',
+      uploadedAt: '2025-08-28',
+      size: '2.1 MB'
+    },
+    {
+      id: '2', 
+      filename: 'lab_results.pdf',
+      fileType: 'application/pdf',
+      category: 'Lab Results',
+      uploadedAt: '2025-08-27',
+      size: '156 KB'
+    }
+  ];
+
+  res.render('documents', { 
+    title: 'My Documents',
+    user: req.user,
+    documents 
+  });
+});
+
+app.get('/support', authenticate, (req, res) => {
+  const tickets = [
+    {
+      id: '1',
+      subject: 'Question about case status',
+      status: 'open',
+      createdAt: '2 days ago',
+      lastReply: '1 day ago'
+    }
+  ];
+
+  res.render('support', { 
+    title: 'Support Center',
+    user: req.user,
+    tickets 
+  });
+});
+
+app.get('/profile', authenticate, (req, res) => {
+  res.render('profile', { 
+    title: 'My Profile',
+    user: req.user
+  });
+});
+
+app.get('/billing', authenticate, (req, res) => {
+  const invoices = [
+    {
+      id: '1',
+      invoiceNumber: 'INV-001',
+      amount: '$299.00',
+      status: 'paid',
+      date: '2025-08-15',
+      description: 'Second Opinion - Case #CASE-001'
+    }
+  ];
+
+  res.render('billing', { 
+    title: 'Billing & Invoices',
+    user: req.user,
+    invoices 
+  });
+});
+
+app.get('/cases/new', authenticate, (req, res) => {
+  res.render('new-case', { 
+    title: 'Submit New Case',
+    user: req.user
   });
 });
 
