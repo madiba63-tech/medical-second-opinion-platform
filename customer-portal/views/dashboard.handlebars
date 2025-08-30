@@ -1,0 +1,211 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <header class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          </div>
+          <h1 class="ml-3 text-xl font-semibold text-gray-900">Medical Portal</h1>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+            {{user.initials}}
+          </div>
+          <span class="text-sm text-gray-700">{{user.firstName}} {{user.lastName}}</span>
+          <a href="/logout" class="text-sm text-gray-500 hover:text-gray-700">Sign out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Welcome Section -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-900">Welcome back, {{user.firstName}}!</h2>
+      <p class="text-gray-600">Here's an overview of your medical cases and account activity.</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-2 bg-blue-100 rounded-lg">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-2xl font-semibold text-gray-900">{{stats.totalCases}}</p>
+            <p class="text-gray-600">Total Cases</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-2 bg-yellow-100 rounded-lg">
+            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-2xl font-semibold text-gray-900">{{stats.activeCases}}</p>
+            <p class="text-gray-600">Active Cases</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-2 bg-green-100 rounded-lg">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-2xl font-semibold text-gray-900">{{stats.completedCases}}</p>
+            <p class="text-gray-600">Completed</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+          <div class="p-2 bg-indigo-100 rounded-lg">
+            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-2xl font-semibold text-gray-900">{{stats.avgResponseTime}}</p>
+            <p class="text-gray-600">Avg Response</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Cases -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">Recent Cases</h3>
+            <a href="/cases" class="text-sm text-blue-600 hover:text-blue-500">View all</a>
+          </div>
+        </div>
+        <div class="p-6">
+          {{#each recentCases}}
+            <div class="flex items-center justify-between py-4 {{#unless @last}}border-b border-gray-200{{/unless}}">
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900">{{this.title}}</p>
+                <p class="text-sm text-gray-500">{{this.caseNumber}} • {{this.submittedAt}}</p>
+              </div>
+              <div class="ml-4">
+                {{#if (eq this.status "in_progress")}}
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                    In Progress
+                  </span>
+                {{else if (eq this.status "submitted")}}
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    Submitted
+                  </span>
+                {{else}}
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Completed
+                  </span>
+                {{/if}}
+              </div>
+            </div>
+          {{/each}}
+        </div>
+      </div>
+
+      <!-- Recent Notifications -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Recent Notifications</h3>
+        </div>
+        <div class="p-6">
+          {{#each notifications}}
+            <div class="flex items-start space-x-3 py-4 {{#unless @last}}border-b border-gray-200{{/unless}}">
+              <div class="flex-shrink-0">
+                {{#unless this.read}}
+                  <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                {{else}}
+                  <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+                {{/unless}}
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900">{{this.title}}</p>
+                <p class="text-sm text-gray-600">{{this.message}}</p>
+                <p class="text-xs text-gray-400 mt-1">{{this.timestamp}}</p>
+              </div>
+            </div>
+          {{/each}}
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mt-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <a href="/cases/new" class="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+            <svg class="w-8 h-8 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            <div>
+              <p class="text-sm font-medium text-gray-900">New Case</p>
+              <p class="text-xs text-gray-600">Submit a new case</p>
+            </div>
+          </a>
+          
+          <a href="/cases" class="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+            <svg class="w-8 h-8 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <div>
+              <p class="text-sm font-medium text-gray-900">View Cases</p>
+              <p class="text-xs text-gray-600">See all your cases</p>
+            </div>
+          </a>
+          
+          <a href="/documents" class="flex items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+            <svg class="w-8 h-8 text-purple-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            <div>
+              <p class="text-sm font-medium text-gray-900">Documents</p>
+              <p class="text-xs text-gray-600">Manage files</p>
+            </div>
+          </a>
+          
+          <a href="/support" class="flex items-center p-4 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors">
+            <svg class="w-8 h-8 text-yellow-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p class="text-sm font-medium text-gray-900">Support</p>
+              <p class="text-xs text-gray-600">Get help</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Register Handlebars helpers
+  if (typeof Handlebars !== 'undefined') {
+    Handlebars.registerHelper('eq', function(a, b) {
+      return a === b;
+    });
+  }
+</script>

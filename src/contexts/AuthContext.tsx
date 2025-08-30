@@ -30,18 +30,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     console.log('AuthContext: Starting initialization...');
     
-    // Immediate timeout - force loading to false after just 1 second to prevent infinite loading
-    const aggressiveTimeout = setTimeout(() => {
-      console.log('AuthContext: Aggressive timeout (1s) - forcing loading to false immediately');
-      setLoading(false);
-    }, 1000);
-    
     const initializeAuth = async () => {
       // Check if we're in the browser
       if (typeof window === 'undefined') {
         console.log('AuthContext: Not in browser, setting loading to false');
         setLoading(false);
-        clearTimeout(aggressiveTimeout);
         return;
       }
       
@@ -50,86 +43,70 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       if (!token) {
         console.log('AuthContext: No token found, setting loading to false');
+        setUser(null);
         setLoading(false);
-        clearTimeout(aggressiveTimeout);
         return;
       }
 
       setAuthToken(token);
       
       try {
-        console.log('AuthContext: Calling getProfile API...');
-        const response = await patientIdentityService.getProfile();
-        console.log('AuthContext: getProfile response:', response);
+        console.log('AuthContext: Calling /api/v1/auth/me to get user profile');
         
-        if (response.success && response.data) {
-          const userData = response.data.user || response.data;
-          console.log('AuthContext: Processing user data:', userData);
-          // Add default values for missing fields
-          const fullUserData = {
-            ...userData,
-            phone: userData.phone || '',
-            dateOfBirth: userData.dateOfBirth || '',
-            address: userData.address || {
-              street: '',
-              city: '',
-              state: '',
-              zipCode: '',
-              country: 'US'
-            },
-            emergencyContact: userData.emergencyContact || {
-              name: '',
-              phone: '',
-              relationship: ''
-            },
-            medicalHistory: userData.medicalHistory || [],
-            preferredLanguage: userData.preferredLanguage || 'en',
-            communicationPreferences: userData.communicationPreferences || {
-              email: true,
-              sms: false,
-              push: true
-            },
-            memberSince: userData.createdAt || userData.memberSince || new Date().toISOString(),
-            isActive: userData.isActive !== undefined ? userData.isActive : true
-          };
-          console.log('AuthContext: Setting user data and loading to false');
-          setUser(fullUserData);
-          setLoading(false);
-          clearTimeout(aggressiveTimeout);
+        const response = await fetch('/api/v1/auth/me', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        const data = await response.json();
+        console.log('AuthContext: /api/v1/auth/me response:', data);
+        
+        if (response.ok && data.success && data.data) {
+          console.log('AuthContext: Setting user data from profile endpoint');
+          setUser(data.data);
+          console.log('AuthContext: Auth initialization complete - user authenticated');
         } else {
-          // Token is invalid, clear it
-          console.log('AuthContext: Invalid token response, clearing auth');
+          console.log('AuthContext: Profile endpoint failed, clearing auth');
           clearAuthToken();
           localStorage.removeItem('authToken');
-          setLoading(false);
-          clearTimeout(aggressiveTimeout);
+          setUser(null);
         }
       } catch (error) {
         console.error('AuthContext: Auth initialization failed:', error);
         clearAuthToken();
         localStorage.removeItem('authToken');
+        setUser(null);
+      } finally {
+        // Always set loading to false at the end, after user state is determined
         setLoading(false);
-        clearTimeout(aggressiveTimeout);
       }
     };
 
     initializeAuth();
-    
-    return () => {
-      clearTimeout(aggressiveTimeout);
-    };
   }, []);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setLoading(true);
     
     try {
-      const response = await patientIdentityService.login(email, password);
+      // Use the Next.js API route directly instead of microservice
+      const response = await fetch('/api/v1/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
       
-      if (response.success && response.data) {
+      const data = await response.json();
+      
+      if (data.success && data.data) {
         // Handle new API response structure
-        const token = response.data.tokens?.accessToken || response.data.token;
-        const userData = response.data.user || response.data;
+        const token = data.data.token;
+        const userData = data.data.user;
         
         if (token) {
           setAuthToken(token);
@@ -163,11 +140,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
           memberSince: userData.createdAt || userData.memberSince || new Date().toISOString(),
           isActive: userData.isActive !== undefined ? userData.isActive : true
         };
+        console.log('AuthContext: Login - Setting user data:', fullUserData);
         setUser(fullUserData);
+        setLoading(false);
+        console.log('AuthContext: Login - User state updated, isAuthenticated should be true');
         
         return { success: true };
       } else {
-        return { success: false, error: response.error || 'Login failed' };
+        return { success: false, error: data.error || 'Login failed' };
       }
     } catch (error) {
       return { 

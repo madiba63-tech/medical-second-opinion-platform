@@ -19,19 +19,8 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [forceShowLayout, setForceShowLayout] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-
-  // Force layout to show after 500ms to prevent infinite loading
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      console.log('CustomerLayout: Forcing layout to show after 500ms');
-      setForceShowLayout(true);
-    }, 500);
-
-    return () => clearTimeout(timeout);
-  }, []);
 
   useEffect(() => {
     if (user?.id) {
@@ -137,9 +126,9 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
     }
   ];
 
-  console.log('CustomerLayout render - loading:', loading, 'forceShowLayout:', forceShowLayout, 'user:', !!user);
+  console.log('CustomerLayout render - loading:', loading, 'user:', !!user);
 
-  if (loading && !forceShowLayout) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
         <div className="text-center">
