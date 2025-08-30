@@ -1,99 +1,71 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { hasCustomerLifecyclePermission, AdminUser } from '@/types/admin';
+import { authenticateRequest, AuthenticatedUser } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
-// Mock admin user for development (in production, this would come from JWT/session)
-const MOCK_ADMIN_USER: AdminUser = {
-  id: 'admin-1',
-  email: 'admin@secondopinion.com',
-  role: {
-    id: 'admin',
-    name: 'Administrator',
-    permissions: [
-      {
-        id: 'customer-lifecycle-view',
-        name: 'View Customer Lifecycle',
-        resource: 'customer-lifecycle',
-        action: 'read',
-        description: 'View customer lifecycle dashboard and statistics'
-      },
-      {
-        id: 'customer-lifecycle-manage',
-        name: 'Manage Customer Lifecycle',
-        resource: 'customer-lifecycle',
-        action: 'write',
-        description: 'Update customer lifecycle stages and trigger re-engagement'
-      },
-      {
-        id: 'customer-lifecycle-delete',
-        name: 'Delete Customer Lifecycle',
-        resource: 'customer-lifecycle',
-        action: 'delete',
-        description: 'Delete customers and their lifecycle data'
-      },
-      {
-        id: 'customer-lifecycle-analytics',
-        name: 'Customer Lifecycle Analytics',
-        resource: 'customer-lifecycle',
-        action: 'analytics',
-        description: 'Access to customer lifecycle analytics and reports'
-      }
-    ],
-    description: 'Full access to all system features including customer lifecycle management'
-  },
-  permissions: [
-    {
-      id: 'customer-lifecycle-view',
-      name: 'View Customer Lifecycle',
-      resource: 'customer-lifecycle',
-      action: 'read',
-      description: 'View customer lifecycle dashboard and statistics'
-    },
-    {
-      id: 'customer-lifecycle-manage',
-      name: 'Manage Customer Lifecycle',
-      resource: 'customer-lifecycle',
-      action: 'write',
-      description: 'Update customer lifecycle stages and trigger re-engagement'
-    },
-    {
-      id: 'customer-lifecycle-delete',
-      name: 'Delete Customer Lifecycle',
-      resource: 'customer-lifecycle',
-      action: 'delete',
-      description: 'Delete customers and their lifecycle data'
-    },
-    {
-      id: 'customer-lifecycle-analytics',
-      name: 'Customer Lifecycle Analytics',
-      resource: 'customer-lifecycle',
-      action: 'analytics',
-      description: 'Access to customer lifecycle analytics and reports'
+/**
+ * Get admin user from JWT authentication
+ */
+export async function getAdminUser(req: NextRequest): Promise<AdminUser | null> {
+  try {
+    // Use proper JWT authentication
+    const authResult = await authenticateRequest(req);
+    
+    if (!authResult.success || !authResult.user) {
+      return null;
     }
-  ],
-  isActive: true,
-  createdAt: new Date(),
-  updatedAt: new Date()
-};
 
-export function getAdminUser(req: NextRequest): AdminUser | null {
-  // In production, this would extract admin user from JWT token or session
-  // For now, we'll use a mock admin user
-  return MOCK_ADMIN_USER;
+    // Verify user has admin role
+    if (authResult.user.role !== 'admin') {
+      return null;
+    }
+
+    // Fetch full admin user data with permissions from database
+    const adminUser = await prisma.user.findUnique({
+      where: { id: authResult.user.id },
+      include: {
+        role: {
+          include: {
+            permissions: true
+          }
+        },
+        permissions: true
+      }
+    });
+
+    if (!adminUser || adminUser.role?.name !== 'Administrator') {
+      return null;
+    }
+
+    return {
+      id: adminUser.id,
+      email: adminUser.email,
+      role: adminUser.role,
+      permissions: adminUser.permissions || [],
+      isActive: true, // Assume active if found in database
+      createdAt: adminUser.createdAt,
+      updatedAt: adminUser.updatedAt
+    } as AdminUser;
+    
+  } catch (error) {
+    console.warn('Admin authentication failed');
+    return null;
+  }
 }
 
-export function requireAdminAuth(req: NextRequest): NextResponse | null {
-  const adminUser = getAdminUser(req);
+export async function requireAdminAuth(req: NextRequest): Promise<NextResponse | null> {
+  const adminUser = await getAdminUser(req);
   
   if (!adminUser) {
     return NextResponse.json(
-      { error: 'Authentication required' },
+      { error: 'Admin authentication required' },
       { status: 401 }
     );
   }
 
   if (!adminUser.isActive) {
     return NextResponse.json(
-      { error: 'Account is inactive' },
+      { error: 'Admin account is inactive' },
       { status: 403 }
     );
   }
@@ -101,12 +73,12 @@ export function requireAdminAuth(req: NextRequest): NextResponse | null {
   return null; // Continue with request
 }
 
-export function requireCustomerLifecyclePermission(req: NextRequest, action: string): NextResponse | null {
-  const adminUser = getAdminUser(req);
+export async function requireCustomerLifecyclePermission(req: NextRequest, action: string): Promise<NextResponse | null> {
+  const adminUser = await getAdminUser(req);
   
   if (!adminUser) {
     return NextResponse.json(
-      { error: 'Authentication required' },
+      { error: 'Admin authentication required' },
       { status: 401 }
     );
   }
@@ -122,6 +94,6 @@ export function requireCustomerLifecyclePermission(req: NextRequest, action: str
 }
 
 // Helper function to check if user has admin role
-export function isAdminUser(user: any): boolean {
-  return user && user.role && user.role.id === 'admin';
+export function isAdminUser(user: AuthenticatedUser | AdminUser | null): boolean {
+  return user !== null && user.role === 'admin';
 }

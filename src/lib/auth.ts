@@ -2,7 +2,11 @@ import { NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { prisma } from './prisma';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET || JWT_SECRET.length < 32) {
+  throw new Error('JWT_SECRET must be set and at least 32 characters long');
+}
 const API_KEY_HEADER = 'x-api-key';
 const BEARER_TOKEN_HEADER = 'authorization';
 
@@ -21,12 +25,22 @@ export interface ApiAuthResult {
   statusCode?: number;
 }
 
+export interface JWTPayload {
+  userId: string;
+  iat: number;
+  exp: number;
+}
+
 /**
  * Extract and verify JWT token from Authorization header
  */
 export async function verifyJWTToken(token: string): Promise<AuthenticatedUser | null> {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
+    
+    if (!decoded.userId) {
+      return null;
+    }
     
     // Verify user still exists and is active
     const user = await prisma.user.findUnique({
@@ -49,7 +63,10 @@ export async function verifyJWTToken(token: string): Promise<AuthenticatedUser |
       professionalId: user.professional?.id,
     };
   } catch (error) {
-    console.error('JWT verification failed:', error);
+    // Log error securely without exposing sensitive data
+    if (error instanceof Error) {
+      console.warn('JWT verification failed: Invalid or expired token');
+    }
     return null;
   }
 }
@@ -125,7 +142,7 @@ export async function authenticateRequest(request: NextRequest): Promise<ApiAuth
     };
 
   } catch (error) {
-    console.error('Authentication error:', error);
+    console.warn('Authentication failed: System error occurred');
     return {
       success: false,
       error: 'Authentication failed',
@@ -239,11 +256,12 @@ export function getRateLimitKey(request: NextRequest, user?: AuthenticatedUser):
  * CORS configuration
  */
 export const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '*',
+  'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || 'http://localhost:3000',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-api-key, x-rate-limit',
   'Access-Control-Expose-Headers': 'x-rate-limit-remaining, x-rate-limit-reset',
   'Access-Control-Max-Age': '86400',
+  'Access-Control-Allow-Credentials': 'true',
 };
 
 /**
