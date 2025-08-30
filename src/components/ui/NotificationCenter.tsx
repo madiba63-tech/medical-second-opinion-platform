@@ -400,7 +400,7 @@ function getPersonaAdaptation(persona: string, type: NotificationType) {
     },
     cautious_researcher: {
       case_update: {
-        adaptedMessage: 'Good news! Your case has been assigned to an experienced doctor. We'll guide you through each step.',
+        adaptedMessage: 'Good news! Your case has been assigned to an experienced doctor. We\'ll guide you through each step.',
         urgencyLevel: 'relaxed' as const,
         supportLevel: 'high_touch' as const
       },
@@ -410,7 +410,7 @@ function getPersonaAdaptation(persona: string, type: NotificationType) {
         supportLevel: 'high_touch' as const
       },
       educational_content: {
-        adaptedMessage: 'We've prepared simple, helpful information relevant to your case.',
+        adaptedMessage: 'We\'ve prepared simple, helpful information relevant to your case.',
         urgencyLevel: 'relaxed' as const,
         supportLevel: 'standard' as const
       }

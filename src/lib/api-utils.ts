@@ -31,9 +31,9 @@ export interface ApiHandlerOptions {
 
 export interface ApiContext {
   user?: AuthenticatedUser;
-  validatedBody?: any;
-  validatedQuery?: any;
-  validatedParams?: any;
+  validatedBody?: Record<string, unknown>;
+  validatedQuery?: Record<string, unknown>;
+  validatedParams?: Record<string, unknown>;
   request: NextRequest;
 }
 
@@ -86,7 +86,7 @@ export const RATE_LIMITS: Record<string, RateLimitConfig> = {
 export function createErrorResponse(
   error: string,
   statusCode: number = 400,
-  details?: any,
+  details?: Record<string, unknown>,
   request?: NextRequest
 ): NextResponse {
   const errorResponse: ErrorResponse = {
@@ -112,7 +112,7 @@ export function createErrorResponse(
  * Create standardized success response
  */
 export function createSuccessResponse(
-  data: any,
+  data: Record<string, unknown>,
   statusCode: number = 200,
   additionalHeaders?: Record<string, string>
 ): NextResponse {
@@ -172,9 +172,9 @@ export async function validateRequestData(
   validation: ApiHandlerOptions['validation']
 ) {
   const result: {
-    body?: any;
-    query?: any;
-    params?: any;
+    body?: Record<string, unknown>;
+    query?: Record<string, unknown>;
+    params?: Record<string, unknown>;
     errors: string[];
   } = { errors: [] };
 
@@ -433,7 +433,7 @@ export function parsePaginationParams(searchParams: URLSearchParams): Pagination
 }
 
 export function createPaginatedResponse(
-  data: any[],
+  data: unknown[],
   totalCount: number,
   pagination: PaginationParams
 ) {

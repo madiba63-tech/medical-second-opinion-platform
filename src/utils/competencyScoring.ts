@@ -2,7 +2,7 @@ import { ProfessionalApplication, CompetencyScore, ProLevel } from '@/types/prof
 
 export function calculateCompetencyScore(application: ProfessionalApplication): CompetencyScore {
   let score = 0;
-  const breakdown: any = {};
+  const breakdown: Record<string, number> = {};
 
   // Years of Oncology Practice (0-20 points)
   const yearsPractice = application.yearsPractice;

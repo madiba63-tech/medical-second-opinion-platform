@@ -241,15 +241,32 @@ const calculateProfessionalPerformance = async (professionalId, timeframe = '30d
         // This would be calculated from assignedAt to first activity
       }
     }),
-    // Calculate completion rate
-    prisma.$queryRaw`
-      SELECT 
-        COUNT(*) as total_cases,
-        COUNT(CASE WHEN status = 'COMPLETED' THEN 1 END) as completed_cases
-      FROM "MedicalCase" 
-      WHERE "assignedProfessionalId" = ${professionalId} 
-      AND "assignedAt" >= ${startDate}
-    `
+    // Calculate completion rate using type-safe Prisma queries
+    prisma.medicalCase.aggregate({
+      where: {
+        assignedProfessionalId: professionalId,
+        assignedAt: {
+          gte: startDate
+        }
+      },
+      _count: {
+        _all: true
+      }
+    }).then(async (totalCases) => {
+      const completedCases = await prisma.medicalCase.count({
+        where: {
+          assignedProfessionalId: professionalId,
+          assignedAt: {
+            gte: startDate
+          },
+          status: 'COMPLETED'
+        }
+      });
+      return {
+        total_cases: totalCases._count._all,
+        completed_cases: completedCases
+      };
+    })
   ]);
 
   const completionRateData = completionRate[0] || { total_cases: 0, completed_cases: 0 };

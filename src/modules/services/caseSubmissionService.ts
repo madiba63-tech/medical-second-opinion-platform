@@ -5,6 +5,7 @@ import { CustomerLifecycleService } from '../customerLifecycle/customerLifecycle
 import { CommunicationService } from '../customerLifecycle/communicationService';
 import { PersonaService } from '../customerLifecycle/personaService';
 import { AutomationService } from '../customerLifecycle/automationService';
+import { CaseData } from '@/lib/api';
 
 export interface CaseSubmissionData {
   // Patient Information
@@ -59,6 +60,21 @@ export interface PostSubmissionResult {
   lifecycleEvents: string[];
   communicationResults: boolean[];
   automationStatus: Record<string, boolean>;
+}
+
+export interface CustomerPersona {
+  id: string;
+  type: string;
+  confidence: number;
+  traits: string[];
+  preferences: Record<string, unknown>;
+  stage: string;
+}
+
+export interface EventMetadata {
+  timestamp: Date;
+  source: string;
+  details: Record<string, unknown>;
 }
 
 export class CaseSubmissionService {
@@ -141,7 +157,7 @@ export class CaseSubmissionService {
   /**
    * Submit first case with special onboarding flow
    */
-  async submitFirstCase(caseData: any, submissionData: CaseSubmissionData): Promise<PostSubmissionResult> {
+  async submitFirstCase(caseData: CaseData, submissionData: CaseSubmissionData): Promise<PostSubmissionResult> {
     const lifecycleEvents: string[] = [];
     const communicationResults: boolean[] = [];
     const automationStatus: Record<string, boolean> = {};
@@ -226,7 +242,7 @@ export class CaseSubmissionService {
   /**
    * Submit follow-up case for returning customers
    */
-  async submitFollowUpCase(caseData: any, submissionData: CaseSubmissionData): Promise<PostSubmissionResult> {
+  async submitFollowUpCase(caseData: CaseData, submissionData: CaseSubmissionData): Promise<PostSubmissionResult> {
     const lifecycleEvents: string[] = [];
     const communicationResults: boolean[] = [];
     const automationStatus: Record<string, boolean> = {};
@@ -317,7 +333,7 @@ export class CaseSubmissionService {
   /**
    * Track submission metrics for analytics
    */
-  async trackSubmissionMetrics(caseData: any, submissionData: CaseSubmissionData, result: PostSubmissionResult): Promise<SubmissionMetrics> {
+  async trackSubmissionMetrics(caseData: CaseData, submissionData: CaseSubmissionData, result: PostSubmissionResult): Promise<SubmissionMetrics> {
     try {
       const isFirstSubmission = result.lifecycleEvents.includes('lifecycle_stage_updated_to_onboarding');
       const personaAnalyzed = result.lifecycleEvents.includes('persona_analysis_completed') || 
@@ -498,7 +514,7 @@ export class CaseSubmissionService {
     console.log(`Linking ${s3Keys.length} files to case ${caseId}:`, s3Keys);
   }
 
-  private async scheduleOnboardingFollowUps(customerId: string, caseNumber: string, persona: any): Promise<void> {
+  private async scheduleOnboardingFollowUps(customerId: string, caseNumber: string, persona: CustomerPersona): Promise<void> {
     // Schedule 24h, 48h, and 1-week follow-up communications based on persona
     const followUpSchedule = this.getPersonalizedFollowUpSchedule(persona);
     
@@ -527,7 +543,7 @@ export class CaseSubmissionService {
     }
   }
 
-  private async shouldUpdatePersona(submissionData: CaseSubmissionData, existingPersona: any): Promise<boolean> {
+  private async shouldUpdatePersona(submissionData: CaseSubmissionData, existingPersona: CustomerPersona | null): Promise<boolean> {
     // Update persona if disease type changed or significant time passed
     const personaWithMetadata = await this.personaService.getCustomerPersonaWithMetadata(submissionData.customerId);
     const daysSinceLastAnalysis = personaWithMetadata.lastAnalyzed ? 
@@ -608,12 +624,12 @@ export class CaseSubmissionService {
     console.log(`Customer analytics updated: ${customerId} - ${eventType}`);
   }
 
-  private async logCaseEvent(caseId: string, eventType: string, metadata: any): Promise<void> {
+  private async logCaseEvent(caseId: string, eventType: string, metadata: EventMetadata): Promise<void> {
     // Log case event - in production this would use an event logging service
     console.log(`Case event logged: ${caseId} - ${eventType}`, metadata);
   }
 
-  private getPersonalizedFollowUpSchedule(persona: any): Array<{type: string, scheduledTime: Date}> {
+  private getPersonalizedFollowUpSchedule(persona: CustomerPersona): Array<{type: string, scheduledTime: Date}> {
     const now = new Date();
     const schedule = [];
 
@@ -644,7 +660,7 @@ export class CaseSubmissionService {
    */
   async getSubmissionAnalytics(customerId?: string, dateFrom?: Date, dateTo?: Date) {
     try {
-      const whereClause: any = {};
+      const whereClause: Record<string, unknown> = {};
       
       if (customerId) {
         whereClause.customerId = customerId;
