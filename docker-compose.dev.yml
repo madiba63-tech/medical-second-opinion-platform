@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # Development Database
+  postgres-dev:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: secondopinion_dev
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+
+  # Development Redis
+  redis-dev:
+    image: redis:7
+    command: redis-server --requirepass dev_redis_password
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_dev_data:/data
+
+  # Development Frontend
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "4000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://dev_user:dev_password@postgres-dev:5432/secondopinion_dev
+      - JWT_SECRET=dev-jwt-secret-minimum-32-characters
+      - REDIS_URL=redis://:dev_redis_password@redis-dev:6379
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - postgres-dev
+      - redis-dev
+
+  # Development Microservices (ports 4001-4011)
+  patient-identity-dev:
+    build:
+      context: ./microservices/patient-identity-service
+    ports:
+      - "4001:3001"
+    environment:
+      - DATABASE_URL=postgresql://dev_user:dev_password@postgres-dev:5432/secondopinion_dev
+      - JWT_SECRET=dev-jwt-secret-minimum-32-characters
+    depends_on:
+      - postgres-dev
+
+  case-management-dev:
+    build:
+      context: ./microservices/case-management-service
+    ports:
+      - "4002:3002"
+    environment:
+      - DATABASE_URL=postgresql://dev_user:dev_password@postgres-dev:5432/secondopinion_dev
+      - JWT_SECRET=dev-jwt-secret-minimum-32-characters
+    depends_on:
+      - postgres-dev
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
