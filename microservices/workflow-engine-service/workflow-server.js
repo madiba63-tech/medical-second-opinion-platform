@@ -17,18 +17,49 @@ const app = express();
 const PORT = process.env.PORT || 3010;
 const JWT_SECRET = process.env.JWT_SECRET || 'workflow-engine-jwt-secret-2025';
 const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/secondopinion?schema=public';
-const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+const REDIS_PASSWORD = process.env.REDIS_PASSWORD || 'redis_password';
 
-// Initialize Redis connection
-const redis = new Redis(REDIS_URL, {
+// Redis configuration for authentication
+const redisConfig = {
+  host: 'localhost',
+  port: 6379,
+  password: REDIS_PASSWORD,
   retryDelayOnFailover: 100,
   maxRetriesPerRequest: 3
-});
+};
 
-// Initialize job queues
-const workflowQueue = new Queue('workflow processing', REDIS_URL);
-const slaMonitoringQueue = new Queue('sla monitoring', REDIS_URL);
-const escalationQueue = new Queue('case escalation', REDIS_URL);
+// Initialize Redis connection
+const redis = new Redis(redisConfig);
+
+// Redis settings for Bull queues
+const redisSettings = {
+  host: 'localhost',
+  port: 6379,
+  password: REDIS_PASSWORD
+};
+
+// Initialize job queues with Redis configuration
+const workflowQueue = new Queue('workflow processing', {
+  redis: redisSettings,
+  settings: {
+    stalledInterval: 30 * 1000,
+    maxStalledCount: 1
+  }
+});
+const slaMonitoringQueue = new Queue('sla monitoring', {
+  redis: redisSettings,
+  settings: {
+    stalledInterval: 30 * 1000,
+    maxStalledCount: 1
+  }
+});
+const escalationQueue = new Queue('case escalation', {
+  redis: redisSettings,
+  settings: {
+    stalledInterval: 30 * 1000,
+    maxStalledCount: 1
+  }
+});
 
 // Initialize Prisma client
 const prisma = new PrismaClient({
