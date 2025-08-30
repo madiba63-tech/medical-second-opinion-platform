@@ -4,8 +4,13 @@ import userEvent from '@testing-library/user-event'
 import Home from '../page'
 
 // Mock the components
+interface MockFormProps {
+  updateFormData: (data: unknown) => void;
+  nextStep: () => void;
+}
+
 jest.mock('@/components/PatientInfoForm', () => {
-  return function MockPatientInfoForm({ formData, updateFormData, nextStep }: any) {
+  return function MockPatientInfoForm({ updateFormData, nextStep }: MockFormProps) {
     return (
       <div data-testid="patient-info-form">
         <h2>Personal Information</h2>
@@ -21,7 +26,7 @@ jest.mock('@/components/PatientInfoForm', () => {
 })
 
 jest.mock('@/components/MedicalUploadForm', () => {
-  return function MockMedicalUploadForm({ formData, updateFormData, nextStep }: any) {
+  return function MockMedicalUploadForm({ updateFormData, nextStep }: MockFormProps) {
     return (
       <div data-testid="medical-upload-form">
         <h2>Upload Documents</h2>
@@ -37,7 +42,7 @@ jest.mock('@/components/MedicalUploadForm', () => {
 })
 
 jest.mock('@/components/MedicalContextForm', () => {
-  return function MockMedicalContextForm({ formData, updateFormData, nextStep }: any) {
+  return function MockMedicalContextForm({ updateFormData, nextStep }: MockFormProps) {
     return (
       <div data-testid="medical-context-form">
         <h2>Medical Context</h2>
@@ -53,7 +58,7 @@ jest.mock('@/components/MedicalContextForm', () => {
 })
 
 jest.mock('@/components/ReviewSubmission', () => {
-  return function MockReviewSubmission({ formData, updateFormData, nextStep }: any) {
+  return function MockReviewSubmission({ nextStep }: Pick<MockFormProps, 'nextStep'>) {
     return (
       <div data-testid="review-submission">
         <h2>Review</h2>
@@ -66,7 +71,7 @@ jest.mock('@/components/ReviewSubmission', () => {
 })
 
 jest.mock('@/components/PaymentSection', () => {
-  return function MockPaymentSection({ formData, updateFormData, nextStep }: any) {
+  return function MockPaymentSection({ updateFormData, nextStep }: MockFormProps) {
     return (
       <div data-testid="payment-section">
         <h2>Payment</h2>
@@ -81,8 +86,12 @@ jest.mock('@/components/PaymentSection', () => {
   }
 })
 
+interface MockTermsConsentProps extends MockFormProps {
+  setCaseId: (caseId: string) => void;
+}
+
 jest.mock('@/components/TermsConsent', () => {
-  return function MockTermsConsent({ formData, updateFormData, nextStep, setCaseId }: any) {
+  return function MockTermsConsent({ updateFormData, nextStep, setCaseId }: MockTermsConsentProps) {
     return (
       <div data-testid="terms-consent">
         <h2>Terms & Conditions</h2>
@@ -98,8 +107,13 @@ jest.mock('@/components/TermsConsent', () => {
   }
 })
 
+interface MockConfirmationProps {
+  caseId: string;
+  customerName: string;
+}
+
 jest.mock('@/components/ConfirmationScreen', () => {
-  return function MockConfirmationScreen({ caseId, customerName }: any) {
+  return function MockConfirmationScreen({ caseId, customerName }: MockConfirmationProps) {
     return (
       <div data-testid="confirmation-screen">
         <h2>Confirmation</h2>
