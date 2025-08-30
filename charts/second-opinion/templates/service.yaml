@@ -1,0 +1,181 @@
+# Kubernetes Services template for the application
+# Following v2.0 Architecture requirements for service discovery and load balancing
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "second-opinion.fullname" . }}-app
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "second-opinion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+  annotations:
+    {{- toYaml .Values.app.service.annotations | nindent 4 }}
+    {{- if eq .Values.global.cloudProvider "aws" }}
+    service.beta.kubernetes.io/aws-load-balancer-type: "{{ .Values.cloudProvider.aws.loadBalancerType }}"
+    {{- else if eq .Values.global.cloudProvider "azure" }}
+    service.beta.kubernetes.io/azure-load-balancer-internal: "false"
+    {{- else if eq .Values.global.cloudProvider "gcp" }}
+    cloud.google.com/load-balancer-type: "{{ .Values.cloudProvider.gcp.loadBalancerType }}"
+    {{- end }}
+spec:
+  type: {{ .Values.app.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.app.service.port }}
+      targetPort: http
+      protocol: TCP
+    - name: metrics
+      port: 9090
+      targetPort: metrics
+      protocol: TCP
+  selector:
+    {{- include "second-opinion.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+
+---
+# Headless service for direct pod communication (useful for service mesh)
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "second-opinion.fullname" . }}-app-headless
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "second-opinion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web-headless
+spec:
+  clusterIP: None
+  ports:
+    - name: http
+      port: {{ .Values.app.service.targetPort }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    {{- include "second-opinion.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+
+{{- if .Values.app.ingress.enabled }}
+---
+# Ingress for external access
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "second-opinion.fullname" . }}-ingress
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "second-opinion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ingress
+  annotations:
+    {{- toYaml .Values.app.ingress.annotations | nindent 4 }}
+spec:
+  {{- if .Values.app.ingress.className }}
+  ingressClassName: {{ .Values.app.ingress.className }}
+  {{- end }}
+  {{- if .Values.app.ingress.tls }}
+  tls:
+    {{- range .Values.app.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.app.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "second-opinion.fullname" $ }}-app
+                port:
+                  number: {{ $.Values.app.service.port }}
+          {{- end }}
+    {{- end }}
+{{- end }}
+
+{{- if .Values.serviceMesh.enabled }}
+---
+# Istio VirtualService for traffic management
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "second-opinion.fullname" . }}-vs
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "second-opinion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: service-mesh
+spec:
+  hosts:
+    {{- range .Values.serviceMesh.istio.gateway.hosts }}
+    - {{ . }}
+    {{- end }}
+  gateways:
+    - {{ include "second-opinion.fullname" . }}-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: {{ include "second-opinion.fullname" . }}-app
+            port:
+              number: {{ .Values.app.service.port }}
+
+---
+# Istio DestinationRule for load balancing and circuit breaking
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ include "second-opinion.fullname" . }}-dr
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "second-opinion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: service-mesh
+spec:
+  host: {{ include "second-opinion.fullname" . }}-app
+  trafficPolicy:
+    {{- toYaml .Values.serviceMesh.istio.trafficPolicy | nindent 4 }}
+
+{{- if .Values.serviceMesh.istio.gateway.enabled }}
+---
+# Istio Gateway for external traffic
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: {{ include "second-opinion.fullname" . }}-gateway
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "second-opinion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: service-mesh
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        {{- range .Values.serviceMesh.istio.gateway.hosts }}
+        - {{ . }}
+        {{- end }}
+      redirect:
+        httpsRedirect: true
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        {{- range .Values.serviceMesh.istio.gateway.hosts }}
+        - {{ . }}
+        {{- end }}
+      tls:
+        mode: SIMPLE
+        credentialName: {{ include "second-opinion.fullname" . }}-tls
+{{- end }}
+{{- end }}

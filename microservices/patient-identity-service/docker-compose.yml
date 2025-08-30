@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  # Patient Identity Service
+  identity-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/secondopinion_identity?schema=public"
+      REDIS_URL: "redis://redis:6379"
+      JWT_SECRET: "development-jwt-secret-key-at-least-32-characters-long"
+      ENCRYPTION_KEY: "development-32-char-encryption"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - identity-network
+    volumes:
+      - logs:/tmp/microservice
+    restart: unless-stopped
+
+  # PostgreSQL 17 Database
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: secondopinion_identity
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5433:5432"  # Different port to avoid conflicts
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d secondopinion_identity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - identity-network
+    restart: unless-stopped
+
+  # Redis Cache
+  redis:
+    image: redis:7.4-alpine
+    ports:
+      - "6380:6379"  # Different port to avoid conflicts
+    volumes:
+      - redis_data:/data
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+    networks:
+      - identity-network
+    restart: unless-stopped
+
+  # Prometheus for Metrics (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - identity-network
+    restart: unless-stopped
+
+networks:
+  identity-network:
+    driver: bridge
+    name: patient-identity-network
+
+volumes:
+  postgres_data:
+    name: patient-identity-postgres-data
+  redis_data:
+    name: patient-identity-redis-data
+  prometheus_data:
+    name: patient-identity-prometheus-data
+  logs:
+    name: patient-identity-logs

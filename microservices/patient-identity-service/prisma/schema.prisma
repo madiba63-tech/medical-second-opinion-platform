@@ -1,0 +1,190 @@
+// Patient Identity Service Database Schema
+// Following v2.0 Architecture requirements for PostgreSQL 17
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CommunicationChannel {
+  EMAIL
+  SMS
+}
+
+enum TwoFactorMethod {
+  TOTP
+  SMS
+  EMAIL
+}
+
+// Core User Entity - Identity Management
+model User {
+  id             String    @id @default(dbgenerated("gen_random_uuid()"))
+  email          String    @unique
+  hashedPassword String
+  emailVerified  Boolean   @default(false)
+  emailVerifiedAt DateTime?
+  
+  // Two-Factor Authentication
+  twoFactorEnabled Boolean @default(false)
+  twoFactorSecret  String?
+  twoFactorMethod  TwoFactorMethod?
+  twoFactorBackupCodes Json? // Array of backup codes
+  
+  // Security tracking
+  lastLoginAt      DateTime?
+  lastLoginIP      String?
+  failedLoginAttempts Int @default(0)
+  lockedUntil      DateTime?
+  passwordChangedAt DateTime @default(now())
+  
+  // Relationships
+  customer         Customer?
+  sessions         UserSession[]
+  auditLogs        AuditLog[]
+  
+  // Metadata for extensibility
+  metadata         Json?     // PostgreSQL JSONB for flexible data
+  searchVector     Unsupported("tsvector")? // Full-text search vector
+  
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([email])
+  @@index([searchVector], type: Gin)
+  @@index([lastLoginAt])
+  @@map("users")
+}
+
+// Customer Profile Entity - Patient Information
+model Customer {
+  id                 String               @id @default(dbgenerated("gen_random_uuid()"))
+  firstName          String
+  middleName         String?
+  lastName           String
+  dateOfBirth        DateTime
+  email              String               @unique
+  phone              String?
+  
+  // Communication preferences
+  preferredChannel   CommunicationChannel @default(EMAIL)
+  emailNotifications Boolean              @default(true)
+  smsNotifications   Boolean              @default(false)
+  
+  // Profile verification
+  profileVerified    Boolean              @default(false)
+  profileVerifiedAt  DateTime?
+  
+  // GDPR and consent tracking
+  consentVersion     String?
+  consentGivenAt     DateTime?
+  dataRetentionUntil DateTime?
+  
+  // Relationships
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             String               @unique
+  
+  // Metadata for extensibility
+  metadata           Json?                // PostgreSQL JSONB for profile extensions
+  searchVector       Unsupported("tsvector")? // Full-text search vector
+  
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+
+  @@index([email])
+  @@index([searchVector], type: Gin)
+  @@index([createdAt])
+  @@index([dateOfBirth])
+  @@map("customers")
+}
+
+// Session Management for Stateless Authentication
+model UserSession {
+  id          String    @id @default(dbgenerated("gen_random_uuid()"))
+  userId      String
+  tokenHash   String    @unique // Hashed JWT token for revocation
+  deviceInfo  Json?     // Device and browser information
+  ipAddress   String?
+  userAgent   String?
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  
+  // Relationships
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@index([expiresAt])
+  @@map("user_sessions")
+}
+
+// Email Verification Tokens
+model EmailVerificationToken {
+  id          String    @id @default(dbgenerated("gen_random_uuid()"))
+  email       String
+  token       String    @unique
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([email])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("email_verification_tokens")
+}
+
+// Password Reset Tokens
+model PasswordResetToken {
+  id          String    @id @default(dbgenerated("gen_random_uuid()"))
+  email       String
+  token       String    @unique
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([email])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+// Audit Log for Security Tracking
+model AuditLog {
+  id          String    @id @default(dbgenerated("gen_random_uuid()"))
+  userId      String
+  action      String    // login, logout, password_change, profile_update, etc.
+  details     Json?     // Additional context
+  ipAddress   String?
+  userAgent   String?
+  success     Boolean
+  createdAt   DateTime  @default(now())
+  
+  // Relationships
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// Rate Limiting Storage (fallback to Redis in production)
+model RateLimit {
+  id          String    @id @default(dbgenerated("gen_random_uuid()"))
+  identifier  String    // IP address or user ID
+  resource    String    // API endpoint or action
+  count       Int       @default(1)
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+
+  @@unique([identifier, resource])
+  @@index([identifier, resource])
+  @@index([expiresAt])
+  @@map("rate_limits")
+}

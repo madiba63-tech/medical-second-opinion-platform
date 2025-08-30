@@ -1,0 +1,332 @@
+version: '3.8'
+
+# Integration Testing Environment
+# Complete microservices stack for end-to-end testing
+
+services:
+  # ===== DATABASES =====
+  postgres-identity:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: secondopinion_identity_test
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_identity_test:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - test-network
+
+  postgres-cases:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: secondopinion_cases_test
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_cases_test:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - test-network
+
+  postgres-ai:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: secondopinion_ai_test
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_ai_test:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - test-network
+
+  postgres-professionals:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: secondopinion_professionals_test
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_professionals_test:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - test-network
+
+  postgres-notifications:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: secondopinion_notifications_test
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres_notifications_test:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - test-network
+
+  # ===== REDIS =====
+  redis:
+    image: redis:7.4-alpine
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_test:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - test-network
+
+  # ===== KAFKA =====
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9093:9092"
+    depends_on:
+      - zookeeper
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - test-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2182:2181"
+    networks:
+      - test-network
+
+  # ===== MICROSERVICES =====
+  patient-identity-service:
+    build:
+      context: ../../microservices/patient-identity-service
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: test
+      PORT: 3001
+      DATABASE_URL: "postgresql://postgres:postgres@postgres-identity:5432/secondopinion_identity_test"
+      REDIS_URL: "redis://redis:6379"
+      JWT_SECRET: "test-jwt-secret-key-at-least-32-characters-long"
+      ENCRYPTION_KEY: "test-32-character-encryption-key"
+      LOG_LEVEL: "info"
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres-identity:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - test-network
+
+  case-management-service:
+    build:
+      context: ../../microservices/case-management-service
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: test
+      PORT: 3002
+      DATABASE_URL: "postgresql://postgres:postgres@postgres-cases:5432/secondopinion_cases_test"
+      REDIS_URL: "redis://redis:6379"
+      IDENTITY_SERVICE_URL: "http://patient-identity-service:3001"
+      STORAGE_PROVIDER: "local"
+      LOG_LEVEL: "info"
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres-cases:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      patient-identity-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - test-network
+
+  ai-analysis-service:
+    build:
+      context: ../../microservices/ai-analysis-service
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: test
+      PORT: 3003
+      DATABASE_URL: "postgresql://postgres:postgres@postgres-ai:5432/secondopinion_ai_test"
+      REDIS_URL: "redis://redis:6379"
+      CASE_SERVICE_URL: "http://case-management-service:3002"
+      OPENAI_API_KEY: "test-key"  # Mock for testing
+      LOG_LEVEL: "info"
+    ports:
+      - "3003:3003"
+    depends_on:
+      postgres-ai:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      case-management-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - test-network
+
+  professional-service:
+    build:
+      context: ../../microservices/professional-service
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: test
+      PORT: 3004
+      DATABASE_URL: "postgresql://postgres:postgres@postgres-professionals:5432/secondopinion_professionals_test"
+      REDIS_URL: "redis://redis:6379"
+      IDENTITY_SERVICE_URL: "http://patient-identity-service:3001"
+      LOG_LEVEL: "info"
+    ports:
+      - "3004:3004"
+    depends_on:
+      postgres-professionals:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      patient-identity-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3004/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - test-network
+
+  notification-service:
+    build:
+      context: ../../microservices/notification-service
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: test
+      PORT: 3005
+      DATABASE_URL: "postgresql://postgres:postgres@postgres-notifications:5432/secondopinion_notifications_test"
+      REDIS_URL: "redis://redis:6379"
+      KAFKA_BROKERS: "kafka:9092"
+      SMTP_HOST: "mailhog"  # Test SMTP server
+      SMTP_PORT: "1025"
+      LOG_LEVEL: "info"
+    ports:
+      - "3005:3005"
+    depends_on:
+      postgres-notifications:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - test-network
+
+  # ===== TESTING TOOLS =====
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1026:1025"  # SMTP
+      - "8026:8025"  # Web UI
+    networks:
+      - test-network
+
+  # Integration test runner
+  integration-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.tests
+    environment:
+      IDENTITY_SERVICE_URL: "http://patient-identity-service:3001"
+      CASE_SERVICE_URL: "http://case-management-service:3002"
+      AI_SERVICE_URL: "http://ai-analysis-service:3003"
+      PROFESSIONAL_SERVICE_URL: "http://professional-service:3004"
+      NOTIFICATION_SERVICE_URL: "http://notification-service:3005"
+    depends_on:
+      patient-identity-service:
+        condition: service_healthy
+      case-management-service:
+        condition: service_healthy
+      ai-analysis-service:
+        condition: service_healthy
+      professional-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+    networks:
+      - test-network
+    profiles:
+      - test
+
+networks:
+  test-network:
+    driver: bridge
+
+volumes:
+  postgres_identity_test:
+  postgres_cases_test:
+  postgres_ai_test:
+  postgres_professionals_test:
+  postgres_notifications_test:
+  redis_test:

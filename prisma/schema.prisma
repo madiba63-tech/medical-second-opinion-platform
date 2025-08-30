@@ -7,84 +7,332 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 enum CommunicationChannel {
   EMAIL
   SMS
+  WHATSAPP
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  PREFER_NOT_TO_SAY
+}
+
+enum Language {
+  ENGLISH
+  GERMAN
+}
+
+enum TwoFactorMethod {
+  EMAIL
+  SMS
+  WHATSAPP
+}
+
+enum QuestionnaireType {
+  FAST_TRACK
+  COMPREHENSIVE
+}
+
+enum CaseUrgency {
+  STANDARD
+  URGENT
+  EMERGENCY
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
 }
 
 model User {
-  id             String    @id @default(cuid())
+  id             String    @id @default(dbgenerated("gen_random_uuid()"))
   email          String    @unique
   hashedPassword String
   customer       Customer?
+  metadata       Json?     // PostgreSQL JSONB for flexible data
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+
+  @@map("users")
 }
 
 model Customer {
-  id                String               @id @default(cuid())
+  id                String               @id @default(dbgenerated("gen_random_uuid()"))
   firstName         String
   middleName        String?
   lastName          String
-  dateOfBirth       DateTime
+  dateOfBirth       DateTime?            // Made optional for registration
+  gender            Gender?              @default(PREFER_NOT_TO_SAY)
   email             String               @unique
   phone             String?
+  hashedPassword    String               // Added for authentication
+  emailVerified     Boolean              @default(false) // Added for email verification
+  phoneVerified     Boolean              @default(false) // Added for phone verification
+  twoFactorEnabled  Boolean              @default(false)
+  twoFactorMethod   TwoFactorMethod      @default(EMAIL)
+  twoFactorSecret   String?              // For TOTP or verification codes
+  preferredLanguage Language             @default(ENGLISH)
   preferredChannel  CommunicationChannel @default(EMAIL)
+  emailNotifications Boolean             @default(true)
+  smsNotifications   Boolean             @default(false)
+  whatsappNotifications Boolean          @default(false)
+  // OAuth integration foundation
+  googleId          String?              @unique
+  appleId           String?              @unique
+  microsoftId       String?              @unique
+  oauthProvider     String?              // 'google', 'apple', 'microsoft'
+  // Profile completion tracking
+  profileCompleted  Boolean              @default(false)
+  termsAccepted     Boolean              @default(false)
+  privacyAccepted   Boolean              @default(false)
+  marketingConsent  Boolean              @default(false)
+  metadata          Json?                // PostgreSQL JSONB for flexible data
+  searchVector      Unsupported("tsvector")? // Full-text search vector
   user              User?                @relation(fields: [userId], references: [id])
   userId            String?              @unique
-  cases             Case[]
+  cases             MedicalCase[]
+  customerSessions  CustomerSession[]
+  notifications     CustomerNotification[]
   createdAt         DateTime             @default(now())
   updatedAt         DateTime             @updatedAt
+
+  @@index([searchVector], type: Gin)
+  @@index([email])
+  @@index([googleId])
+  @@index([appleId])
+  @@index([microsoftId])
+  @@index([createdAt])
+  @@map("customers")
 }
 
 model TempSubmission {
-  id        String   @id @default(cuid())
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
   payload   Json     // files (staged S3 keys), context, partial PII
   expiresAt DateTime
   createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+  @@map("temp_submissions")
 }
 
-model Case {
-  id                   String    @id @default(cuid())
-  caseNumber           String    @unique
-  firstName            String
-  middleName           String?
-  lastName             String
-  dateOfBirth          DateTime
-  email                String
-  phone                String?
-  ethnicity            String?
-  gender               String?
-  diseaseType          String?
-  isFirstOccurrence    Boolean?
-  geneticFamilyHistory String?   // JSON string
-  paymentId            String?
-  consentAccepted      Boolean
-  customerId           String
-  customer             Customer  @relation(fields: [customerId], references: [id])
-  uploadedFiles        UploadedFile[]
-  caseAssignments      CaseAssignment[]
-  aiAnalyses           AIAnalysis[]
-  medicalOpinions      MedicalOpinion[]
-  professionalPayments ProfessionalPayment[]
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+// Customer authentication and session management
+model CustomerSession {
+  id               String   @id @default(dbgenerated("gen_random_uuid()"))
+  customerId       String
+  customer         Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  sessionToken     String   @unique
+  twoFactorVerified Boolean @default(false)
+  ipAddress        String?
+  userAgent        String?
+  expiresAt        DateTime
+  lastActivity     DateTime @default(now())
+  createdAt        DateTime @default(now())
+
+  @@index([sessionToken])
+  @@index([customerId])
+  @@index([expiresAt])
+  @@map("customer_sessions")
+}
+
+// Notification queue system
+model CustomerNotification {
+  id               String              @id @default(dbgenerated("gen_random_uuid()"))
+  customerId       String
+  customer         Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  type             String              // 'email', 'sms', 'whatsapp', 'push'
+  channel          CommunicationChannel
+  subject          String?
+  message          String
+  language         Language            @default(ENGLISH)
+  status           String              @default("PENDING") // PENDING, SENT, FAILED, READ
+  scheduledFor     DateTime?
+  sentAt           DateTime?
+  readAt           DateTime?
+  errorMessage     String?
+  metadata         Json?               // Additional notification data
+  createdAt        DateTime            @default(now())
+
+  @@index([customerId])
+  @@index([status])
+  @@index([scheduledFor])
+  @@index([createdAt])
+  @@map("customer_notifications")
+}
+
+// Pricing rate table system
+model ServicePricing {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()"))
+  professionalLevel  String   // JUNIOR, SENIOR, EXPERT, DISTINGUISHED
+  urgencyLevel       CaseUrgency @default(STANDARD)
+  basePriceEUR       Float    // Base price in EUR
+  currencyCode       String   @default("EUR")
+  isActive           Boolean  @default(true)
+  validFrom          DateTime @default(now())
+  validUntil         DateTime?
+  metadata           Json?    // Additional pricing metadata
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([professionalLevel])
+  @@index([urgencyLevel])
+  @@index([isActive])
+  @@index([validFrom])
+  @@map("service_pricing")
+}
+
+// Medical questionnaire responses
+model QuestionnaireResponse {
+  id                String            @id @default(dbgenerated("gen_random_uuid()"))
+  caseId            String            @unique
+  case              MedicalCase       @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  questionnaireType QuestionnaireType
+  language          Language          @default(ENGLISH)
+  responses         Json              // Structured questionnaire responses
+  aiAnalysis        Json?             // AI analysis of responses
+  completenessScore Float?            // 0-1 score for response completeness
+  confidence        Float?            // AI confidence in analysis
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([questionnaireType])
+  @@index([createdAt])
+  @@map("questionnaire_responses")
+}
+
+// Case payment tracking
+model CasePayment {
+  id               String        @id @default(dbgenerated("gen_random_uuid()"))
+  caseId           String        @unique
+  case             MedicalCase   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  customerId       String
+  amount           Float         // Amount in EUR
+  currency         String        @default("EUR")
+  professionalLevel String       // JUNIOR, SENIOR, EXPERT, DISTINGUISHED
+  urgencyLevel     CaseUrgency   @default(STANDARD)
+  status           PaymentStatus @default(PENDING)
+  paymentMethod    String?       // 'card', 'paypal', 'sepa', 'upi'
+  transactionId    String?       // External payment processor transaction ID
+  paymentDate      DateTime?
+  refundDate       DateTime?
+  refundReason     String?
+  metadata         Json?         // Payment processor specific data
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([caseId])
+  @@index([customerId])
+  @@index([status])
+  @@index([paymentDate])
+  @@map("case_payments")
+}
+
+model MedicalCase {
+  id                     String    @id @default(dbgenerated("gen_random_uuid()"))
+  caseNumber             String    @unique
+  customerId             String    // Reference to Customer who created the case
+  firstName              String
+  middleName             String?
+  lastName               String
+  dateOfBirth            DateTime
+  email                  String
+  phone                  String?
+  title                  String    // Case title
+  description            String    // Case description
+  chiefComplaint         String?
+  category               String    @default("GENERAL_MEDICINE")
+  medicalHistory         Json?     // PostgreSQL JSONB array of strings
+  currentMedications     Json?     // PostgreSQL JSONB array of strings
+  allergies              Json?     // PostgreSQL JSONB array of strings
+  familyHistory          Json?     // PostgreSQL JSONB array of strings
+  status                 String    @default("DRAFT")
+  priority               String    @default("NORMAL")
+  requestedProfessionalLevel String @default("SENIOR") // JUNIOR, SENIOR, EXPERT, DISTINGUISHED
+  talentPool             String?   // Computed: "ONCOLOGY_SENIOR", "CARDIOLOGY_EXPERT", etc.
+  urgencyReason          String?
+  submittedAt            DateTime?
+  reviewStartedAt        DateTime?
+  completedAt            DateTime?
+  expiresAt              DateTime?
+  assignedProfessionalId String?   // Professional ID for assignment
+  assignedAt             DateTime?
+  qualityScore           Float?
+  completenessScore      Float?
+  metadata               Json?     // Additional flexible data
+  tags                   String[]  @default([])
+  version                Int       @default(1)
+  // Legacy fields for compatibility
+  ethnicity              String?
+  gender                 String?
+  diseaseType            String?
+  isFirstOccurrence      Boolean?
+  geneticFamilyHistory   Json?     // PostgreSQL JSONB instead of string
+  paymentId              String?
+  consentAccepted        Boolean   @default(false)
+  customer               Customer  @relation(fields: [customerId], references: [id])
+  uploadedFiles          UploadedFile[]
+  statusHistory          CaseStatusHistory[]
+  caseAssignments        CaseAssignment[]
+  aiAnalyses             AIAnalysis[]
+  medicalOpinions        MedicalOpinion[]
+  professionalPayments   ProfessionalPayment[]
+  questionnaireResponse  QuestionnaireResponse?
+  casePayment            CasePayment?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  @@index([caseNumber])
+  @@index([customerId])
+  @@index([status])
+  @@index([category])
+  @@index([priority])
+  @@index([createdAt])
+  @@map("cases")
+}
+
+model CaseStatusHistory {
+  id            String      @id @default(dbgenerated("gen_random_uuid()"))
+  caseId        String
+  fromStatus    String?
+  toStatus      String
+  reason        String?
+  notes         String?
+  changedByType String      // 'customer', 'professional', 'system'
+  changedById   String      // ID of the user who made the change
+  case          MedicalCase @relation(fields: [caseId], references: [id])
+  createdAt     DateTime    @default(now())
+
+  @@index([caseId])
+  @@index([createdAt])
+  @@map("case_status_history")
 }
 
 model UploadedFile {
-  id       String @id @default(cuid())
-  caseId   String
-  case     Case   @relation(fields: [caseId], references: [id])
-  filename String
-  s3Key    String
-  mimetype String
-  size     Int
-  category String
-  createdAt DateTime @default(now())
+  id          String   @id @default(dbgenerated("gen_random_uuid()"))
+  caseId      String
+  case        MedicalCase     @relation(fields: [caseId], references: [id])
+  filename    String
+  s3Key       String
+  mimetype    String
+  size        Int
+  category    String
+  metadata    Json?    // File processing metadata
+  checksum    String?  // File integrity check
+  encrypted   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@index([caseId])
+  @@index([s3Key])
+  @@index([category])
+  @@map("uploaded_files")
 }
 
 enum ProLevel {
@@ -95,7 +343,7 @@ enum ProLevel {
 }
 
 model MedicalProfessional {
-  id                  String           @id @default(cuid())
+  id                  String           @id @default(dbgenerated("gen_random_uuid()"))
   proNumber           String           @unique
   firstName           String
   middleName          String?
@@ -111,12 +359,14 @@ model MedicalProfessional {
   level               ProLevel         @default(JUNIOR)
   cvUrl               String?
   documents           Json?            // array of uploaded docs
-  subspecialties      String?   // JSON string array
+  subspecialties      Json?     // PostgreSQL JSONB array
   yearsPractice       Int
   publications        Int
   trialInvolved       Boolean
   leadership          String?
-  societyMemberships  String?   // JSON string array
+  societyMemberships  Json?     // PostgreSQL JSONB array
+  competencyData      Json?     // Enhanced competency scoring data
+  availability        Json?     // Schedule and availability data
   score               Int?             // computed score
   // Authentication fields
   hashedPassword      String?
@@ -131,77 +381,294 @@ model MedicalProfessional {
   bankDetails         Json?
   vatNumber           String?
   billingRate         Float?
+  performanceMetrics  Json?    // Performance and quality metrics
   caseAssignments     CaseAssignment[]
   medicalOpinions     MedicalOpinion[]
   professionalPayments ProfessionalPayment[]
   professionalSessions ProfessionalSession[]
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
+
+  @@index([email])
+  @@index([licenseNumber])
+  @@index([level])
+  @@index([vetted])
+  @@index([createdAt])
+  @@map("medical_professionals")
 }
 
 model ProfessionalSession {
-  id                String              @id @default(cuid())
+  id                String              @id @default(dbgenerated("gen_random_uuid()"))
   professionalId    String
   professional      MedicalProfessional @relation(fields: [professionalId], references: [id])
   sessionToken      String              @unique
   twoFactorVerified Boolean             @default(false)
   expiresAt         DateTime
+  ipAddress         String?
+  userAgent         String?
+  metadata          Json?               // Session metadata
   createdAt         DateTime            @default(now())
+
+  @@index([sessionToken])
+  @@index([professionalId])
+  @@index([expiresAt])
+  @@map("professional_sessions")
 }
 
-enum TwoFactorMethod {
-  EMAIL
-  SMS
-}
 
 model CaseAssignment {
-  id                String              @id @default(cuid())
+  id                String              @id @default(dbgenerated("gen_random_uuid()"))
   caseId            String
-  case              Case                @relation(fields: [caseId], references: [id])
+  case              MedicalCase                @relation(fields: [caseId], references: [id])
   professionalId    String
   professional      MedicalProfessional @relation(fields: [professionalId], references: [id])
-  status            String              @default("assigned") // assigned, in_progress, completed
+  status            String              @default("assigned") // assigned, in_progress, completed, cancelled
   assignedAt        DateTime            @default(now())
+  startedAt         DateTime?
   completedAt       DateTime?
+  estimatedDuration Int?                // in minutes
+  actualDuration    Int?                // in minutes
+  metadata          Json?               // Assignment metadata
+
+  @@index([caseId])
+  @@index([professionalId])
+  @@index([status])
+  @@index([assignedAt])
+  @@map("case_assignments")
 }
 
 model AIAnalysis {
-  id           String @id @default(cuid())
-  caseId       String
-  case         Case   @relation(fields: [caseId], references: [id])
-  analysisType String
-  results      String // JSON string
-  createdAt    DateTime @default(now())
+  id              String   @id @default(dbgenerated("gen_random_uuid()"))
+  caseId          String
+  case            MedicalCase     @relation(fields: [caseId], references: [id])
+  analysisType    String
+  results         Json     // PostgreSQL JSONB for structured results
+  confidence      Float?
+  processingTime  Int?     // in milliseconds
+  aiProvider      String?
+  modelVersion    String?
+  cost            Float?   // Processing cost
+  metadata        Json?    // Additional analysis metadata
+  createdAt       DateTime @default(now())
+
+  @@index([caseId])
+  @@index([analysisType])
+  @@index([aiProvider])
+  @@index([createdAt])
+  @@index([results], type: Gin) // GIN index for JSONB queries
+  @@map("ai_analyses")
 }
 
 model MedicalOpinion {
-  id                String              @id @default(cuid())
+  id                String              @id @default(dbgenerated("gen_random_uuid()"))
   caseId            String
-  case              Case                @relation(fields: [caseId], references: [id])
+  case              MedicalCase                @relation(fields: [caseId], references: [id])
   professionalId    String
   professional      MedicalProfessional @relation(fields: [professionalId], references: [id])
   content           String
-  status            String              @default("draft") // draft, peer_review, approved, final
+  status            String              @default("draft") // draft, peer_review, approved, final, published
+  version           Int                 @default(1)
+  digitalSignature  String?
+  reviewedBy        String?             // Professional ID of reviewer
+  reviewedAt        DateTime?
+  publishedAt       DateTime?
+  metadata          Json?               // Opinion metadata and annotations
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
+
+  @@index([caseId])
+  @@index([professionalId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("medical_opinions")
 }
 
 model ProfessionalPayment {
-  id                String              @id @default(cuid())
+  id                String              @id @default(dbgenerated("gen_random_uuid()"))
   caseId            String
-  case              Case                @relation(fields: [caseId], references: [id])
+  case              MedicalCase                @relation(fields: [caseId], references: [id])
   professionalId    String
   professional      MedicalProfessional @relation(fields: [professionalId], references: [id])
   amount            Float
-  status            String              @default("pending") // pending, paid, failed
+  currency          String              @default("EUR")
+  status            String              @default("pending") // pending, processing, paid, failed, cancelled
+  paymentMethod     String?
+  transactionId     String?
+  processedAt       DateTime?
+  metadata          Json?               // Payment processing metadata
   createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([caseId])
+  @@index([professionalId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("professional_payments")
 }
 
 model Admin {
-  id             String   @id @default(cuid())
+  id             String   @id @default(dbgenerated("gen_random_uuid()"))
   email          String   @unique
   hashedPassword String
   role           String   @default("admin")
+  permissions    Json?    // Granular permissions
+  lastLoginAt    DateTime?
+  metadata       Json?    // Additional admin metadata
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+  @@index([email])
+  @@index([role])
+  @@map("admins")
+}
+
+// Professional Recruitment Models
+model ProfessionalCandidate {
+  id                        String              @id @default(dbgenerated("gen_random_uuid()"))
+  // Step 1: Identity & Contact Info
+  firstName                 String
+  middleName                String?
+  lastName                  String
+  dateOfBirth               DateTime
+  nationality               String
+  email                     String              @unique
+  phone                     String?
+  emailVerified             Boolean             @default(false)
+  emailVerificationToken    String?
+  
+  // Step 2: Education & Training
+  medicalDegreeUploaded     Boolean             @default(false)
+  residencyCompleted        Boolean             @default(false)
+  fellowshipCompleted       Boolean             @default(false)
+  boardCertificationNumber  String?
+  
+  // Step 3: Licensing
+  medicalLicenseNumber      String
+  licenseCountry            String
+  licenseState              String?
+  licenseExpiry             DateTime
+  certificateGoodStanding   Boolean             @default(false)
+  
+  // Step 4: Professional Experience
+  yearsIndependentPractice  Int
+  currentAffiliation        String
+  subspecialties            Json?               // Array of subspecialties
+  annualPatientLoad         Int?
+  secondOpinionsGiven       Int?
+  
+  // Step 5: Research & Academic
+  peerReviewedPublications  Int                 @default(0)
+  clinicalTrialInvolvement  Boolean             @default(false)
+  clinicalTrialDetails      String?
+  conferencepresentations   Boolean             @default(false)
+  conferenceDetails         String?
+  teachingRoles             Boolean             @default(false)
+  teachingDetails           String?
+  
+  // Step 6: Professional Recognition
+  oncologySocieties         Json?               // Array of society memberships
+  awardsHonors              String?
+  leadershipRoles           String?
+  
+  // Step 7: Good Standing & Compliance
+  professionalReferences    Json?               // Array of references
+  malpracticeInsurance      Boolean             @default(false)
+  noActiveDisciplinary      Boolean             @default(false)
+  dataProtectionAgreed      Boolean             @default(false)
+  
+  // Step 8: Competency Assessment
+  competencyScore           Float?
+  competencyLevel           ProLevel?
+  scoreBreakdown            Json?               // Detailed scoring breakdown
+  
+  // Application Management
+  applicationStatus         CandidateStatus     @default(SUBMITTED)
+  submittedAt               DateTime?
+  reviewStartedAt           DateTime?
+  reviewedAt                DateTime?
+  reviewedBy                String?             // Admin ID
+  reviewNotes               String?
+  rejectionReason           String?
+  approvedToProfessionalId  String?             // Reference to MedicalProfessional if approved
+  
+  // Relations
+  documents                 CandidateDocument[]
+  reviews                   ApplicationReview[]
+  
+  createdAt                 DateTime            @default(now())
+  updatedAt                 DateTime            @updatedAt
+
+  @@index([email])
+  @@index([applicationStatus])
+  @@index([competencyLevel])
+  @@index([submittedAt])
+  @@map("professional_candidates")
+}
+
+enum CandidateStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  ADDITIONAL_INFO_REQUIRED
+  APPROVED
+  REJECTED
+  WITHDRAWN
+}
+
+model CandidateDocument {
+  id           String                @id @default(dbgenerated("gen_random_uuid()"))
+  candidateId  String
+  candidate    ProfessionalCandidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  documentType DocumentType
+  fileName     String
+  originalName String
+  s3Key        String
+  mimetype     String
+  size         Int
+  checksum     String?
+  encrypted    Boolean               @default(true)
+  uploadedAt   DateTime              @default(now())
+
+  @@index([candidateId])
+  @@index([documentType])
+  @@map("candidate_documents")
+}
+
+enum DocumentType {
+  GOVERNMENT_ID
+  MEDICAL_DEGREE
+  RESIDENCY_CERTIFICATE
+  FELLOWSHIP_CERTIFICATE
+  BOARD_CERTIFICATION
+  LICENSE_CERTIFICATE
+  GOOD_STANDING_CERTIFICATE
+  CV
+  PUBLICATION_1
+  PUBLICATION_2
+  PUBLICATION_3
+  MALPRACTICE_INSURANCE
+  ADDITIONAL_DIPLOMA
+}
+
+model ApplicationReview {
+  id          String                @id @default(dbgenerated("gen_random_uuid()"))
+  candidateId String
+  candidate   ProfessionalCandidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  reviewerId  String                // Admin ID
+  decision    ReviewDecision
+  notes       String?
+  scoreAdjustment Json?             // Manual score adjustments
+  recommendedLevel ProLevel?
+  createdAt   DateTime              @default(now())
+
+  @@index([candidateId])
+  @@index([reviewerId])
+  @@index([decision])
+  @@map("application_reviews")
+}
+
+enum ReviewDecision {
+  APPROVE
+  REJECT
+  REQUEST_MORE_INFO
+  PENDING_REVIEW
 }

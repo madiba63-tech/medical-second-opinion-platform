@@ -1,0 +1,253 @@
+# RBAC configuration for the application
+# Following v2.0 Architecture requirements for security and least privilege
+
+{{- if .Values.security.rbac.create }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "second-opinion.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "second-opinion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: rbac
+  {{- with .Values.security.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+
+---
+# ClusterRole for application permissions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "second-opinion.fullname" . }}-reader
+  labels:
+    {{- include "second-opinion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: rbac
+rules:
+  # Basic permissions for health checks and metrics
+  - apiGroups: [""]
+    resources: ["pods", "services", "endpoints"]
+    verbs: ["get", "list", "watch"]
+  
+  # ConfigMap and Secret read access (for configuration)
+  - apiGroups: [""]
+    resources: ["configmaps", "secrets"]
+    verbs: ["get", "list", "watch"]
+    resourceNames:
+      - "{{ include "second-opinion.fullname" . }}-config"
+      - "{{ include "second-opinion.fullname" . }}-database-config"
+      - "{{ include "second-opinion.fullname" . }}-redis-config"
+      - "{{ include "second-opinion.fullname" . }}-kafka-config"
+  
+  # Service mesh permissions (if enabled)
+  {{- if .Values.serviceMesh.enabled }}
+  - apiGroups: ["networking.istio.io"]
+    resources: ["virtualservices", "destinationrules", "gateways"]
+    verbs: ["get", "list", "watch"]
+  {{- end }}
+  
+  # Monitoring permissions
+  {{- if include "second-opinion.monitoringEnabled" . }}
+  - apiGroups: ["monitoring.coreos.com"]
+    resources: ["servicemonitors", "prometheusrules"]
+    verbs: ["get", "list", "watch"]
+  {{- end }}
+
+---
+# ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "second-opinion.fullname" . }}-reader-binding
+  labels:
+    {{- include "second-opinion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: rbac
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "second-opinion.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "second-opinion.fullname" . }}-reader
+
+---
+# Role for namespace-specific permissions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "second-opinion.fullname" . }}-namespace-admin
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "second-opinion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: rbac
+rules:
+  # Pod management for auto-scaling
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  
+  # Event creation for monitoring
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+  
+  # Deployment updates for rolling deployments
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+  
+  # HPA management
+  - apiGroups: ["autoscaling"]
+    resources: ["horizontalpodautoscalers"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+  
+  # Service management
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+  
+  # Ingress management
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+
+---
+# RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "second-opinion.fullname" . }}-namespace-admin-binding
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "second-opinion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: rbac
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "second-opinion.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "second-opinion.fullname" . }}-namespace-admin
+
+{{- if .Values.security.networkPolicies.enabled }}
+---
+# Network Policy for micro-segmentation
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "second-opinion.fullname" . }}-network-policy
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "second-opinion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: security
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "second-opinion.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+  
+  ingress:
+    # Allow ingress from ingress controller
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-system
+      ports:
+        - protocol: TCP
+          port: {{ .Values.app.service.targetPort }}
+    
+    # Allow ingress from service mesh (if enabled)
+    {{- if .Values.serviceMesh.enabled }}
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: istio-system
+      ports:
+        - protocol: TCP
+          port: {{ .Values.app.service.targetPort }}
+    {{- end }}
+    
+    # Allow ingress from monitoring namespace
+    {{- if include "second-opinion.monitoringEnabled" . }}
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+      ports:
+        - protocol: TCP
+          port: 9090  # Metrics port
+    {{- end }}
+    
+    # Allow intra-namespace communication
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: second-opinion-platform
+  
+  egress:
+    # Allow egress to DNS
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    
+    # Allow egress to database
+    {{- if .Values.postgresql.enabled }}
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgresql
+      ports:
+        - protocol: TCP
+          port: 5432
+    {{- end }}
+    
+    # Allow egress to Redis
+    {{- if .Values.redis.enabled }}
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+    {{- end }}
+    
+    # Allow egress to Kafka
+    {{- if .Values.kafka.enabled }}
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: kafka
+      ports:
+        - protocol: TCP
+          port: 9092
+    {{- end }}
+    
+    # Allow egress to external APIs (HTTPS)
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
+    
+    # Allow egress to monitoring services
+    {{- if include "second-opinion.monitoringEnabled" . }}
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: monitoring
+      ports:
+        - protocol: TCP
+          port: 9090  # Prometheus
+        - protocol: TCP
+          port: 14268 # Jaeger collector
+    {{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,385 @@
+// AI Analysis Service Database Schema
+// Following v2.0 Architecture requirements for PostgreSQL 17
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AnalysisType {
+  DOCUMENT_ANALYSIS
+  MEDICAL_IMAGING
+  LAB_RESULT_ANALYSIS
+  SYMPTOM_ANALYSIS
+  DRUG_INTERACTION
+  DIFFERENTIAL_DIAGNOSIS
+  RISK_ASSESSMENT
+  TREATMENT_RECOMMENDATION
+}
+
+enum AnalysisStatus {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REVIEW_REQUIRED
+}
+
+enum AnalysisPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum ModelProvider {
+  OPENAI
+  ANTHROPIC
+  GOOGLE
+  HUGGINGFACE
+  CUSTOM
+  ENSEMBLE
+}
+
+enum ConfidenceLevel {
+  VERY_LOW
+  LOW
+  MODERATE
+  HIGH
+  VERY_HIGH
+}
+
+// Main AI Analysis Entity
+model AIAnalysis {
+  id                  String            @id @default(dbgenerated("gen_random_uuid()"))
+  
+  // External References
+  caseId              String            // Reference to case in Case Management Service
+  documentId          String?           // Reference to specific document if applicable
+  requestedBy         String            // User/service that requested the analysis
+  requestedByType     String            // customer, professional, system
+  
+  // Analysis Configuration
+  analysisType        AnalysisType
+  priority            AnalysisPriority  @default(NORMAL)
+  
+  // Input Data
+  inputData           Json              // Raw input data for analysis
+  inputMetadata       Json?             // Additional metadata about input
+  
+  // Processing Information
+  status              AnalysisStatus    @default(QUEUED)
+  modelProvider       ModelProvider
+  modelName           String            // Specific model used
+  modelVersion        String?           // Model version for reproducibility
+  
+  // Processing Timeline
+  queuedAt            DateTime          @default(now())
+  startedAt           DateTime?
+  completedAt         DateTime?
+  processingTimeMs    Int?              // Processing time in milliseconds
+  
+  // Results
+  analysisResults     Json?             // Main analysis results
+  confidence          ConfidenceLevel?  // Overall confidence in results
+  confidenceScore     Float?            // Numeric confidence (0-1)
+  
+  // Quality Metrics
+  qualityScore        Float?            // Quality score of the analysis
+  reviewRequired      Boolean           @default(false)
+  reviewedAt          DateTime?
+  reviewedBy          String?
+  reviewNotes         String?
+  
+  // Error Handling
+  errorMessage        String?           // Error message if analysis failed
+  errorDetails        Json?             // Detailed error information
+  retryCount          Int               @default(0)
+  maxRetries          Int               @default(3)
+  
+  // Relationships
+  insights            AIInsight[]
+  recommendations     AIRecommendation[]
+  validations         AIValidation[]
+  
+  // Audit and Compliance
+  dataRetentionUntil  DateTime?         // When to delete this analysis
+  complianceFlags     Json?             // Compliance-related flags
+  
+  // Metadata
+  metadata            Json?             // Flexible metadata storage
+  tags                String[]          // Analysis tags
+  
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  @@index([caseId])
+  @@index([documentId])
+  @@index([analysisType])
+  @@index([status])
+  @@index([requestedBy])
+  @@index([queuedAt])
+  @@index([priority])
+  @@map("ai_analyses")
+}
+
+// AI-Generated Insights
+model AIInsight {
+  id              String      @id @default(dbgenerated("gen_random_uuid()"))
+  analysisId      String
+  
+  // Insight Details
+  insightType     String      // finding, anomaly, pattern, risk_factor
+  title           String      // Brief title of the insight
+  description     String      // Detailed description
+  
+  // Medical Context
+  medicalDomain   String?     // oncology, cardiology, etc.
+  severity        String?     // low, moderate, high, critical
+  urgency         String?     // immediate, urgent, routine
+  
+  // Confidence and Quality
+  confidence      Float       // Confidence score (0-1)
+  supportingEvidence Json?    // Evidence supporting this insight
+  
+  // Clinical Relevance
+  clinicalRelevance Float?    // Clinical relevance score (0-1)
+  actionability   String?     // immediate, followup, monitor, none
+  
+  // References and Sources
+  references      Json?       // Medical references or citations
+  sourceDocuments String[]    // Document IDs that contributed to this insight
+  
+  // Relationships
+  analysis        AIAnalysis  @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  
+  // Metadata
+  metadata        Json?
+  
+  createdAt       DateTime    @default(now())
+
+  @@index([analysisId])
+  @@index([insightType])
+  @@index([medicalDomain])
+  @@index([severity])
+  @@map("ai_insights")
+}
+
+// AI-Generated Recommendations
+model AIRecommendation {
+  id                  String      @id @default(dbgenerated("gen_random_uuid()"))
+  analysisId          String
+  
+  // Recommendation Details
+  recommendationType  String      // diagnostic, therapeutic, lifestyle, followup
+  title               String      // Brief recommendation title
+  description         String      // Detailed recommendation
+  
+  // Medical Context
+  specialty           String?     // Medical specialty
+  urgency             String?     // immediate, urgent, routine
+  
+  // Implementation
+  implementation      Json?       // How to implement this recommendation
+  expectedOutcome     String?     // Expected outcome
+  alternatives        Json?       // Alternative recommendations
+  
+  // Risk and Benefit
+  riskAssessment      Json?       // Potential risks
+  benefitAssessment   Json?       // Expected benefits
+  contraindications   String[]    // Contraindications
+  
+  // Evidence and Support
+  evidenceLevel       String?     // strong, moderate, weak, expert_opinion
+  references          Json?       // Supporting medical references
+  confidence          Float       // Confidence in recommendation (0-1)
+  
+  // Relationships
+  analysis            AIAnalysis  @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  
+  // Metadata
+  metadata            Json?
+  
+  createdAt           DateTime    @default(now())
+
+  @@index([analysisId])
+  @@index([recommendationType])
+  @@index([specialty])
+  @@index([urgency])
+  @@map("ai_recommendations")
+}
+
+// AI Analysis Validation and Quality Control
+model AIValidation {
+  id              String      @id @default(dbgenerated("gen_random_uuid()"))
+  analysisId      String
+  
+  // Validation Details
+  validationType  String      // automated, manual, peer_review
+  validatedBy     String      // Validator ID (human or system)
+  validatedByType String      // professional, ai_system, peer_reviewer
+  
+  // Validation Results
+  isValid         Boolean
+  validationScore Float?      // Validation score (0-1)
+  issues          Json?       // Issues found during validation
+  corrections     Json?       // Corrections made
+  
+  // Feedback
+  feedback        String?     // Validation feedback
+  improvements    Json?       // Suggestions for improvement
+  
+  // Quality Metrics
+  accuracy        Float?      // Accuracy assessment
+  completeness    Float?      // Completeness assessment
+  consistency     Float?      // Consistency assessment
+  
+  // Relationships
+  analysis        AIAnalysis  @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  
+  validatedAt     DateTime    @default(now())
+
+  @@index([analysisId])
+  @@index([validationType])
+  @@index([validatedBy])
+  @@index([isValid])
+  @@map("ai_validations")
+}
+
+// ML Model Registry
+model MLModel {
+  id              String      @id @default(dbgenerated("gen_random_uuid()"))
+  
+  // Model Identification
+  name            String      @unique
+  version         String
+  provider        ModelProvider
+  modelType       String      // llm, cnn, transformer, ensemble
+  
+  // Model Details
+  description     String?
+  capabilities    String[]    // What this model can do
+  limitations     String?     // Model limitations
+  
+  // Technical Specifications
+  inputSchema     Json        // Expected input schema
+  outputSchema    Json        // Expected output schema
+  parameters      Json?       // Model parameters/configuration
+  
+  // Performance Metrics
+  accuracy        Float?      // Model accuracy
+  precision       Float?      // Model precision
+  recall          Float?      // Model recall
+  f1Score         Float?      // F1 score
+  
+  // Deployment Information
+  isActive        Boolean     @default(false)
+  apiEndpoint     String?     // API endpoint for model
+  apiKey          String?     // API key (encrypted)
+  
+  // Resource Requirements
+  computeRequirements Json?   // CPU, memory, GPU requirements
+  costPerRequest  Float?      // Cost per API request
+  
+  // Quality and Compliance
+  validatedAt     DateTime?   // Last validation date
+  validatedBy     String?     // Who validated the model
+  complianceStatus String?    // FDA, CE, other compliance status
+  
+  // Usage Statistics
+  totalRequests   BigInt      @default(0)
+  successfulRequests BigInt   @default(0)
+  averageLatency  Float?      // Average response time
+  
+  // Metadata
+  metadata        Json?
+  tags            String[]
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@unique([name, version])
+  @@index([provider])
+  @@index([modelType])
+  @@index([isActive])
+  @@map("ml_models")
+}
+
+// Analysis Jobs Queue
+model AnalysisJob {
+  id              String            @id @default(dbgenerated("gen_random_uuid()"))
+  
+  // Job Identification
+  jobType         String            // analysis, training, evaluation
+  priority        AnalysisPriority  @default(NORMAL)
+  
+  // Job Configuration
+  analysisId      String?           // Related analysis ID
+  jobData         Json              // Job-specific data
+  configuration   Json?             // Job configuration
+  
+  // Processing Status
+  status          String            @default("queued") // queued, processing, completed, failed
+  workerId        String?           // Worker that processed this job
+  
+  // Timeline
+  scheduledAt     DateTime?         // When job should be processed
+  startedAt       DateTime?
+  completedAt     DateTime?
+  processingTimeMs Int?
+  
+  // Error Handling
+  errorMessage    String?
+  errorDetails    Json?
+  retryCount      Int               @default(0)
+  maxRetries      Int               @default(3)
+  
+  // Results
+  results         Json?
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([jobType])
+  @@index([status])
+  @@index([priority])
+  @@index([scheduledAt])
+  @@index([createdAt])
+  @@map("analysis_jobs")
+}
+
+// System Performance Metrics
+model AnalyticsMetric {
+  id              String    @id @default(dbgenerated("gen_random_uuid()"))
+  
+  // Metric Identification
+  metricName      String
+  metricType      String    // counter, gauge, histogram
+  
+  // Metric Data
+  value           Float
+  unit            String?   // seconds, percentage, count, etc.
+  dimensions      Json?     // Additional metric dimensions
+  
+  // Context
+  serviceComponent String?  // Which component generated this metric
+  modelName       String?   // Which model (if applicable)
+  
+  // Time Series Data
+  timestamp       DateTime  @default(now())
+  
+  // Metadata
+  metadata        Json?
+
+  @@index([metricName])
+  @@index([metricType])
+  @@index([timestamp])
+  @@index([serviceComponent])
+  @@map("analytics_metrics")
+}

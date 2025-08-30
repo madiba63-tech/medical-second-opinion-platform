@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Medical Second Opinion Platform - Cloud-Agnostic Microservices Architecture v2.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            margin: -20px -20px 40px -20px;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header h2 {
+            font-size: 1.5rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+        
+        .document-info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+        
+        .document-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .document-info td {
+            padding: 8px 16px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .document-info td:first-child {
+            font-weight: bold;
+            width: 200px;
+            background: #f5f5f5;
+        }
+        
+        .executive-summary {
+            background: #fff3e0;
+            border: 1px solid #ff9800;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .principles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .principle-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            transition: transform 0.2s;
+        }
+        
+        .principle-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .principle-card h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            color: #2c3e50;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        h1 { font-size: 2.2rem; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        h2 { font-size: 1.8rem; border-bottom: 2px solid #e74c3c; padding-bottom: 8px; }
+        h3 { font-size: 1.5rem; color: #8e44ad; }
+        h4 { font-size: 1.3rem; color: #27ae60; }
+        
+        .toc {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .toc h2 {
+            margin-top: 0;
+            color: #495057;
+        }
+        
+        .toc ol {
+            padding-left: 20px;
+        }
+        
+        .toc li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .toc a:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+        
+        .architecture-diagram {
+            background: #f8f9fa;
+            border: 2px solid #6c757d;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .feature-card h4 {
+            color: #495057;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .feature-card .icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            background: #28a745;
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+        }
+        
+        .feature-card .icon::after {
+            content: '✓';
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .comparison-table th {
+            background: #343a40;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .implementation-phases {
+            margin: 30px 0;
+        }
+        
+        .phase {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .phase-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+        }
+        
+        .phase-content {
+            padding: 20px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-inprogress {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-pending {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .highlight-box::before {
+            content: '💡';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: white;
+            padding: 0 10px;
+            font-size: 1.2rem;
+        }
+        
+        .conclusion {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-top: 40px;
+        }
+        
+        .conclusion h2 {
+            margin-top: 0;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            color: white;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .benefit-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #fff;
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .success-box {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #28a745;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+                margin: -10px -10px 20px -10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .header h2 {
+                font-size: 1.2rem;
+            }
+            
+            .principles-grid,
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .nav-sticky {
+            position: sticky;
+            top: 0;
+            background: white;
+            border-bottom: 1px solid #dee2e6;
+            padding: 10px;
+            z-index: 100;
+            margin: 0 -20px 20px -20px;
+        }
+        
+        .nav-sticky a {
+            margin-right: 20px;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .nav-sticky a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>AI-Powered Medical Second Opinion Platform</h1>
+            <h2>Cloud-Agnostic Microservices Architecture v2.0</h2>
+        </header>
+
+        <div class="nav-sticky">
+            <a href="#executive-summary">Executive Summary</a>
+            <a href="#architecture-overview">Architecture</a>
+            <a href="#microservices">Microservices</a>
+            <a href="#technology-stack">Technology Stack</a>
+            <a href="#implementation">Implementation</a>
+        </div>
+
+        <div class="document-info">
+            <table>
+                <tr><td>Document Type</td><td>Technical Architecture Specification</td></tr>
+                <tr><td>Authority Level</td><td>Definitive Technical Reference</td></tr>
+                <tr><td>Date</td><td>August 2025</td></tr>
+                <tr><td>Version</td><td>2.0 (Cloud-Agnostic Microservices Architecture)</td></tr>
+                <tr><td>Review Cycle</td><td>Quarterly</td></tr>
+                <tr><td>Last Updated</td><td>August 28, 2025</td></tr>
+                <tr><td>Architecture Focus</td><td>Microservices, Multi-Cloud, Stateless, Container-Native</td></tr>
+            </table>
+        </div>
+
+        <section id="executive-summary" class="executive-summary">
+            <h2>Executive Summary</h2>
+            <p>This architectural document defines a completely redesigned <strong>cloud-agnostic, microservices-based architecture</strong> for the AI-powered medical second opinion platform. The new architecture eliminates vendor lock-in, ensures deployment flexibility across AWS, Microsoft Azure, and Google Cloud, and implements a pure microservices design with Docker containers and stateless services.</p>
+
+            <h3>Key Architectural Principles</h3>
+            <div class="principles-grid">
+                <div class="principle-card">
+                    <h4>🌐 Cloud Agnostic</h4>
+                    <p>Deploy identically on AWS, Azure, or Google Cloud Platform</p>
+                </div>
+                <div class="principle-card">
+                    <h4>🔧 Pure Microservices</h4>
+                    <p>Independently deployable, scalable services with clear boundaries</p>
+                </div>
+                <div class="principle-card">
+                    <h4>📊 Stateless Design</h4>
+                    <p>All services designed for horizontal scalability without session dependencies</p>
+                </div>
+                <div class="principle-card">
+                    <h4>🐳 Container Native</h4>
+                    <p>Docker-first architecture with Kubernetes orchestration</p>
+                </div>
+                <div class="principle-card">
+                    <h4>🔄 Reverse Proxy Architecture</h4>
+                    <p>Service mesh and API gateway patterns</p>
+                </div>
+                <div class="principle-card">
+                    <h4>📈 Telemetry First</h4>
+                    <p>Comprehensive observability and monitoring built-in</p>
+                </div>
+                <div class="principle-card">
+                    <h4>🚀 Modern Technology Stack</h4>
+                    <p>Latest versions of all technologies with good licensing models</p>
+                </div>
+                <div class="principle-card">
+                    <h4>🐘 PostgreSQL 17</h4>
+                    <p>Primary database replacing MongoDB for compliance and licensing</p>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h3>Technical Overview</h3>
+                <ul>
+                    <li><strong>Architecture Pattern:</strong> Domain-Driven Design with Microservices</li>
+                    <li><strong>Container Platform:</strong> Docker + Kubernetes (cloud-agnostic)</li>
+                    <li><strong>Service Communication:</strong> gRPC + REST APIs with service mesh</li>
+                    <li><strong>Data Architecture:</strong> PostgreSQL 17 + Redis + Elasticsearch</li>
+                    <li><strong>Reverse Proxy:</strong> NGINX/Envoy with service mesh (Istio/Linkerd)</li>
+                    <li><strong>Telemetry Stack:</strong> OpenTelemetry + Prometheus + Grafana + Jaeger</li>
+                    <li><strong>CI/CD:</strong> GitLab CI with multi-cloud deployment</li>
+                    <li><strong>Security:</strong> Zero-trust with service-to-service authentication</li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="toc">
+            <h2>Table of Contents</h2>
+            <ol>
+                <li><a href="#cloud-agnostic-infrastructure">Cloud-Agnostic Infrastructure Architecture</a></li>
+                <li><a href="#microservices-domain">Microservices Domain Architecture</a></li>
+                <li><a href="#stateless-service">Stateless Service Design</a></li>
+                <li><a href="#container-orchestration">Container and Orchestration Architecture</a></li>
+                <li><a href="#service-communication">Service Communication and Reverse Proxy</a></li>
+                <li><a href="#data-architecture">Data Architecture with PostgreSQL 17</a></li>
+                <li><a href="#telemetry-observability">Telemetry and Observability Architecture</a></li>
+                <li><a href="#security-zerotrust">Security and Zero-Trust Architecture</a></li>
+                <li><a href="#technology-stack">Modern Technology Stack</a></li>
+                <li><a href="#multi-cloud-deployment">Multi-Cloud Deployment Strategy</a></li>
+            </ol>
+        </div>
+
+        <section id="cloud-agnostic-infrastructure">
+            <h1>1. Cloud-Agnostic Infrastructure Architecture</h1>
+            
+            <h2>1.1 Multi-Cloud Abstraction Layer</h2>
+            <div class="architecture-diagram">Cloud-Agnostic Architecture
+├── Kubernetes Abstraction Layer
+│   ├── Cluster Management (Kubeadm/Rancher)
+│   ├── CNI Network Plugin (Cilium/Calico)
+│   ├── CSI Storage Plugin (Cloud-Agnostic)
+│   └── Load Balancer Controllers
+├── Infrastructure as Code
+│   ├── Terraform (Multi-Cloud Modules)
+│   ├── Pulumi (Cloud-Agnostic Resources)
+│   ├── Helm Charts (Application Deployment)
+│   └── Crossplane (Cloud Resource Abstraction)
+├── Container Registry
+│   ├── Harbor (Private Registry)
+│   ├── Multi-Cloud Image Sync
+│   ├── Vulnerability Scanning
+│   └── Image Signing (Cosign)
+└── Multi-Cloud Services Abstraction
+    ├── Object Storage (MinIO/Ceph)
+    ├── Message Queue (Apache Kafka/RabbitMQ)
+    ├── Cache Layer (Redis Cluster)
+    └── Database (PostgreSQL 17 Cluster)</div>
+
+            <h3>Cloud Provider Agnostic Services</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Compute Abstraction</h4>
+                    <ul>
+                        <li>AWS: EKS + EC2 + Fargate</li>
+                        <li>Azure: AKS + VM + Container Instances</li>
+                        <li>GCP: GKE + Compute Engine + Cloud Run</li>
+                        <li>On-Premise: Kubeadm + VMware + Bare Metal</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Storage Abstraction</h4>
+                    <ul>
+                        <li>S3 API Compatible (MinIO)</li>
+                        <li>Kubernetes CSI Drivers</li>
+                        <li>PostgreSQL 17 with Cloud Extensions</li>
+                        <li>Cross-Cloud Replication</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Networking Abstraction</h4>
+                    <ul>
+                        <li>Service Mesh (Istio/Linkerd)</li>
+                        <li>NGINX Ingress Controller</li>
+                        <li>Kubernetes NetworkPolicies</li>
+                        <li>Zero-Trust Networking</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>1.2 Multi-Cloud Deployment Patterns</h2>
+            <div class="success-box">
+                <h4>Active-Active Multi-Cloud Strategy</h4>
+                <p>Deploy simultaneously across multiple cloud providers for maximum availability and vendor independence:</p>
+                <ul>
+                    <li><strong>Primary Region (Europe):</strong> AWS eu-central-1, Azure West Europe, GCP europe-west3</li>
+                    <li><strong>Secondary Region (North America):</strong> AWS us-east-1, Azure East US, GCP us-east1</li>
+                    <li><strong>Data Replication:</strong> PostgreSQL cross-cloud replication, Redis clustering, Elasticsearch replication</li>
+                    <li><strong>Traffic Management:</strong> Global load balancer with DNS-based routing and automatic failover</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="microservices-domain">
+            <h1>2. Microservices Domain Architecture</h1>
+            
+            <h2>2.1 Domain-Driven Design Microservices</h2>
+            <div class="highlight-box">
+                <p>The platform is organized into <strong>28 independent microservices</strong> across 5 main business domains, each with clear boundaries and responsibilities.</p>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Patient Domain Services</h4>
+                    <ul>
+                        <li>patient-identity-service</li>
+                        <li>case-management-service</li>
+                        <li>document-management-service</li>
+                        <li>patient-communication-service</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Professional Domain Services</h4>
+                    <ul>
+                        <li>professional-identity-service</li>
+                        <li>case-assignment-service</li>
+                        <li>medical-opinion-service</li>
+                        <li>professional-communication-service</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>AI Processing Domain Services</h4>
+                    <ul>
+                        <li>ai-orchestration-service</li>
+                        <li>document-analysis-service</li>
+                        <li>medical-imaging-service</li>
+                        <li>ai-billing-service</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Financial Domain Services</h4>
+                    <ul>
+                        <li>payment-processing-service</li>
+                        <li>billing-management-service</li>
+                        <li>professional-compensation-service</li>
+                        <li>financial-reporting-service</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Platform Services</h4>
+                    <ul>
+                        <li>workflow-engine-service</li>
+                        <li>notification-service</li>
+                        <li>audit-logging-service</li>
+                        <li>integration-service</li>
+                        <li>analytics-service</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>2.2 Service Communication Patterns</h2>
+            <div class="architecture-diagram">Microservice Communication
+├── Synchronous Communication
+│   ├── gRPC (Internal Service-to-Service)
+│   ├── REST APIs (External & Client Facing)
+│   ├── GraphQL (Complex Queries)
+│   └── WebSocket (Real-Time Updates)
+├── Asynchronous Communication
+│   ├── Apache Kafka (Event Streaming)
+│   ├── RabbitMQ (Message Queuing)
+│   ├── Redis Pub/Sub (Fast Messaging)
+│   └── PostgreSQL LISTEN/NOTIFY
+├── API Gateway Pattern
+│   ├── Kong API Gateway
+│   ├── Ambassador/Emissary
+│   ├── Zuul/Spring Cloud Gateway
+│   └── Custom Gateway (Golang/Rust)
+└── Service Discovery
+    ├── Kubernetes DNS
+    ├── Consul (Multi-Cloud)
+    ├── etcd (Kubernetes Native)
+    └── Service Mesh Discovery</div>
+        </section>
+
+        <section id="stateless-service">
+            <h1>3. Stateless Service Design</h1>
+            
+            <h2>3.1 Complete Statelessness Architecture</h2>
+            <div class="warning-box">
+                <h4>⚠️ Critical Design Principle</h4>
+                <p>All services are designed to be completely stateless with no in-memory session storage, ensuring horizontal scalability and cloud portability.</p>
+            </div>
+
+            <div class="architecture-diagram">Stateless Service Design
+├── Application Layer Statelessness
+│   ├── No In-Memory Session Storage
+│   ├── JWT Token-Based Authentication
+│   ├── Request-Response Isolation
+│   └── Horizontal Scaling Ready
+├── Session Management
+│   ├── Redis Cluster (External Session Store)
+│   ├── JWT Tokens (Self-Contained)
+│   ├── Database Session Storage
+│   └── Distributed Cache Layer
+├── Configuration Management
+│   ├── Environment Variables
+│   ├── Kubernetes ConfigMaps
+│   ├── Kubernetes Secrets
+│   └── External Configuration Service
+└── File Storage Abstraction
+    ├── S3-Compatible Object Storage
+    ├── Shared File Systems (NFS/Ceph)
+    ├── Database BLOB Storage
+    └── CDN Integration</div>
+
+            <h2>3.2 Horizontal Scaling Configuration</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Scaling Metric</th>
+                        <th>Target</th>
+                        <th>Min Replicas</th>
+                        <th>Max Replicas</th>
+                        <th>Behavior</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>CPU-Based Scaling</td>
+                        <td>70% CPU Utilization</td>
+                        <td>2</td>
+                        <td>50</td>
+                        <td>Scale Up/Down</td>
+                    </tr>
+                    <tr>
+                        <td>Memory-Based Scaling</td>
+                        <td>80% Memory Utilization</td>
+                        <td>2</td>
+                        <td>50</td>
+                        <td>OOM Prevention</td>
+                    </tr>
+                    <tr>
+                        <td>Custom Metrics</td>
+                        <td>Queue Length</td>
+                        <td>2</td>
+                        <td>100</td>
+                        <td>Business Logic</td>
+                    </tr>
+                    <tr>
+                        <td>Predictive Scaling</td>
+                        <td>ML Models</td>
+                        <td>5</td>
+                        <td>200</td>
+                        <td>Cost Optimized</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="container-orchestration">
+            <h1>4. Container and Orchestration Architecture</h1>
+            
+            <h2>4.1 Docker Container Standards</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Base Images</h4>
+                    <ul>
+                        <li>Alpine Linux (Minimal)</li>
+                        <li>Ubuntu LTS (Standard)</li>
+                        <li>Scratch (Go Binaries)</li>
+                        <li>Distroless (Security)</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Multi-Stage Builds</h4>
+                    <ul>
+                        <li>Build Stage (Dependencies)</li>
+                        <li>Test Stage (Quality Gates)</li>
+                        <li>Production Stage (Minimal)</li>
+                        <li>Security Scanning Stage</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Container Optimization</h4>
+                    <ul>
+                        <li>Layer Caching Strategy</li>
+                        <li>.dockerignore Implementation</li>
+                        <li>Image Size Optimization</li>
+                        <li>Build Time Optimization</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Security Hardening</h4>
+                    <ul>
+                        <li>Non-Root User Execution</li>
+                        <li>Read-Only Root Filesystem</li>
+                        <li>Security Context Configuration</li>
+                        <li>Capability Dropping</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>4.2 Kubernetes Architecture</h2>
+            <div class="architecture-diagram">Kubernetes Platform
+├── Control Plane (HA)
+│   ├── kube-apiserver (3 replicas)
+│   ├── etcd (3+ nodes)
+│   ├── kube-controller-manager
+│   └── kube-scheduler
+├── Worker Nodes
+│   ├── kubelet
+│   ├── kube-proxy
+│   ├── Container Runtime (containerd)
+│   └── CNI Plugin (Cilium)
+└── Add-On Components
+    ├── CoreDNS
+    ├── Metrics Server
+    ├── Dashboard
+    └── RBAC Configuration</div>
+        </section>
+
+        <section id="data-architecture">
+            <h1>6. Data Architecture with PostgreSQL 17</h1>
+            
+            <h2>6.1 PostgreSQL 17 as Primary Database</h2>
+            <div class="success-box">
+                <h4>🐘 PostgreSQL 17 Advanced Features</h4>
+                <ul>
+                    <li><strong>Incremental Backup Support:</strong> Faster, more efficient backups</li>
+                    <li><strong>Enhanced Query Parallelism:</strong> Better performance for complex queries</li>
+                    <li><strong>Improved VACUUM Performance:</strong> Reduced maintenance overhead</li>
+                    <li><strong>Better JSON Processing:</strong> Enhanced JSONB operations and indexing</li>
+                    <li><strong>Advanced Partitioning:</strong> Improved partition pruning and management</li>
+                    <li><strong>Logical Replication Improvements:</strong> Better cross-cloud replication</li>
+                    <li><strong>Enhanced Full-Text Search:</strong> More powerful search capabilities</li>
+                    <li><strong>Better Security Features:</strong> Enhanced authentication and authorization</li>
+                </ul>
+            </div>
+
+            <h2>6.2 Replacing MongoDB with PostgreSQL 17</h2>
+            <div class="highlight-box">
+                <h4>Migration Strategy from MongoDB</h4>
+                <p>PostgreSQL 17's enhanced JSONB support makes it an ideal replacement for MongoDB, offering the flexibility of document storage with the reliability and consistency of a relational database.</p>
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>MongoDB Use Case</th>
+                        <th>PostgreSQL 17 Replacement</th>
+                        <th>Benefits</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Document Storage</td>
+                        <td>JSONB Columns + File References</td>
+                        <td>ACID compliance, better querying</td>
+                    </tr>
+                    <tr>
+                        <td>AI Analysis Results</td>
+                        <td>JSONB + Structured Data</td>
+                        <td>Type safety, indexing performance</td>
+                    </tr>
+                    <tr>
+                        <td>Audit Logs</td>
+                        <td>Structured Tables + JSONB</td>
+                        <td>Compliance, query performance</td>
+                    </tr>
+                    <tr>
+                        <td>Configuration Data</td>
+                        <td>JSONB with Validation</td>
+                        <td>Schema validation, consistency</td>
+                    </tr>
+                    <tr>
+                        <td>Analytics Data</td>
+                        <td>Time-Series Tables</td>
+                        <td>Better performance, aggregations</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>6.3 Database-Per-Service Pattern</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="icon"></span>patient-identity-db</h4>
+                    <p>User & Patient Data</p>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>case-management-db</h4>
+                    <p>Cases & Assignments</p>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>document-management-db</h4>
+                    <p>File Metadata</p>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>professional-identity-db</h4>
+                    <p>Professional Data</p>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>financial-db</h4>
+                    <p>Payments & Billing</p>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>workflow-db</h4>
+                    <p>Process & Analytics</p>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>audit-db</h4>
+                    <p>Compliance & Logging</p>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>analytics-db</h4>
+                    <p>Reporting & BI</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="telemetry-observability">
+            <h1>7. Telemetry and Observability Architecture</h1>
+            
+            <h2>7.1 OpenTelemetry Implementation</h2>
+            <div class="architecture-diagram">OpenTelemetry Architecture
+├── Tracing (Distributed Request Tracing)
+│   ├── OpenTelemetry Collector
+│   ├── Jaeger (Trace Storage & Analysis)
+│   ├── Tempo (Grafana Tracing)
+│   ├── Service Dependency Mapping
+│   └── Performance Bottleneck Detection
+├── Metrics Collection
+│   ├── Prometheus (Metrics Storage)
+│   ├── OpenMetrics Standard
+│   ├── Custom Business Metrics
+│   ├── SLI/SLO Tracking
+│   └── Resource Usage Monitoring
+├── Logging
+│   ├── Structured Logging (JSON)
+│   ├── Fluentd/Fluent Bit (Log Collection)
+│   ├── Elasticsearch (Log Storage)
+│   ├── Kibana (Log Analysis)
+│   └── Log Correlation with Traces
+└── APM (Application Performance Monitoring)
+    ├── Real User Monitoring (RUM)
+    ├── Synthetic Monitoring
+    ├── Error Tracking & Alerting
+    └── Performance Profiling</div>
+
+            <h2>7.2 Comprehensive Monitoring Strategy</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Infrastructure Monitoring</h4>
+                    <ul>
+                        <li>Kubernetes Cluster Monitoring</li>
+                        <li>Node Resource Monitoring</li>
+                        <li>Network Performance</li>
+                        <li>Storage Performance</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Application Monitoring</h4>
+                    <ul>
+                        <li>Service Health Checks</li>
+                        <li>API Response Time</li>
+                        <li>Database Performance</li>
+                        <li>Cache Performance</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Business Logic Monitoring</h4>
+                    <ul>
+                        <li>Case Processing Time</li>
+                        <li>Professional Assignment Metrics</li>
+                        <li>AI Processing Success Rate</li>
+                        <li>Payment Transactions</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Security Monitoring</h4>
+                    <ul>
+                        <li>Authentication Failures</li>
+                        <li>Access Pattern Detection</li>
+                        <li>Data Exfiltration Monitoring</li>
+                        <li>Compliance Violations</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="technology-stack">
+            <h1>9. Modern Technology Stack</h1>
+            
+            <h2>9.1 Frontend Technology Stack (Latest Versions)</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Web Application</h4>
+                    <ul>
+                        <li>React 19.x (Latest)</li>
+                        <li>Next.js 15.x (App Router)</li>
+                        <li>TypeScript 5.x (Strict Mode)</li>
+                        <li>Tailwind CSS 4.x</li>
+                        <li>Vite 6.x (Build Tool)</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Mobile Applications</h4>
+                    <ul>
+                        <li>React Native 0.75.x</li>
+                        <li>Expo SDK 52.x</li>
+                        <li>React Navigation 7.x</li>
+                        <li>React Native Reanimated 4.x</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>State Management</h4>
+                    <ul>
+                        <li>Zustand 5.x (Lightweight)</li>
+                        <li>TanStack Query 5.x (Server State)</li>
+                        <li>Jotai (Atomic State)</li>
+                        <li>Redux Toolkit 2.x (Complex State)</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>UI Components</h4>
+                    <ul>
+                        <li>Radix UI (Unstyled Components)</li>
+                        <li>Shadcn/ui (Component Library)</li>
+                        <li>Lucide React (Icons)</li>
+                        <li>Framer Motion 12.x (Animations)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>9.2 Backend Technology Stack (Latest Versions)</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Runtime & Framework</h4>
+                    <ul>
+                        <li>Node.js 22.x LTS (Primary)</li>
+                        <li>Golang 1.23.x (High-Performance)</li>
+                        <li>Rust 1.82.x (System Services)</li>
+                        <li>Python 3.13.x (AI/ML Services)</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Web Frameworks</h4>
+                    <ul>
+                        <li>Fastify 5.x (Node.js - High Performance)</li>
+                        <li>NestJS 10.x (Node.js - Enterprise)</li>
+                        <li>Gin 1.10.x (Go - Lightweight)</li>
+                        <li>Axum 0.7.x (Rust - Modern)</li>
+                        <li>FastAPI 0.115.x (Python - AI Services)</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>API Technologies</h4>
+                    <ul>
+                        <li>gRPC with Protocol Buffers</li>
+                        <li>GraphQL with Apollo Federation</li>
+                        <li>OpenAPI 3.1 (REST Documentation)</li>
+                        <li>WebSocket (Socket.io 4.x)</li>
+                        <li>Server-Sent Events</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Authentication & Security</h4>
+                    <ul>
+                        <li>Passport.js 0.7.x</li>
+                        <li>jsonwebtoken 9.x (JWT)</li>
+                        <li>bcrypt 5.x (Password Hashing)</li>
+                        <li>helmet 8.x (Security Headers)</li>
+                        <li>rate-limiter-flexible 5.x</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>9.3 Data Stack (Modern, Well-Licensed)</h2>
+            <div class="success-box">
+                <h4>✅ License-Compliant Technology Choices</h4>
+                <p>All selected technologies have business-friendly licenses and are free from restrictive licensing models.</p>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Primary Database</h4>
+                    <ul>
+                        <li>PostgreSQL 17.x (Primary RDBMS)</li>
+                        <li>TimescaleDB 2.17.x (Time-Series)</li>
+                        <li>PostGIS 3.5.x (Geospatial)</li>
+                        <li>pgvector 0.8.x (Vector Search)</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Caching & In-Memory</h4>
+                    <ul>
+                        <li>Redis 7.4.x (Cache & Sessions)</li>
+                        <li>KeyDB 6.3.x (Redis Alternative)</li>
+                        <li>Dragonfly 1.x (Modern Redis Alternative)</li>
+                        <li>Valkey 8.x (Redis Fork)</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Search & Analytics</h4>
+                    <ul>
+                        <li>Elasticsearch 8.15.x (Search Engine)</li>
+                        <li>OpenSearch 2.17.x (Open Source)</li>
+                        <li>Meilisearch 1.10.x (Fast Search)</li>
+                        <li>Typesense 26.x (Search Alternative)</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Message Queues</h4>
+                    <ul>
+                        <li>Apache Kafka 3.8.x (Event Streaming)</li>
+                        <li>Apache Pulsar 3.3.x (Message Platform)</li>
+                        <li>RabbitMQ 3.13.x (Message Broker)</li>
+                        <li>NATS 2.10.x (Cloud Native)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>9.4 DevOps & Infrastructure Stack</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Container Platform</h4>
+                    <ul>
+                        <li>Docker 27.x (Containerization)</li>
+                        <li>Podman 5.x (Rootless Containers)</li>
+                        <li>containerd 1.7.x (Container Runtime)</li>
+                        <li>BuildKit 0.16.x (Advanced Builds)</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Orchestration</h4>
+                    <ul>
+                        <li>Kubernetes 1.31.x (Orchestration)</li>
+                        <li>K3s 1.31.x (Lightweight K8s)</li>
+                        <li>MicroK8s 1.31.x (Local Development)</li>
+                        <li>Kind 0.24.x (K8s in Docker)</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Service Mesh</h4>
+                    <ul>
+                        <li>Istio 1.23.x (Full-Featured)</li>
+                        <li>Linkerd 2.16.x (Lightweight)</li>
+                        <li>Consul Connect 1.19.x (HashiCorp)</li>
+                        <li>Envoy 1.31.x (Proxy)</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="icon"></span>Infrastructure as Code</h4>
+                    <ul>
+                        <li>Terraform 1.9.x (Multi-Cloud)</li>
+                        <li>Pulumi 3.x (Programming Languages)</li>
+                        <li>Crossplane 1.17.x (K8s Native)</li>
+                        <li>CDK for Terraform 0.20.x</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="implementation">
+            <h1>Implementation Roadmap</h1>
+            
+            <div class="implementation-phases">
+                <div class="phase">
+                    <div class="phase-header">
+                        Phase 1: Foundation (Months 1-3) <span class="status-badge status-pending">Pending</span>
+                    </div>
+                    <div class="phase-content">
+                        <div class="feature-grid">
+                            <div class="feature-card">
+                                <h4><span class="icon"></span>Infrastructure Setup</h4>
+                                <ul>
+                                    <li>Multi-Cloud Kubernetes Clusters</li>
+                                    <li>CI/CD Pipeline Implementation</li>
+                                    <li>Container Registry Setup</li>
+                                    <li>Basic Monitoring Stack</li>
+                                </ul>
+                            </div>
+                            <div class="feature-card">
+                                <h4><span class="icon"></span>Core Services</h4>
+                                <ul>
+                                    <li>Patient Identity Service</li>
+                                    <li>Case Management Service</li>
+                                    <li>Professional Identity Service</li>
+                                    <li>Basic Workflow Engine</li>
+                                </ul>
+                            </div>
+                            <div class="feature-card">
+                                <h4><span class="icon"></span>Data Infrastructure</h4>
+                                <ul>
+                                    <li>PostgreSQL 17 Cluster Setup</li>
+                                    <li>Redis Cluster Configuration</li>
+                                    <li>Object Storage Implementation</li>
+                                    <li>Basic Analytics Setup</li>
+                                </ul>
+                            </div>
+                            <div class="feature-card">
+                                <h4><span class="icon"></span>Security Implementation</h4>
+                                <ul>
+                                    <li>Zero-Trust Network Setup</li>
+                                    <li>Service Mesh Deployment</li>
+                                    <li>Authentication Services</li>
+                                    <li>Basic Compliance Framework</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phase">
+                    <div class="phase-header">
+                        Phase 2: Core Services (Months 4-6) <span class="status-badge status-pending">Pending</span>
+                    </div>
+                    <div class="phase-content">
+                        <div class="feature-grid">
+                            <div class="feature-card">
+                                <h4><span class="icon"></span>Business Logic Services</h4>
+                                <ul>
+                                    <li>AI Orchestration Service</li>
+                                    <li>Document Management Service</li>
+                                    <li>Financial Services</li>
+                                    <li>Communication Services</li>
+                                </ul>
+                            </div>
+                            <div class="feature-card">
+                                <h4><span class="icon"></span>Advanced Features</h4>
+                                <ul>
+                                    <li>Professional Assignment Logic</li>
+                                    <li>Workflow Engine Enhancement</li>
+                                    <li>Advanced Analytics</li>
+                                    <li>Reporting Services</li>
+                                </ul>
+                            </div>
+                            <div class="feature-card">
+                                <h4><span class="icon"></span>Integration Services</h4>
+                                <ul>
+                                    <li>EHR Integration Framework</li>
+                                    <li>Payment Gateway Integration</li>
+                                    <li>External Communication APIs</li>
+                                    <li>Third-Party Service Integration</li>
+                                </ul>
+                            </div>
+                            <div class="feature-card">
+                                <h4><span class="icon"></span>Operations Enhancement</h4>
+                                <ul>
+                                    <li>Advanced Monitoring</li>
+                                    <li>Automated Scaling</li>
+                                    <li>Disaster Recovery</li>
+                                    <li>Performance Optimization</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="phase">
+                    <div class="phase-header">
+                        Phase 3: Advanced Features & Scale (Months 7-12) <span class="status-badge status-pending">Pending</span>
+                    </div>
+                    <div class="phase-content">
+                        <div class="feature-grid">
+                            <div class="feature-card">
+                                <h4><span class="icon"></span>AI and ML Services</h4>
+                                <ul>
+                                    <li>Advanced AI Processing</li>
+                                    <li>Machine Learning Pipeline</li>
+                                    <li>Predictive Analytics</li>
+                                    <li>AI Model Management</li>
+                                </ul>
+                            </div>
+                            <div class="feature-card">
+                                <h4><span class="icon"></span>Global Scaling</h4>
+                                <ul>
+                                    <li>Multi-Region Deployment</li>
+                                    <li>Global Data Replication</li>
+                                    <li>Performance Optimization</li>
+                                    <li>Cost Optimization</li>
+                                </ul>
+                            </div>
+                            <div class="feature-card">
+                                <h4><span class="icon"></span>Advanced Operations</h4>
+                                <ul>
+                                    <li>Complete Observability</li>
+                                    <li>Advanced Security Features</li>
+                                    <li>Compliance Automation</li>
+                                    <li>Operational Excellence</li>
+                                </ul>
+                            </div>
+                            <div class="feature-card">
+                                <h4><span class="icon"></span>Innovation Features</h4>
+                                <ul>
+                                    <li>Advanced Analytics</li>
+                                    <li>Real-Time Processing</li>
+                                    <li>Mobile Applications</li>
+                                    <li>Partner Integrations</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="conclusion">
+            <h2>Conclusion</h2>
+            <p>This cloud-agnostic microservices architecture provides a comprehensive solution that addresses all stakeholder requirements:</p>
+            
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <strong>🌐 Complete Cloud Independence</strong><br>
+                    Deploy on AWS, Azure, GCP, or on-premises
+                </div>
+                <div class="benefit-item">
+                    <strong>🔧 Pure Microservices Design</strong><br>
+                    Independent, scalable services with clear boundaries
+                </div>
+                <div class="benefit-item">
+                    <strong>📊 Stateless Architecture</strong><br>
+                    All services designed for horizontal scalability
+                </div>
+                <div class="benefit-item">
+                    <strong>🐳 Container-Native Design</strong><br>
+                    Docker containers with Kubernetes orchestration
+                </div>
+                <div class="benefit-item">
+                    <strong>🔄 Service Mesh Integration</strong><br>
+                    Advanced networking with Istio/Linkerd
+                </div>
+                <div class="benefit-item">
+                    <strong>🚀 Modern Technology Stack</strong><br>
+                    Latest versions with good licensing models
+                </div>
+                <div class="benefit-item">
+                    <strong>🐘 PostgreSQL 17 Focus</strong><br>
+                    Eliminates MongoDB licensing concerns
+                </div>
+                <div class="benefit-item">
+                    <strong>📈 Comprehensive Telemetry</strong><br>
+                    OpenTelemetry, Prometheus, Grafana, Jaeger
+                </div>
+                <div class="benefit-item">
+                    <strong>🔐 Zero-Trust Security</strong><br>
+                    Complete security model with mTLS and policies
+                </div>
+                <div class="benefit-item">
+                    <strong>🌍 Multi-Cloud Data Strategy</strong><br>
+                    Cross-cloud replication and consistency
+                </div>
+            </div>
+
+            <p style="margin-top: 30px; font-size: 1.1rem;">
+                The architecture ensures <strong>vendor independence</strong>, <strong>operational excellence</strong>, and <strong>future-proof scalability</strong> while maintaining the highest standards for healthcare compliance and security.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Highlight current section in navigation
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('section[id], div[id]');
+            const navLinks = document.querySelectorAll('.nav-sticky a');
+            
+            let currentSection = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                if (window.pageYOffset >= sectionTop) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.style.fontWeight = link.getAttribute('href') === '#' + currentSection ? 'bold' : '500';
+                link.style.color = link.getAttribute('href') === '#' + currentSection ? '#dc3545' : '#007bff';
+            });
+        });
+    </script>
+</body>
+</html>

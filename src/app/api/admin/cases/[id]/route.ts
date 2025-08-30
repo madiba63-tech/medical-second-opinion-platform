@@ -5,10 +5,11 @@ const caseRepository = new CaseRepository();
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const caseData = await caseRepository.findById(params.id);
+    const { id } = await params;
+    const caseData = await caseRepository.findById(id);
     
     if (!caseData) {
       return NextResponse.json(

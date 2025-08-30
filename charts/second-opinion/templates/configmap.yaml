@@ -1,0 +1,128 @@
+# ConfigMaps for application configuration
+# Following v2.0 Architecture requirements for stateless configuration
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "second-opinion.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "second-opinion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: config
+data:
+  # Application configuration
+  NODE_ENV: {{ .Values.global.environment | quote }}
+  APP_VERSION: {{ .Values.app.image.tag | quote }}
+  LOG_LEVEL: "info"
+  ENABLE_METRICS: "true"
+  
+  # Cloud provider specific configuration
+  CLOUD_PROVIDER: {{ .Values.global.cloudProvider | quote }}
+  {{- if eq .Values.global.cloudProvider "aws" }}
+  AWS_REGION: {{ .Values.cloudProvider.aws.region | quote }}
+  {{- else if eq .Values.global.cloudProvider "azure" }}
+  AZURE_REGION: {{ .Values.cloudProvider.azure.region | quote }}
+  {{- else if eq .Values.global.cloudProvider "gcp" }}
+  GCP_REGION: {{ .Values.cloudProvider.gcp.region | quote }}
+  {{- end }}
+  
+  # Service mesh configuration
+  {{- if .Values.serviceMesh.enabled }}
+  SERVICE_MESH_ENABLED: "true"
+  SERVICE_MESH_TYPE: {{ .Values.serviceMesh.type | quote }}
+  MTLS_MODE: {{ .Values.serviceMesh.istio.mtls.mode | quote }}
+  {{- else }}
+  SERVICE_MESH_ENABLED: "false"
+  {{- end }}
+  
+  # Monitoring configuration
+  {{- if .Values.monitoring.prometheus.enabled }}
+  PROMETHEUS_ENABLED: "true"
+  PROMETHEUS_ENDPOINT: "http://{{ include "second-opinion.fullname" . }}-prometheus:9090"
+  {{- else }}
+  PROMETHEUS_ENABLED: "false"
+  {{- end }}
+  
+  {{- if .Values.monitoring.jaeger.enabled }}
+  JAEGER_ENABLED: "true"
+  JAEGER_ENDPOINT: "http://{{ include "second-opinion.fullname" . }}-jaeger-collector:14268/api/traces"
+  JAEGER_AGENT_HOST: "{{ include "second-opinion.fullname" . }}-jaeger-agent"
+  JAEGER_AGENT_PORT: "6832"
+  {{- else }}
+  JAEGER_ENABLED: "false"
+  {{- end }}
+
+---
+# Database configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "second-opinion.fullname" . }}-database-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "second-opinion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database-config
+data:
+  POSTGRES_HOST: "{{ include "postgresql.primary.fullname" .Subcharts.postgresql }}"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: {{ .Values.postgresql.auth.database | quote }}
+  
+  # Connection pool settings
+  DATABASE_POOL_MIN: "5"
+  DATABASE_POOL_MAX: "20"
+  DATABASE_TIMEOUT: "30000"
+  
+  # PostgreSQL 17 specific features
+  POSTGRES_VERSION: "17"
+  ENABLE_JSONB: "true"
+  ENABLE_FULLTEXT_SEARCH: "true"
+
+{{- if .Values.redis.enabled }}
+---
+# Redis configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "second-opinion.fullname" . }}-redis-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "second-opinion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis-config
+data:
+  REDIS_HOST: "{{ include "redis.fullname" .Subcharts.redis }}-master"
+  REDIS_PORT: "6379"
+  
+  # Session configuration
+  SESSION_STORE: "redis"
+  SESSION_TTL: "86400"  # 24 hours
+  
+  # Cache configuration
+  CACHE_TTL: "3600"     # 1 hour default
+  CACHE_PREFIX: "second-opinion:"
+{{- end }}
+
+{{- if .Values.kafka.enabled }}
+---
+# Kafka configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "second-opinion.fullname" . }}-kafka-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "second-opinion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: kafka-config
+data:
+  KAFKA_BROKERS: "{{ include "kafka.fullname" .Subcharts.kafka }}:9092"
+  KAFKA_CLIENT_ID: {{ include "second-opinion.fullname" . | quote }}
+  
+  # Event streaming configuration
+  ENABLE_EVENT_STREAMING: "true"
+  EVENT_RETRY_ATTEMPTS: "3"
+  EVENT_RETRY_DELAY: "1000"
+  
+  # Topic configuration
+  CASE_EVENTS_TOPIC: "case-events"
+  USER_EVENTS_TOPIC: "user-events"
+  NOTIFICATION_EVENTS_TOPIC: "notification-events"
+{{- end }}

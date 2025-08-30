@@ -1,0 +1,186 @@
+filebeat.inputs:
+  # Docker container logs
+  - type: container
+    paths:
+      - '/var/lib/docker/containers/*/*.log'
+    processors:
+      - add_docker_metadata:
+          host: "unix:///var/run/docker.sock"
+      - decode_json_fields:
+          fields: ["message"]
+          target: ""
+          overwrite_keys: true
+    fields:
+      environment: development
+      platform: second-opinion
+    fields_under_root: true
+
+  # Application log files
+  - type: log
+    paths:
+      - '/var/log/*.log'
+      - '/var/log/*/*.log'
+    exclude_files: ['\.gz$']
+    fields:
+      logtype: system
+      environment: development
+    fields_under_root: true
+
+  # API Gateway logs
+  - type: log
+    paths:
+      - '/app/api-gateway/logs/*.log'
+    json.keys_under_root: true
+    json.add_error_key: true
+    fields:
+      service: api-gateway
+      environment: development
+    fields_under_root: true
+
+  # Microservice logs
+  - type: log
+    paths:
+      - '/app/microservices/*/logs/*.log'
+    json.keys_under_root: true
+    json.add_error_key: true
+    multiline.pattern: '^\d{4}-\d{2}-\d{2}'
+    multiline.negate: true
+    multiline.match: after
+    fields:
+      environment: development
+    fields_under_root: true
+
+# Processors for log enhancement
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+      
+  - add_kubernetes_metadata:
+      host: ${NODE_NAME}
+      matchers:
+        - logs_path:
+            logs_path: "/var/log/containers/"
+            
+  - timestamp:
+      field: timestamp
+      layouts:
+        - '2006-01-02T15:04:05.000Z'
+        - '2006-01-02 15:04:05'
+      test:
+        - '2023-01-01T12:34:56.789Z'
+        
+  - drop_fields:
+      fields: ["agent", "ecs", "input", "log", "host.architecture", "host.os"]
+      
+  - rename:
+      fields:
+        - from: "container.name"
+          to: "service_name"
+
+# Output configuration
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+  protocol: "http"
+  username: ""
+  password: ""
+  index: "logs-%{[service]:other}-%{+yyyy.MM.dd}"
+  template.enabled: true
+  template.pattern: "logs-*"
+  template.settings:
+    index:
+      number_of_shards: 1
+      number_of_replicas: 0
+      refresh_interval: 5s
+  lifecycle.enabled: true
+  lifecycle.pattern: "logs-*"
+  lifecycle.name: "logs-policy"
+  lifecycle.rollover_alias: "logs"
+
+# Alternative output to Logstash
+# output.logstash:
+#   hosts: ["logstash:5044"]
+#   compression_level: 3
+#   bulk_max_size: 2048
+#   worker: 2
+
+# Logging configuration
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat.log
+  keepfiles: 7
+  permissions: 0644
+
+# Monitoring
+monitoring:
+  enabled: true
+  elasticsearch:
+    hosts: ["elasticsearch:9200"]
+    protocol: "http"
+
+# Setup configuration
+setup.kibana:
+  host: "kibana:5601"
+  protocol: "http"
+
+setup.dashboards.enabled: true
+setup.dashboards.retry.enabled: true
+setup.dashboards.retry.interval: 10s
+
+setup.template.enabled: true
+setup.template.settings:
+  index:
+    number_of_shards: 1
+    number_of_replicas: 0
+    refresh_interval: 5s
+
+# Index lifecycle management
+setup.ilm:
+  enabled: true
+  rollover_alias: "logs"
+  pattern: "logs-*"
+  policy: |
+    {
+      "policy": {
+        "phases": {
+          "hot": {
+            "min_age": "0ms",
+            "actions": {
+              "rollover": {
+                "max_size": "1GB",
+                "max_age": "1d"
+              },
+              "set_priority": {
+                "priority": 100
+              }
+            }
+          },
+          "warm": {
+            "min_age": "7d",
+            "actions": {
+              "set_priority": {
+                "priority": 50
+              },
+              "allocate": {
+                "number_of_replicas": 0
+              }
+            }
+          },
+          "cold": {
+            "min_age": "30d",
+            "actions": {
+              "set_priority": {
+                "priority": 0
+              }
+            }
+          },
+          "delete": {
+            "min_age": "90d",
+            "actions": {
+              "delete": {}
+            }
+          }
+        }
+      }
+    }

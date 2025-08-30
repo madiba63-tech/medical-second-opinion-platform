@@ -1,0 +1,242 @@
+# Kubernetes Services for the application
+# Following v2.0 Architecture requirements for service discovery and load balancing
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: second-opinion-app
+  namespace: second-opinion
+  labels:
+    app: second-opinion-app
+    component: web
+    version: v2.0
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/azure-load-balancer-internal: "false"
+    cloud.google.com/load-balancer-type: "External"
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+    - name: https
+      port: 443
+      targetPort: http
+      protocol: TCP
+    - name: metrics
+      port: 9090
+      targetPort: metrics
+      protocol: TCP
+  selector:
+    app: second-opinion-app
+    component: web
+
+---
+# Headless service for direct pod communication (useful for service mesh)
+apiVersion: v1
+kind: Service
+metadata:
+  name: second-opinion-app-headless
+  namespace: second-opinion
+  labels:
+    app: second-opinion-app
+    component: web-headless
+    version: v2.0
+spec:
+  clusterIP: None
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: second-opinion-app
+    component: web
+
+---
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: second-opinion
+  labels:
+    app: postgres
+    component: database
+    version: v2.0
+spec:
+  type: ClusterIP
+  ports:
+    - name: postgresql
+      port: 5432
+      targetPort: 5432
+      protocol: TCP
+  selector:
+    app: postgres
+    component: database
+
+---
+# Redis Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: second-opinion
+  labels:
+    app: redis
+    component: cache
+    version: v2.0
+spec:
+  type: ClusterIP
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+      protocol: TCP
+  selector:
+    app: redis
+    component: cache
+
+---
+# Kafka Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+  namespace: second-opinion
+  labels:
+    app: kafka
+    component: messaging
+    version: v2.0
+spec:
+  type: ClusterIP
+  ports:
+    - name: kafka
+      port: 9092
+      targetPort: 9092
+      protocol: TCP
+    - name: kafka-internal
+      port: 29092
+      targetPort: 29092
+      protocol: TCP
+  selector:
+    app: kafka
+    component: messaging
+
+---
+# Prometheus Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: second-opinion
+  labels:
+    app: prometheus
+    component: monitoring
+    version: v2.0
+spec:
+  type: ClusterIP
+  ports:
+    - name: prometheus
+      port: 9090
+      targetPort: 9090
+      protocol: TCP
+  selector:
+    app: prometheus
+    component: monitoring
+
+---
+# Grafana Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: second-opinion
+  labels:
+    app: grafana
+    component: visualization
+    version: v2.0
+spec:
+  type: ClusterIP
+  ports:
+    - name: grafana
+      port: 3000
+      targetPort: 3000
+      protocol: TCP
+  selector:
+    app: grafana
+    component: visualization
+
+---
+# Jaeger Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger
+  namespace: second-opinion
+  labels:
+    app: jaeger
+    component: tracing
+    version: v2.0
+spec:
+  type: ClusterIP
+  ports:
+    - name: jaeger-ui
+      port: 16686
+      targetPort: 16686
+      protocol: TCP
+    - name: jaeger-collector
+      port: 14268
+      targetPort: 14268
+      protocol: TCP
+    - name: jaeger-grpc
+      port: 14250
+      targetPort: 14250
+      protocol: TCP
+  selector:
+    app: jaeger
+    component: tracing
+
+---
+# LoadBalancer Service for external access (cloud-agnostic)
+apiVersion: v1
+kind: Service
+metadata:
+  name: second-opinion-lb
+  namespace: second-opinion
+  labels:
+    app: second-opinion-app
+    component: loadbalancer
+    version: v2.0
+  annotations:
+    # AWS annotations
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:region:account-id:certificate/certificate-id"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
+    
+    # Azure annotations
+    service.beta.kubernetes.io/azure-load-balancer-internal: "false"
+    service.beta.kubernetes.io/azure-pip-name: "second-opinion-pip"
+    
+    # GCP annotations
+    cloud.google.com/load-balancer-type: "External"
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+    - name: https
+      port: 443
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: second-opinion-app
+    component: web
+  loadBalancerSourceRanges:
+    - 0.0.0.0/0  # Restrict in production

@@ -1,0 +1,460 @@
+// Professional Service Database Schema
+// Following v2.0 Architecture requirements for PostgreSQL 17
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProfessionalLevel {
+  RESIDENT
+  FELLOW
+  ATTENDING
+  PROFESSOR
+  EMERITUS
+}
+
+enum VerificationStatus {
+  PENDING
+  IN_REVIEW
+  VERIFIED
+  REJECTED
+  SUSPENDED
+  EXPIRED
+}
+
+enum SpecializationLevel {
+  PRIMARY
+  SECONDARY
+  FELLOWSHIP
+  BOARD_CERTIFIED
+}
+
+enum AvailabilityStatus {
+  AVAILABLE
+  BUSY
+  AWAY
+  DO_NOT_DISTURB
+  OFFLINE
+}
+
+enum CommunicationChannel {
+  EMAIL
+  SMS
+  PHONE
+  IN_APP
+}
+
+// Core Professional Entity
+model Professional {
+  id                    String              @id @default(dbgenerated("gen_random_uuid()"))
+  
+  // Basic Information
+  firstName             String
+  middleName            String?
+  lastName              String
+  email                 String              @unique
+  phone                 String?
+  alternateEmail        String?
+  
+  // Professional Details
+  title                 String?             // Dr., Prof., etc.
+  level                 ProfessionalLevel   @default(ATTENDING)
+  yearsOfExperience     Int?
+  
+  // Verification and Status
+  verificationStatus    VerificationStatus  @default(PENDING)
+  verifiedAt            DateTime?
+  verifiedBy            String?             // Admin who verified
+  suspendedAt           DateTime?
+  suspendedUntil        DateTime?
+  suspensionReason      String?
+  
+  // Profile and Bio
+  biography             String?             // Professional background
+  expertise             String[]            // Areas of expertise
+  researchInterests     String[]            // Research areas
+  publications          Json?               // Publication list
+  awards                Json?               // Awards and recognitions
+  
+  // Availability and Preferences
+  availabilityStatus    AvailabilityStatus  @default(OFFLINE)
+  maxCaseLoad           Int?                // Maximum concurrent cases
+  currentCaseCount      Int                 @default(0)
+  preferredCommunication CommunicationChannel @default(EMAIL)
+  timeZone              String?
+  workingHours          Json?               // Working hours configuration
+  
+  // Profile Settings
+  profilePictureUrl     String?
+  profileVisibility     String              @default("public") // public, limited, private
+  acceptsNewCases       Boolean             @default(true)
+  requiresPreApproval   Boolean             @default(false)
+  
+  // Relationships
+  user                  User?               @relation(fields: [userId], references: [id])
+  userId                String?             @unique
+  
+  licenses              ProfessionalLicense[]
+  specializations       ProfessionalSpecialization[]
+  affiliations          ProfessionalAffiliation[]
+  credentials           ProfessionalCredential[]
+  availability          ProfessionalAvailability[]
+  reviews               ProfessionalReview[]
+  
+  // Metadata and Search
+  metadata              Json?               // Flexible metadata storage
+  tags                  String[]            // Professional tags
+  searchVector          Unsupported("tsvector")? // Full-text search vector
+  
+  // Audit fields
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  @@index([email])
+  @@index([verificationStatus])
+  @@index([level])
+  @@index([availabilityStatus])
+  @@index([searchVector], type: Gin)
+  @@index([createdAt])
+  @@map("professionals")
+}
+
+// User Account for Professionals (extends Identity Service)
+model User {
+  id             String    @id @default(dbgenerated("gen_random_uuid()"))
+  email          String    @unique
+  hashedPassword String
+  emailVerified  Boolean   @default(false)
+  emailVerifiedAt DateTime?
+  
+  // Two-Factor Authentication
+  twoFactorEnabled Boolean @default(false)
+  twoFactorSecret  String?
+  twoFactorMethod  String? // TOTP, SMS, EMAIL
+  
+  // Security tracking
+  lastLoginAt      DateTime?
+  lastLoginIP      String?
+  failedLoginAttempts Int @default(0)
+  lockedUntil      DateTime?
+  passwordChangedAt DateTime @default(now())
+  
+  // Relationships
+  professional     Professional?
+  sessions         UserSession[]
+  auditLogs        AuditLog[]
+  
+  // Metadata
+  metadata         Json?
+  searchVector     Unsupported("tsvector")?
+  
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([email])
+  @@index([searchVector], type: Gin)
+  @@map("users")
+}
+
+// Professional Licenses
+model ProfessionalLicense {
+  id                String              @id @default(dbgenerated("gen_random_uuid()"))
+  professionalId    String
+  
+  // License Details
+  licenseNumber     String
+  licenseType       String              // MD, DO, NP, PA, etc.
+  issuingAuthority  String              // State board, country, etc.
+  issuingState      String?
+  issuingCountry    String
+  
+  // Validity
+  issuedDate        DateTime
+  expirationDate    DateTime?
+  isActive          Boolean             @default(true)
+  
+  // Verification
+  verificationStatus VerificationStatus @default(PENDING)
+  verifiedAt        DateTime?
+  verificationNotes String?
+  documentUrl       String?             // URL to license document
+  
+  // Relationships
+  professional      Professional        @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@unique([professionalId, licenseNumber])
+  @@index([professionalId])
+  @@index([licenseType])
+  @@index([expirationDate])
+  @@index([verificationStatus])
+  @@map("professional_licenses")
+}
+
+// Medical Specializations
+model ProfessionalSpecialization {
+  id                String              @id @default(dbgenerated("gen_random_uuid()"))
+  professionalId    String
+  
+  // Specialization Details
+  specialty         String              // Cardiology, Oncology, etc.
+  subspecialty      String?             // Interventional Cardiology, etc.
+  level             SpecializationLevel @default(PRIMARY)
+  
+  // Certification Details
+  boardName         String?             // American Board of Internal Medicine
+  certificationDate DateTime?
+  expirationDate    DateTime?
+  certificationNumber String?
+  
+  // Verification
+  verificationStatus VerificationStatus @default(PENDING)
+  verifiedAt        DateTime?
+  documentUrl       String?
+  
+  // Relationships
+  professional      Professional        @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([professionalId])
+  @@index([specialty])
+  @@index([level])
+  @@index([verificationStatus])
+  @@map("professional_specializations")
+}
+
+// Hospital/Institution Affiliations
+model ProfessionalAffiliation {
+  id                String              @id @default(dbgenerated("gen_random_uuid()"))
+  professionalId    String
+  
+  // Institution Details
+  institutionName   String
+  institutionType   String              // Hospital, Clinic, University, etc.
+  department        String?
+  position          String?             // Attending Physician, Professor, etc.
+  
+  // Affiliation Period
+  startDate         DateTime
+  endDate           DateTime?
+  isCurrent         Boolean             @default(true)
+  isPrimary         Boolean             @default(false)
+  
+  // Contact Information
+  address           Json?               // Institution address
+  phone             String?
+  website           String?
+  
+  // Verification
+  verificationStatus VerificationStatus @default(PENDING)
+  verifiedAt        DateTime?
+  verificationContact String?           // Contact who verified
+  
+  // Relationships
+  professional      Professional        @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([professionalId])
+  @@index([institutionName])
+  @@index([isCurrent])
+  @@index([verificationStatus])
+  @@map("professional_affiliations")
+}
+
+// Additional Credentials (Certifications, Training, etc.)
+model ProfessionalCredential {
+  id                String              @id @default(dbgenerated("gen_random_uuid()"))
+  professionalId    String
+  
+  // Credential Details
+  credentialType    String              // Fellowship, Certification, Training, etc.
+  credentialName    String
+  issuingOrganization String
+  
+  // Validity
+  issuedDate        DateTime
+  expirationDate    DateTime?
+  credentialNumber  String?
+  
+  // Verification
+  verificationStatus VerificationStatus @default(PENDING)
+  verifiedAt        DateTime?
+  documentUrl       String?
+  
+  // Additional Information
+  description       String?
+  continuingEducationHours Int?
+  
+  // Relationships
+  professional      Professional        @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([professionalId])
+  @@index([credentialType])
+  @@index([verificationStatus])
+  @@index([expirationDate])
+  @@map("professional_credentials")
+}
+
+// Professional Availability Schedule
+model ProfessionalAvailability {
+  id                String              @id @default(dbgenerated("gen_random_uuid()"))
+  professionalId    String
+  
+  // Time Slot Details
+  dayOfWeek         Int                 // 0 = Sunday, 1 = Monday, etc.
+  startTime         String              // HH:MM format
+  endTime           String              // HH:MM format
+  timeZone          String
+  
+  // Availability Type
+  availabilityType  String              // consultation, emergency, review
+  maxCases          Int?                // Max cases during this slot
+  
+  // Recurrence
+  isRecurring       Boolean             @default(true)
+  effectiveFrom     DateTime            @default(now())
+  effectiveUntil    DateTime?
+  
+  // Status
+  isActive          Boolean             @default(true)
+  notes             String?
+  
+  // Relationships
+  professional      Professional        @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([professionalId])
+  @@index([dayOfWeek])
+  @@index([availabilityType])
+  @@index([isActive])
+  @@map("professional_availability")
+}
+
+// Professional Reviews and Ratings
+model ProfessionalReview {
+  id                String              @id @default(dbgenerated("gen_random_uuid()"))
+  professionalId    String
+  
+  // Review Source
+  reviewerId        String              // Customer or peer ID
+  reviewerType      String              // customer, peer, admin
+  caseId            String?             // Related case if applicable
+  
+  // Review Content
+  rating            Float               // 1-5 stars
+  title             String?
+  review            String?
+  
+  // Review Categories
+  expertise         Float?              // 1-5 rating for expertise
+  communication     Float?              // 1-5 rating for communication
+  timeliness        Float?              // 1-5 rating for timeliness
+  professionalism   Float?              // 1-5 rating for professionalism
+  
+  // Review Status
+  isPublic          Boolean             @default(true)
+  isVerified        Boolean             @default(false)
+  moderationStatus  String              @default("pending") // pending, approved, rejected
+  moderatedBy       String?
+  moderatedAt       DateTime?
+  
+  // Relationships
+  professional      Professional        @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([professionalId])
+  @@index([reviewerType])
+  @@index([rating])
+  @@index([isPublic])
+  @@index([createdAt])
+  @@map("professional_reviews")
+}
+
+// Session Management (similar to Identity Service)
+model UserSession {
+  id          String    @id @default(dbgenerated("gen_random_uuid()"))
+  userId      String
+  tokenHash   String    @unique
+  deviceInfo  Json?
+  ipAddress   String?
+  userAgent   String?
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@index([expiresAt])
+  @@map("user_sessions")
+}
+
+// Audit Logging
+model AuditLog {
+  id          String    @id @default(dbgenerated("gen_random_uuid()"))
+  userId      String
+  action      String
+  details     Json?
+  ipAddress   String?
+  userAgent   String?
+  success     Boolean
+  createdAt   DateTime  @default(now())
+  
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// Professional Statistics and Analytics
+model ProfessionalStatistic {
+  id                String      @id @default(dbgenerated("gen_random_uuid()"))
+  professionalId    String
+  
+  // Performance Metrics
+  totalCases        Int         @default(0)
+  completedCases    Int         @default(0)
+  averageRating     Float?
+  averageResponseTime Float?    // In hours
+  
+  // Quality Metrics
+  patientSatisfaction Float?
+  peerRating        Float?
+  qualityScore      Float?
+  
+  // Time Period
+  periodStart       DateTime
+  periodEnd         DateTime
+  
+  // Metadata
+  metadata          Json?
+  
+  createdAt         DateTime    @default(now())
+
+  @@index([professionalId])
+  @@index([periodStart])
+  @@index([periodEnd])
+  @@map("professional_statistics")
+}

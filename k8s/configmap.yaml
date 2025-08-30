@@ -1,0 +1,136 @@
+# ConfigMaps for application configuration
+# Following v2.0 Architecture requirements for stateless service configuration
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: second-opinion-config
+  namespace: second-opinion
+  labels:
+    app: second-opinion
+    component: config
+    version: v2.0
+data:
+  # Application configuration
+  NODE_ENV: "production"
+  NEXT_TELEMETRY_DISABLED: "1"
+  APP_VERSION: "2.0.0"
+  
+  # Service configuration
+  SERVICE_NAME: "second-opinion-app"
+  SERVICE_VERSION: "v2.0"
+  
+  # Monitoring and observability
+  ENABLE_METRICS: "true"
+  METRICS_PORT: "9090"
+  LOG_LEVEL: "info"
+  LOG_FORMAT: "json"
+  
+  # Performance settings
+  MAX_REQUEST_SIZE: "50mb"
+  REQUEST_TIMEOUT: "30s"
+  
+  # Security settings
+  HELMET_ENABLED: "true"
+  CORS_ENABLED: "true"
+  RATE_LIMITING_ENABLED: "true"
+  
+  # Health check settings
+  HEALTH_CHECK_TIMEOUT: "5000"
+  
+  # Feature flags
+  ENABLE_AI_PROCESSING: "true"
+  ENABLE_DOCUMENT_ANALYSIS: "true"
+  ENABLE_REAL_TIME_NOTIFICATIONS: "true"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-config
+  namespace: second-opinion
+  labels:
+    app: second-opinion
+    component: database
+    version: v2.0
+data:
+  # PostgreSQL configuration
+  POSTGRES_VERSION: "17"
+  POSTGRES_MAX_CONNECTIONS: "200"
+  POSTGRES_SHARED_BUFFERS: "256MB"
+  POSTGRES_EFFECTIVE_CACHE_SIZE: "1GB"
+  POSTGRES_WAL_BUFFERS: "16MB"
+  POSTGRES_CHECKPOINT_COMPLETION_TARGET: "0.9"
+  
+  # Connection pool settings
+  DATABASE_POOL_MIN: "5"
+  DATABASE_POOL_MAX: "20"
+  DATABASE_POOL_IDLE_TIMEOUT: "30000"
+  DATABASE_POOL_ACQUIRE_TIMEOUT: "60000"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: second-opinion
+  labels:
+    app: second-opinion
+    component: redis
+    version: v2.0
+data:
+  # Redis configuration
+  REDIS_VERSION: "7.4"
+  REDIS_MAXMEMORY: "256mb"
+  REDIS_MAXMEMORY_POLICY: "allkeys-lru"
+  REDIS_TIMEOUT: "300"
+  REDIS_TCP_KEEPALIVE: "60"
+  REDIS_DATABASES: "16"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-config
+  namespace: second-opinion
+  labels:
+    app: second-opinion
+    component: kafka
+    version: v2.0
+data:
+  # Kafka configuration for event streaming
+  KAFKA_VERSION: "3.8"
+  KAFKA_TOPIC_PARTITIONS: "3"
+  KAFKA_TOPIC_REPLICATION_FACTOR: "1"
+  KAFKA_LOG_RETENTION_HOURS: "168"  # 7 days
+  KAFKA_LOG_SEGMENT_BYTES: "1073741824"  # 1GB
+  KAFKA_COMPRESSION_TYPE: "snappy"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monitoring-config
+  namespace: second-opinion
+  labels:
+    app: second-opinion
+    component: monitoring
+    version: v2.0
+data:
+  # Prometheus configuration
+  PROMETHEUS_SCRAPE_INTERVAL: "15s"
+  PROMETHEUS_EVALUATION_INTERVAL: "15s"
+  PROMETHEUS_RETENTION_TIME: "15d"
+  
+  # Grafana configuration
+  GRAFANA_ADMIN_PASSWORD: "admin"  # Should be overridden by secret
+  GRAFANA_USERS_ALLOW_SIGN_UP: "false"
+  
+  # Jaeger configuration
+  JAEGER_SAMPLER_TYPE: "probabilistic"
+  JAEGER_SAMPLER_PARAM: "0.1"  # 10% sampling rate
+  
+  # OpenTelemetry configuration
+  OTEL_SERVICE_NAME: "second-opinion"
+  OTEL_SERVICE_VERSION: "v2.0"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:14268/api/traces"

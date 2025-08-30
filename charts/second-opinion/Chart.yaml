@@ -1,0 +1,132 @@
+# Helm Chart for AI-Powered Medical Second Opinion Platform
+# Following v2.0 Architecture requirements for cloud-agnostic deployment
+
+apiVersion: v2
+name: second-opinion
+description: |
+  AI-Powered Medical Second Opinion Platform - Cloud-Agnostic Microservices Architecture v2.0
+  
+  This Helm chart deploys the complete medical second opinion platform with:
+  - Stateless microservices architecture
+  - PostgreSQL 17 database
+  - Redis caching layer
+  - Kafka event streaming
+  - Comprehensive monitoring and observability
+  - Service mesh integration (Istio/Linkerd)
+  - Multi-cloud deployment support
+
+type: application
+version: 2.0.0
+appVersion: "v2.0.0"
+
+# Minimum Kubernetes version
+kubeVersion: ">=1.28.0"
+
+# Keywords for chart discovery
+keywords:
+  - medical
+  - healthcare
+  - ai
+  - second-opinion
+  - microservices
+  - hipaa
+  - gdpr
+
+# Maintainers
+maintainers:
+  - name: Second Opinion Platform Team
+    email: devops@second-opinion.com
+    url: https://second-opinion.com
+
+# Home and source URLs
+home: https://second-opinion.com
+sources:
+  - https://github.com/second-opinion/platform
+
+# Chart icon
+icon: https://second-opinion.com/images/logo.png
+
+# Dependencies
+dependencies:
+  # PostgreSQL 17 database
+  - name: postgresql
+    version: "15.5.2"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+    tags:
+      - database
+    
+  # Redis for caching and sessions
+  - name: redis
+    version: "19.6.2"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled
+    tags:
+      - cache
+    
+  # Kafka for event streaming
+  - name: kafka
+    version: "29.3.2"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: kafka.enabled
+    tags:
+      - messaging
+    
+  # Prometheus for metrics
+  - name: prometheus
+    version: "25.27.0"
+    repository: "https://prometheus-community.github.io/helm-charts"
+    condition: monitoring.prometheus.enabled
+    tags:
+      - monitoring
+    
+  # Grafana for visualization
+  - name: grafana
+    version: "8.4.2"
+    repository: "https://grafana.github.io/helm-charts"
+    condition: monitoring.grafana.enabled
+    tags:
+      - monitoring
+    
+  # Jaeger for distributed tracing
+  - name: jaeger
+    version: "3.1.1"
+    repository: "https://jaegertracing.github.io/helm-charts"
+    condition: monitoring.jaeger.enabled
+    tags:
+      - monitoring
+      - tracing
+    
+  # Elasticsearch for search and analytics (optional)
+  - name: elasticsearch
+    version: "8.15.0"
+    repository: "https://helm.elastic.co"
+    condition: elasticsearch.enabled
+    tags:
+      - search
+      - analytics
+
+# Annotations
+annotations:
+  category: Healthcare
+  licenses: Commercial
+  images: |
+    - name: second-opinion-app
+      image: harbor.example.com/second-opinion/app:v2.0.0
+  artifacthub.io/changes: |
+    - kind: added
+      description: Cloud-agnostic microservices architecture
+    - kind: added
+      description: PostgreSQL 17 with advanced features
+    - kind: added
+      description: Comprehensive monitoring and observability
+    - kind: added
+      description: Service mesh integration
+    - kind: added
+      description: Multi-cloud deployment support
+  artifacthub.io/containsSecurityUpdates: "true"
+  artifacthub.io/prerelease: "false"
+  artifacthub.io/recommendations: |
+    - url: https://artifacthub.io/packages/helm/bitnami/postgresql
+    - url: https://artifacthub.io/packages/helm/bitnami/redis
+    - url: https://artifacthub.io/packages/helm/prometheus-community/prometheus

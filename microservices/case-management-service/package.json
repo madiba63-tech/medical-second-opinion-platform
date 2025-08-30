@@ -1,0 +1,83 @@
+{
+  "name": "@second-opinion/case-management-service",
+  "version": "1.0.0",
+  "description": "Case Management Service - Medical case creation, document handling, and lifecycle management",
+  "main": "src/server.ts",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:studio": "prisma studio",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "docker:build": "docker build -t case-management-service .",
+    "docker:run": "docker run -p 3002:3002 case-management-service"
+  },
+  "keywords": [
+    "microservice",
+    "case-management",
+    "medical",
+    "healthcare",
+    "documents"
+  ],
+  "author": "Second Opinion Platform Team",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^6.14.0",
+    "express": "^4.21.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.0.0",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.33.5",
+    "pdf-parse": "^1.1.1",
+    "mammoth": "^1.8.0",
+    "zod": "^3.23.8",
+    "winston": "^3.15.0",
+    "redis": "^4.7.0",
+    "express-rate-limit": "^7.4.1",
+    "express-validator": "^7.2.0",
+    "compression": "^1.7.5",
+    "dotenv": "^16.4.7",
+    "aws-sdk": "^2.1691.0",
+    "@azure/storage-blob": "^12.25.0",
+    "@google-cloud/storage": "^7.14.0",
+    "uuid": "^10.0.0",
+    "mime-types": "^2.1.35",
+    "file-type": "^19.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "axios": "^1.7.7"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/cors": "^2.8.17",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.8.6",
+    "@types/compression": "^1.7.5",
+    "@types/uuid": "^10.0.0",
+    "@types/mime-types": "^2.1.4",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/pdf-parse": "^1.1.4",
+    "@typescript-eslint/eslint-plugin": "^8.13.0",
+    "@typescript-eslint/parser": "^8.13.0",
+    "eslint": "^9.14.0",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.14",
+    "ts-jest": "^29.2.5",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "prisma": "^6.14.0"
+  },
+  "prisma": {
+    "schema": "./prisma/schema.prisma"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  }
+}

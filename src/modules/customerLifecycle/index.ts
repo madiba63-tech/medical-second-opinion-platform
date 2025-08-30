@@ -158,3 +158,7 @@ export class CustomerLifecycleModule {
 }
 
 export * from './customerLifecycleService';
+export * from './communicationService';
+export * from './personaService';
+export * from './automationService';
+export * from './portalIntegrationService';

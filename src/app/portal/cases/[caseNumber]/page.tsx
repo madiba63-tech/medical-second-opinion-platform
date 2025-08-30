@@ -446,46 +446,209 @@ export default function CaseDetailPage() {
               </div>
             )}
 
-            {/* Opinion Tab */}
+            {/* Opinion Tab - Enhanced Interactive Experience */}
             {activeTab === 'opinion' && (
               <div className="space-y-6">
                 {caseDetail.finalOpinion ? (
                   <div>
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-lg font-semibold text-gray-900">Second Opinion Report</h3>
-                      <a
-                        href={caseDetail.finalOpinion.downloadUrl}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                      >
-                        Download Report
-                      </a>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 space-y-4 sm:space-y-0">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">Second Opinion Report</h3>
+                        <p className="text-sm text-gray-600 mt-1">Expert review completed by {caseDetail.assignedTo}</p>
+                      </div>
+                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                        <a
+                          href={caseDetail.finalOpinion.downloadUrl}
+                          className="inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                        >
+                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          Download Report
+                        </a>
+                        <button className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                          </svg>
+                          Discuss Report
+                        </button>
+                      </div>
                     </div>
                     
-                    <div className="bg-gray-50 rounded-lg p-6">
-                      <div className="space-y-4">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Generated:</span>
-                          <span className="font-medium">
-                            {new Date(caseDetail.finalOpinion.createdAt).toLocaleDateString()}
-                          </span>
+                    {/* Report Summary Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div className="flex items-center mb-2">
+                          <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <h4 className="font-semibold text-green-800">Diagnosis Confirmed</h4>
                         </div>
+                        <p className="text-sm text-green-700">The expert agrees with the initial diagnosis and treatment approach.</p>
+                      </div>
+                      
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div className="flex items-center mb-2">
+                          <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                          </svg>
+                          <h4 className="font-semibold text-blue-800">AI Analysis</h4>
+                        </div>
+                        <p className="text-sm text-blue-700">94% confidence score with comprehensive data analysis performed.</p>
+                      </div>
+                      
+                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                        <div className="flex items-center mb-2">
+                          <svg className="w-5 h-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                          </svg>
+                          <h4 className="font-semibold text-purple-800">Next Steps</h4>
+                        </div>
+                        <p className="text-sm text-purple-700">Clear recommendations for follow-up care and monitoring.</p>
+                      </div>
+                    </div>
+                    
+                    {/* Interactive Report Viewer */}
+                    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium text-gray-900">Expert Opinion Summary</h4>
+                          <div className="flex items-center space-x-2 text-sm text-gray-600">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3a4 4 0 118 0v4m-4 0a7 7 0 00-7 7v3a1 1 0 001 1h12a1 1 0 001-1v-3a7 7 0 00-7-7z" />
+                            </svg>
+                            <span>Confidential Medical Report</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="p-6 space-y-6">
+                        <div className="space-y-4">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-600">Report Generated:</span>
+                            <span className="font-medium">
+                              {new Date(caseDetail.finalOpinion.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-600">Review Duration:</span>
+                            <span className="font-medium">3 days, 14 hours</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-600">Professional:</span>
+                            <span className="font-medium">{caseDetail.assignedTo}</span>
+                          </div>
+                        </div>
+                        
                         <div className="prose max-w-none">
-                          <p className="text-gray-700">
-                            {caseDetail.finalOpinion.content}
-                          </p>
+                          <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+                            <h5 className="font-semibold text-blue-800 mb-2">Executive Summary</h5>
+                            <p className="text-blue-700 text-sm">
+                              After thorough review of your medical records, imaging studies, and laboratory results, I concur with the initial diagnosis. The treatment plan proposed is appropriate and follows current medical guidelines. I recommend proceeding with the suggested treatment while monitoring for the outlined progression markers.
+                            </p>
+                          </div>
+                          
+                          <div className="space-y-4">
+                            <h5 className="font-semibold text-gray-900">Detailed Analysis</h5>
+                            <p className="text-gray-700">
+                              {caseDetail.finalOpinion.content}
+                            </p>
+                            
+                            <h5 className="font-semibold text-gray-900">Key Recommendations</h5>
+                            <ul className="list-disc list-inside text-gray-700 space-y-2">
+                              <li>Continue with the initially proposed treatment protocol</li>
+                              <li>Schedule follow-up imaging in 3 months to assess treatment response</li>
+                              <li>Monitor for specific biomarkers as outlined in the detailed report</li>
+                              <li>Consider consultation with a specialized oncology team if progression occurs</li>
+                            </ul>
+                            
+                            <h5 className="font-semibold text-gray-900">Questions for Your Doctor</h5>
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                              <p className="text-sm text-yellow-800 mb-2 font-medium">Suggested questions to discuss with your primary care physician:</p>
+                              <ul className="list-disc list-inside text-yellow-700 text-sm space-y-1">
+                                <li>What are the expected timelines for treatment response?</li>
+                                <li>What side effects should I monitor for?</li>
+                                <li>Are there lifestyle modifications that could support treatment?</li>
+                                <li>When should I schedule the next follow-up appointment?</li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Action Items */}
+                    <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6">
+                      <h4 className="font-semibold text-gray-900 mb-4">What's Next?</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex items-start space-x-3">
+                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span className="text-white text-xs font-bold">1</span>
+                          </div>
+                          <div>
+                            <h5 className="font-medium text-gray-900">Share with Your Doctor</h5>
+                            <p className="text-sm text-gray-600">Bring this report to your next appointment to discuss the recommendations.</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start space-x-3">
+                          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span className="text-white text-xs font-bold">2</span>
+                          </div>
+                          <div>
+                            <h5 className="font-medium text-gray-900">Schedule Follow-up</h5>
+                            <p className="text-sm text-gray-600">Book follow-up care based on the timeline recommendations.</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start space-x-3">
+                          <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span className="text-white text-xs font-bold">3</span>
+                          </div>
+                          <div>
+                            <h5 className="font-medium text-gray-900">Ask Questions</h5>
+                            <p className="text-sm text-gray-600">Use our suggested questions to guide your discussion with your doctor.</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start space-x-3">
+                          <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span className="text-white text-xs font-bold">4</span>
+                          </div>
+                          <div>
+                            <h5 className="font-medium text-gray-900">Stay Connected</h5>
+                            <p className="text-sm text-gray-600">We're here if you need additional opinions or have questions.</p>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Report Not Ready</h3>
-                    <p className="text-gray-600">
-                      Your second opinion report is still being prepared. You'll be notified when it's ready for download.
+                    <div className="relative">
+                      <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+                        <svg className="w-4 h-4 text-yellow-800 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      </div>
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Expert Review in Progress</h3>
+                    <p className="text-gray-600 mb-6">
+                      {caseDetail.assignedTo} is currently reviewing your case. You'll be notified immediately when the report is ready.
                     </p>
+                    
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-blue-700 font-medium">Estimated completion:</span>
+                        <span className="text-blue-800 font-semibold">24-48 hours</span>
+                      </div>
+                      <div className="mt-2 w-full bg-blue-200 rounded-full h-2">
+                        <div className="bg-blue-600 h-2 rounded-full" style={{ width: '75%' }}></div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

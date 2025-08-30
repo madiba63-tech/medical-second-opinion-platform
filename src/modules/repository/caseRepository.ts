@@ -25,18 +25,16 @@ export interface CaseWithRelations {
   geneticFamilyHistory?: string;
   paymentId?: string;
   consentAccepted: boolean;
-  status: string;
   createdAt: Date;
   updatedAt: Date;
   customerId: string;
-  files: Array<{
+  uploadedFiles: Array<{
     id: string;
-    fileName: string;
-    originalName: string;
-    fileSize: number;
-    mimeType: string;
-    category: string;
+    filename: string;
     s3Key: string;
+    mimetype: string;
+    size: number;
+    category: string;
     createdAt: Date;
   }>;
   customer?: {
@@ -45,17 +43,16 @@ export interface CaseWithRelations {
     lastName: string;
     email: string;
   };
-  assignments?: Array<{
+  caseAssignments?: Array<{
     id: string;
     professionalId: string;
-    status: string;
+    // status field not available in current schema
     assignedAt: Date;
     completedAt?: Date;
     professional?: {
       id: string;
       firstName: string;
       lastName: string;
-      specialty: string;
     };
   }>;
 }
@@ -84,7 +81,7 @@ export class CaseRepository {
       data: {
         ...data,
         geneticFamilyHistory: data.geneticFamilyHistory ? JSON.stringify(data.geneticFamilyHistory) : null,
-        status: 'submitted',
+        caseNumber: `CASE-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
       },
     });
   }
@@ -96,7 +93,7 @@ export class CaseRepository {
     return await prisma.case.findUnique({
       where: { id },
       include: {
-        files: true,
+        uploadedFiles: true,
         customer: {
           select: {
             id: true,
@@ -105,14 +102,13 @@ export class CaseRepository {
             email: true,
           },
         },
-        assignments: {
+        caseAssignments: {
           include: {
             professional: {
               select: {
                 id: true,
                 firstName: true,
                 lastName: true,
-                specialty: true,
               },
             },
           },
@@ -128,7 +124,7 @@ export class CaseRepository {
     return await prisma.case.findUnique({
       where: { caseNumber },
       include: {
-        files: true,
+        uploadedFiles: true,
         customer: {
           select: {
             id: true,
@@ -137,14 +133,13 @@ export class CaseRepository {
             email: true,
           },
         },
-        assignments: {
+        caseAssignments: {
           include: {
             professional: {
               select: {
                 id: true,
                 firstName: true,
                 lastName: true,
-                specialty: true,
               },
             },
           },
@@ -171,9 +166,7 @@ export class CaseRepository {
     // Build where clause
     const where: any = {};
     
-    if (filters.status) {
-      where.status = filters.status;
-    }
+    // Note: status filtering disabled until status field is added to schema
     
     if (filters.customerId) {
       where.customerId = filters.customerId;
@@ -202,7 +195,7 @@ export class CaseRepository {
       prisma.case.findMany({
         where,
         include: {
-          files: true,
+          uploadedFiles: true,
           customer: {
             select: {
               id: true,
@@ -211,15 +204,14 @@ export class CaseRepository {
               email: true,
             },
           },
-          assignments: {
+          caseAssignments: {
             include: {
               professional: {
                 select: {
                   id: true,
                   firstName: true,
                   lastName: true,
-                  specialty: true,
-                },
+                  },
               },
             },
           },
@@ -239,15 +231,7 @@ export class CaseRepository {
     };
   }
 
-  /**
-   * Update case status
-   */
-  async updateStatus(id: string, status: string) {
-    return await prisma.case.update({
-      where: { id },
-      data: { status },
-    });
-  }
+  // Status updates disabled until status field is added to schema
 
   /**
    * Update case data
@@ -264,7 +248,7 @@ export class CaseRepository {
     diseaseType: string;
     isFirstOccurrence: boolean;
     geneticFamilyHistory: string;
-    status: string;
+    // status field not available in current schema
   }>) {
     return await prisma.case.update({
       where: { id },
@@ -316,35 +300,19 @@ export class CaseRepository {
    * Get case statistics
    */
   async getStatistics() {
-    const [
-      totalCases,
-      submittedCases,
-      inProgressCases,
-      completedCases,
-      rejectedCases,
-    ] = await Promise.all([
-      prisma.case.count(),
-      prisma.case.count({ where: { status: 'submitted' } }),
-      prisma.case.count({ where: { status: 'in_progress' } }),
-      prisma.case.count({ where: { status: 'completed' } }),
-      prisma.case.count({ where: { status: 'rejected' } }),
-    ]);
-
+    const totalCases = await prisma.case.count();
+    
     return {
       total: totalCases,
-      submitted: submittedCases,
-      inProgress: inProgressCases,
-      completed: completedCases,
-      rejected: rejectedCases,
+      // Status-based stats disabled until schema includes status field
     };
   }
 
   /**
    * Get cases by status
    */
-  async getCasesByStatus(status: string, limit: number = 10) {
+  async getRecentCases(limit: number = 10) {
     return await prisma.case.findMany({
-      where: { status },
       include: {
         customer: {
           select: {
@@ -354,10 +322,10 @@ export class CaseRepository {
             email: true,
           },
         },
-        files: {
+        uploadedFiles: {
           select: {
             id: true,
-            fileName: true,
+            filename: true,
             category: true,
           },
         },

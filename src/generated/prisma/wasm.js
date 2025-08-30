@@ -114,6 +114,9 @@ Prisma.NullTypes = {
  */
 
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
+  ReadUncommitted: 'ReadUncommitted',
+  ReadCommitted: 'ReadCommitted',
+  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -121,6 +124,7 @@ exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
   hashedPassword: 'hashedPassword',
+  metadata: 'metadata',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -131,9 +135,29 @@ exports.Prisma.CustomerScalarFieldEnum = {
   middleName: 'middleName',
   lastName: 'lastName',
   dateOfBirth: 'dateOfBirth',
+  gender: 'gender',
   email: 'email',
   phone: 'phone',
+  hashedPassword: 'hashedPassword',
+  emailVerified: 'emailVerified',
+  phoneVerified: 'phoneVerified',
+  twoFactorEnabled: 'twoFactorEnabled',
+  twoFactorMethod: 'twoFactorMethod',
+  twoFactorSecret: 'twoFactorSecret',
+  preferredLanguage: 'preferredLanguage',
   preferredChannel: 'preferredChannel',
+  emailNotifications: 'emailNotifications',
+  smsNotifications: 'smsNotifications',
+  whatsappNotifications: 'whatsappNotifications',
+  googleId: 'googleId',
+  appleId: 'appleId',
+  microsoftId: 'microsoftId',
+  oauthProvider: 'oauthProvider',
+  profileCompleted: 'profileCompleted',
+  termsAccepted: 'termsAccepted',
+  privacyAccepted: 'privacyAccepted',
+  marketingConsent: 'marketingConsent',
+  metadata: 'metadata',
   userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -146,15 +170,115 @@ exports.Prisma.TempSubmissionScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
-exports.Prisma.CaseScalarFieldEnum = {
+exports.Prisma.CustomerSessionScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  sessionToken: 'sessionToken',
+  twoFactorVerified: 'twoFactorVerified',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  expiresAt: 'expiresAt',
+  lastActivity: 'lastActivity',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CustomerNotificationScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  type: 'type',
+  channel: 'channel',
+  subject: 'subject',
+  message: 'message',
+  language: 'language',
+  status: 'status',
+  scheduledFor: 'scheduledFor',
+  sentAt: 'sentAt',
+  readAt: 'readAt',
+  errorMessage: 'errorMessage',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ServicePricingScalarFieldEnum = {
+  id: 'id',
+  professionalLevel: 'professionalLevel',
+  urgencyLevel: 'urgencyLevel',
+  basePriceEUR: 'basePriceEUR',
+  currencyCode: 'currencyCode',
+  isActive: 'isActive',
+  validFrom: 'validFrom',
+  validUntil: 'validUntil',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.QuestionnaireResponseScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  questionnaireType: 'questionnaireType',
+  language: 'language',
+  responses: 'responses',
+  aiAnalysis: 'aiAnalysis',
+  completenessScore: 'completenessScore',
+  confidence: 'confidence',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CasePaymentScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  customerId: 'customerId',
+  amount: 'amount',
+  currency: 'currency',
+  professionalLevel: 'professionalLevel',
+  urgencyLevel: 'urgencyLevel',
+  status: 'status',
+  paymentMethod: 'paymentMethod',
+  transactionId: 'transactionId',
+  paymentDate: 'paymentDate',
+  refundDate: 'refundDate',
+  refundReason: 'refundReason',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MedicalCaseScalarFieldEnum = {
   id: 'id',
   caseNumber: 'caseNumber',
+  customerId: 'customerId',
   firstName: 'firstName',
   middleName: 'middleName',
   lastName: 'lastName',
   dateOfBirth: 'dateOfBirth',
   email: 'email',
   phone: 'phone',
+  title: 'title',
+  description: 'description',
+  chiefComplaint: 'chiefComplaint',
+  category: 'category',
+  medicalHistory: 'medicalHistory',
+  currentMedications: 'currentMedications',
+  allergies: 'allergies',
+  familyHistory: 'familyHistory',
+  status: 'status',
+  priority: 'priority',
+  requestedProfessionalLevel: 'requestedProfessionalLevel',
+  talentPool: 'talentPool',
+  urgencyReason: 'urgencyReason',
+  submittedAt: 'submittedAt',
+  reviewStartedAt: 'reviewStartedAt',
+  completedAt: 'completedAt',
+  expiresAt: 'expiresAt',
+  assignedProfessionalId: 'assignedProfessionalId',
+  assignedAt: 'assignedAt',
+  qualityScore: 'qualityScore',
+  completenessScore: 'completenessScore',
+  metadata: 'metadata',
+  tags: 'tags',
+  version: 'version',
   ethnicity: 'ethnicity',
   gender: 'gender',
   diseaseType: 'diseaseType',
@@ -162,9 +286,20 @@ exports.Prisma.CaseScalarFieldEnum = {
   geneticFamilyHistory: 'geneticFamilyHistory',
   paymentId: 'paymentId',
   consentAccepted: 'consentAccepted',
-  customerId: 'customerId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CaseStatusHistoryScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  reason: 'reason',
+  notes: 'notes',
+  changedByType: 'changedByType',
+  changedById: 'changedById',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.UploadedFileScalarFieldEnum = {
@@ -175,6 +310,9 @@ exports.Prisma.UploadedFileScalarFieldEnum = {
   mimetype: 'mimetype',
   size: 'size',
   category: 'category',
+  metadata: 'metadata',
+  checksum: 'checksum',
+  encrypted: 'encrypted',
   createdAt: 'createdAt'
 };
 
@@ -201,6 +339,8 @@ exports.Prisma.MedicalProfessionalScalarFieldEnum = {
   trialInvolved: 'trialInvolved',
   leadership: 'leadership',
   societyMemberships: 'societyMemberships',
+  competencyData: 'competencyData',
+  availability: 'availability',
   score: 'score',
   hashedPassword: 'hashedPassword',
   twoFactorMethod: 'twoFactorMethod',
@@ -212,6 +352,7 @@ exports.Prisma.MedicalProfessionalScalarFieldEnum = {
   bankDetails: 'bankDetails',
   vatNumber: 'vatNumber',
   billingRate: 'billingRate',
+  performanceMetrics: 'performanceMetrics',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -222,6 +363,9 @@ exports.Prisma.ProfessionalSessionScalarFieldEnum = {
   sessionToken: 'sessionToken',
   twoFactorVerified: 'twoFactorVerified',
   expiresAt: 'expiresAt',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  metadata: 'metadata',
   createdAt: 'createdAt'
 };
 
@@ -231,7 +375,11 @@ exports.Prisma.CaseAssignmentScalarFieldEnum = {
   professionalId: 'professionalId',
   status: 'status',
   assignedAt: 'assignedAt',
-  completedAt: 'completedAt'
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  estimatedDuration: 'estimatedDuration',
+  actualDuration: 'actualDuration',
+  metadata: 'metadata'
 };
 
 exports.Prisma.AIAnalysisScalarFieldEnum = {
@@ -239,6 +387,12 @@ exports.Prisma.AIAnalysisScalarFieldEnum = {
   caseId: 'caseId',
   analysisType: 'analysisType',
   results: 'results',
+  confidence: 'confidence',
+  processingTime: 'processingTime',
+  aiProvider: 'aiProvider',
+  modelVersion: 'modelVersion',
+  cost: 'cost',
+  metadata: 'metadata',
   createdAt: 'createdAt'
 };
 
@@ -248,6 +402,12 @@ exports.Prisma.MedicalOpinionScalarFieldEnum = {
   professionalId: 'professionalId',
   content: 'content',
   status: 'status',
+  version: 'version',
+  digitalSignature: 'digitalSignature',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  publishedAt: 'publishedAt',
+  metadata: 'metadata',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -257,8 +417,14 @@ exports.Prisma.ProfessionalPaymentScalarFieldEnum = {
   caseId: 'caseId',
   professionalId: 'professionalId',
   amount: 'amount',
+  currency: 'currency',
   status: 'status',
-  createdAt: 'createdAt'
+  paymentMethod: 'paymentMethod',
+  transactionId: 'transactionId',
+  processedAt: 'processedAt',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.AdminScalarFieldEnum = {
@@ -266,8 +432,90 @@ exports.Prisma.AdminScalarFieldEnum = {
   email: 'email',
   hashedPassword: 'hashedPassword',
   role: 'role',
+  permissions: 'permissions',
+  lastLoginAt: 'lastLoginAt',
+  metadata: 'metadata',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ProfessionalCandidateScalarFieldEnum = {
+  id: 'id',
+  firstName: 'firstName',
+  middleName: 'middleName',
+  lastName: 'lastName',
+  dateOfBirth: 'dateOfBirth',
+  nationality: 'nationality',
+  email: 'email',
+  phone: 'phone',
+  emailVerified: 'emailVerified',
+  emailVerificationToken: 'emailVerificationToken',
+  medicalDegreeUploaded: 'medicalDegreeUploaded',
+  residencyCompleted: 'residencyCompleted',
+  fellowshipCompleted: 'fellowshipCompleted',
+  boardCertificationNumber: 'boardCertificationNumber',
+  medicalLicenseNumber: 'medicalLicenseNumber',
+  licenseCountry: 'licenseCountry',
+  licenseState: 'licenseState',
+  licenseExpiry: 'licenseExpiry',
+  certificateGoodStanding: 'certificateGoodStanding',
+  yearsIndependentPractice: 'yearsIndependentPractice',
+  currentAffiliation: 'currentAffiliation',
+  subspecialties: 'subspecialties',
+  annualPatientLoad: 'annualPatientLoad',
+  secondOpinionsGiven: 'secondOpinionsGiven',
+  peerReviewedPublications: 'peerReviewedPublications',
+  clinicalTrialInvolvement: 'clinicalTrialInvolvement',
+  clinicalTrialDetails: 'clinicalTrialDetails',
+  conferencepresentations: 'conferencepresentations',
+  conferenceDetails: 'conferenceDetails',
+  teachingRoles: 'teachingRoles',
+  teachingDetails: 'teachingDetails',
+  oncologySocieties: 'oncologySocieties',
+  awardsHonors: 'awardsHonors',
+  leadershipRoles: 'leadershipRoles',
+  professionalReferences: 'professionalReferences',
+  malpracticeInsurance: 'malpracticeInsurance',
+  noActiveDisciplinary: 'noActiveDisciplinary',
+  dataProtectionAgreed: 'dataProtectionAgreed',
+  competencyScore: 'competencyScore',
+  competencyLevel: 'competencyLevel',
+  scoreBreakdown: 'scoreBreakdown',
+  applicationStatus: 'applicationStatus',
+  submittedAt: 'submittedAt',
+  reviewStartedAt: 'reviewStartedAt',
+  reviewedAt: 'reviewedAt',
+  reviewedBy: 'reviewedBy',
+  reviewNotes: 'reviewNotes',
+  rejectionReason: 'rejectionReason',
+  approvedToProfessionalId: 'approvedToProfessionalId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CandidateDocumentScalarFieldEnum = {
+  id: 'id',
+  candidateId: 'candidateId',
+  documentType: 'documentType',
+  fileName: 'fileName',
+  originalName: 'originalName',
+  s3Key: 's3Key',
+  mimetype: 'mimetype',
+  size: 'size',
+  checksum: 'checksum',
+  encrypted: 'encrypted',
+  uploadedAt: 'uploadedAt'
+};
+
+exports.Prisma.ApplicationReviewScalarFieldEnum = {
+  id: 'id',
+  candidateId: 'candidateId',
+  reviewerId: 'reviewerId',
+  decision: 'decision',
+  notes: 'notes',
+  scoreAdjustment: 'scoreAdjustment',
+  recommendedLevel: 'recommendedLevel',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -275,18 +523,18 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
-exports.Prisma.JsonNullValueInput = {
-  JsonNull: Prisma.JsonNull
-};
-
 exports.Prisma.NullableJsonNullValueInput = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
 };
 
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
 };
 
 exports.Prisma.JsonNullValueFilter = {
@@ -295,13 +543,50 @@ exports.Prisma.JsonNullValueFilter = {
   AnyNull: Prisma.AnyNull
 };
 
-exports.Prisma.QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
 };
+exports.Gender = exports.$Enums.Gender = {
+  MALE: 'MALE',
+  FEMALE: 'FEMALE',
+  PREFER_NOT_TO_SAY: 'PREFER_NOT_TO_SAY'
+};
+
+exports.TwoFactorMethod = exports.$Enums.TwoFactorMethod = {
+  EMAIL: 'EMAIL',
+  SMS: 'SMS',
+  WHATSAPP: 'WHATSAPP'
+};
+
+exports.Language = exports.$Enums.Language = {
+  ENGLISH: 'ENGLISH',
+  GERMAN: 'GERMAN'
+};
+
 exports.CommunicationChannel = exports.$Enums.CommunicationChannel = {
   EMAIL: 'EMAIL',
-  SMS: 'SMS'
+  SMS: 'SMS',
+  WHATSAPP: 'WHATSAPP'
+};
+
+exports.CaseUrgency = exports.$Enums.CaseUrgency = {
+  STANDARD: 'STANDARD',
+  URGENT: 'URGENT',
+  EMERGENCY: 'EMERGENCY'
+};
+
+exports.QuestionnaireType = exports.$Enums.QuestionnaireType = {
+  FAST_TRACK: 'FAST_TRACK',
+  COMPREHENSIVE: 'COMPREHENSIVE'
+};
+
+exports.PaymentStatus = exports.$Enums.PaymentStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  REFUNDED: 'REFUNDED'
 };
 
 exports.ProLevel = exports.$Enums.ProLevel = {
@@ -311,16 +596,49 @@ exports.ProLevel = exports.$Enums.ProLevel = {
   DISTINGUISHED: 'DISTINGUISHED'
 };
 
-exports.TwoFactorMethod = exports.$Enums.TwoFactorMethod = {
-  EMAIL: 'EMAIL',
-  SMS: 'SMS'
+exports.CandidateStatus = exports.$Enums.CandidateStatus = {
+  SUBMITTED: 'SUBMITTED',
+  UNDER_REVIEW: 'UNDER_REVIEW',
+  ADDITIONAL_INFO_REQUIRED: 'ADDITIONAL_INFO_REQUIRED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  WITHDRAWN: 'WITHDRAWN'
+};
+
+exports.DocumentType = exports.$Enums.DocumentType = {
+  GOVERNMENT_ID: 'GOVERNMENT_ID',
+  MEDICAL_DEGREE: 'MEDICAL_DEGREE',
+  RESIDENCY_CERTIFICATE: 'RESIDENCY_CERTIFICATE',
+  FELLOWSHIP_CERTIFICATE: 'FELLOWSHIP_CERTIFICATE',
+  BOARD_CERTIFICATION: 'BOARD_CERTIFICATION',
+  LICENSE_CERTIFICATE: 'LICENSE_CERTIFICATE',
+  GOOD_STANDING_CERTIFICATE: 'GOOD_STANDING_CERTIFICATE',
+  CV: 'CV',
+  PUBLICATION_1: 'PUBLICATION_1',
+  PUBLICATION_2: 'PUBLICATION_2',
+  PUBLICATION_3: 'PUBLICATION_3',
+  MALPRACTICE_INSURANCE: 'MALPRACTICE_INSURANCE',
+  ADDITIONAL_DIPLOMA: 'ADDITIONAL_DIPLOMA'
+};
+
+exports.ReviewDecision = exports.$Enums.ReviewDecision = {
+  APPROVE: 'APPROVE',
+  REJECT: 'REJECT',
+  REQUEST_MORE_INFO: 'REQUEST_MORE_INFO',
+  PENDING_REVIEW: 'PENDING_REVIEW'
 };
 
 exports.Prisma.ModelName = {
   User: 'User',
   Customer: 'Customer',
   TempSubmission: 'TempSubmission',
-  Case: 'Case',
+  CustomerSession: 'CustomerSession',
+  CustomerNotification: 'CustomerNotification',
+  ServicePricing: 'ServicePricing',
+  QuestionnaireResponse: 'QuestionnaireResponse',
+  CasePayment: 'CasePayment',
+  MedicalCase: 'MedicalCase',
+  CaseStatusHistory: 'CaseStatusHistory',
   UploadedFile: 'UploadedFile',
   MedicalProfessional: 'MedicalProfessional',
   ProfessionalSession: 'ProfessionalSession',
@@ -328,7 +646,10 @@ exports.Prisma.ModelName = {
   AIAnalysis: 'AIAnalysis',
   MedicalOpinion: 'MedicalOpinion',
   ProfessionalPayment: 'ProfessionalPayment',
-  Admin: 'Admin'
+  Admin: 'Admin',
+  ProfessionalCandidate: 'ProfessionalCandidate',
+  CandidateDocument: 'CandidateDocument',
+  ApplicationReview: 'ApplicationReview'
 };
 
 /**

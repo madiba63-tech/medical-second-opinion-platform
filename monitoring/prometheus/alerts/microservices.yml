@@ -1,0 +1,218 @@
+groups:
+  - name: microservices.rules
+    rules:
+      # Service availability alerts
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "{{ $labels.job }}"
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} has been down for more than 1 minute."
+          runbook_url: "https://docs.secondopinion.com/runbooks/service-down"
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: "{{ $labels.job }}"
+        annotations:
+          summary: "High error rate detected for {{ $labels.job }}"
+          description: "Error rate for {{ $labels.job }} is {{ $value | humanizePercentage }} over the last 5 minutes."
+          runbook_url: "https://docs.secondopinion.com/runbooks/high-error-rate"
+
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+          service: "{{ $labels.job }}"
+        annotations:
+          summary: "High latency detected for {{ $labels.job }}"
+          description: "95th percentile latency for {{ $labels.job }} is {{ $value }}s over the last 10 minutes."
+          runbook_url: "https://docs.secondopinion.com/runbooks/high-latency"
+
+      # Database connection alerts
+      - alert: DatabaseConnectionFailure
+        expr: postgresql_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL database connection failed"
+          description: "PostgreSQL database for {{ $labels.server }} is unreachable."
+          runbook_url: "https://docs.secondopinion.com/runbooks/database-connection"
+
+      - alert: HighDatabaseConnections
+        expr: postgresql_stat_database_numbackends / postgresql_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High database connection usage"
+          description: "Database {{ $labels.datname }} is using {{ $value | humanizePercentage }} of available connections."
+
+      # Memory usage alerts
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 90% ({{ $value | humanizePercentage }}) on {{ $labels.instance }}."
+          runbook_url: "https://docs.secondopinion.com/runbooks/high-memory"
+
+      # Disk usage alerts
+      - alert: HighDiskUsage
+        expr: (node_filesystem_size_bytes - node_filesystem_avail_bytes) / node_filesystem_size_bytes > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High disk usage detected"
+          description: "Disk usage is above 85% ({{ $value | humanizePercentage }}) on {{ $labels.instance }} for {{ $labels.mountpoint }}."
+
+      - alert: CriticalDiskUsage
+        expr: (node_filesystem_size_bytes - node_filesystem_avail_bytes) / node_filesystem_size_bytes > 0.95
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical disk usage detected"
+          description: "Disk usage is above 95% ({{ $value | humanizePercentage }}) on {{ $labels.instance }} for {{ $labels.mountpoint }}."
+
+      # CPU usage alerts
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% ({{ $value }}%) on {{ $labels.instance }}."
+
+      # Container alerts
+      - alert: ContainerKilled
+        expr: time() - container_last_seen > 60
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container killed"
+          description: "Container {{ $labels.name }} has disappeared."
+
+      - alert: ContainerHighCPUUsage
+        expr: (sum(rate(container_cpu_usage_seconds_total{name!=""}[3m])) by (name) * 100) > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container high CPU usage"
+          description: "Container {{ $labels.name }} CPU usage is above 80% ({{ $value }}%)."
+
+      - alert: ContainerHighMemoryUsage
+        expr: (sum(container_memory_working_set_bytes{name!=""}) by (name) / sum(container_spec_memory_limit_bytes{name!=""}) by (name) * 100) > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container high memory usage"
+          description: "Container {{ $labels.name }} memory usage is above 80% ({{ $value }}%)."
+
+      # Redis alerts
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis instance is down"
+          description: "Redis instance {{ $labels.instance }} is down."
+
+      - alert: RedisHighMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis high memory usage"
+          description: "Redis instance {{ $labels.instance }} is using more than 90% of its available memory."
+
+      # API Gateway specific alerts
+      - alert: APIGatewayHighRequestRate
+        expr: rate(http_requests_total{job="api-gateway"}[5m]) > 1000
+        for: 2m
+        labels:
+          severity: warning
+          service: "api-gateway"
+        annotations:
+          summary: "API Gateway receiving high request rate"
+          description: "API Gateway is receiving {{ $value }} requests per second."
+
+      - alert: APIGatewayRateLimitHit
+        expr: rate(http_requests_total{job="api-gateway",status="429"}[5m]) > 10
+        for: 1m
+        labels:
+          severity: warning
+          service: "api-gateway"
+        annotations:
+          summary: "API Gateway rate limit frequently hit"
+          description: "API Gateway is returning 429 responses at {{ $value }} per second."
+
+      # Identity Service specific alerts
+      - alert: IdentityServiceAuthFailures
+        expr: rate(http_requests_total{job="identity-service",endpoint="/api/v1/auth/login",status="401"}[5m]) > 5
+        for: 2m
+        labels:
+          severity: warning
+          service: "identity-service"
+        annotations:
+          summary: "High authentication failure rate"
+          description: "Identity service is experiencing {{ $value }} authentication failures per second."
+
+      # Case Management Service alerts
+      - alert: CaseServiceDocumentUploadFailures
+        expr: rate(http_requests_total{job="case-service",endpoint=~"/api/v1/documents.*",status=~"5.."}[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: "case-service"
+        annotations:
+          summary: "High document upload failure rate"
+          description: "Case service is experiencing {{ $value }} document upload failures per second."
+
+      # AI Service alerts
+      - alert: AIServiceAnalysisQueueBacklog
+        expr: ai_analysis_queue_size > 100
+        for: 5m
+        labels:
+          severity: warning
+          service: "ai-service"
+        annotations:
+          summary: "AI analysis queue backlog"
+          description: "AI service has {{ $value }} items in the analysis queue."
+
+      # Notification Service alerts
+      - alert: NotificationDeliveryFailures
+        expr: rate(notification_deliveries_total{status="failed"}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: "notification-service"
+        annotations:
+          summary: "High notification delivery failure rate"
+          description: "Notification service is experiencing {{ $value }} delivery failures per second."
+
+      # Load balancer alerts
+      - alert: LoadBalancerBackendDown
+        expr: traefik_backend_server_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Load balancer backend is down"
+          description: "Load balancer backend {{ $labels.backend }} server {{ $labels.server }} is down."

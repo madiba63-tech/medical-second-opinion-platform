@@ -1,0 +1,149 @@
+{{/*
+NOTES.txt - Installation and usage instructions
+*/}}
+🏥 AI-Powered Medical Second Opinion Platform v{{ .Chart.AppVersion }}
+==============================================================
+
+Thank you for installing {{ .Chart.Name }}!
+
+Your release is named: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+Cloud Provider: {{ .Values.global.cloudProvider }}
+
+📋 DEPLOYMENT INFORMATION
+------------------------
+Application Version: {{ .Values.app.image.tag }}
+Replicas: {{ .Values.app.replicaCount }}
+{{- if .Values.app.autoscaling.enabled }}
+Auto-scaling: Enabled ({{ .Values.app.autoscaling.minReplicas }}-{{ .Values.app.autoscaling.maxReplicas }} replicas)
+{{- else }}
+Auto-scaling: Disabled
+{{- end }}
+
+🌐 ACCESS INFORMATION
+--------------------
+{{- if .Values.app.ingress.enabled }}
+{{- range $host := .Values.app.ingress.hosts }}
+Application URL: https://{{ $host.host }}
+{{- end }}
+{{- else if eq .Values.app.service.type "LoadBalancer" }}
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+        Watch the status with: kubectl get service --namespace {{ .Release.Namespace }} {{ include "second-opinion.fullname" . }}-app
+{{- else if eq .Values.app.service.type "ClusterIP" }}
+  Application is only accessible from within the cluster.
+  
+  To access the application locally, run:
+  kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "second-opinion.fullname" . }}-app {{ .Values.app.service.port }}:{{ .Values.app.service.port }}
+  
+  Then visit: http://localhost:{{ .Values.app.service.port }}
+{{- end }}
+
+🔍 MONITORING
+-------------
+{{- if .Values.monitoring.prometheus.enabled }}
+Prometheus: http://{{ include "second-opinion.fullname" . }}-prometheus:9090
+{{- end }}
+{{- if .Values.monitoring.grafana.enabled }}
+Grafana: http://{{ include "second-opinion.fullname" . }}-grafana:3000
+  Default credentials: admin / {{ .Values.monitoring.grafana.adminPassword }}
+{{- end }}
+{{- if .Values.monitoring.jaeger.enabled }}
+Jaeger UI: http://{{ include "second-opinion.fullname" . }}-jaeger:16686
+{{- end }}
+
+🛡️  SERVICE MESH
+----------------
+{{- if .Values.serviceMesh.enabled }}
+Service Mesh: {{ .Values.serviceMesh.type | title }} (Enabled)
+mTLS Mode: {{ .Values.serviceMesh.istio.mtls.mode }}
+{{- else }}
+Service Mesh: Disabled
+{{- end }}
+
+🗄️  DATABASE
+------------
+{{- if .Values.postgresql.enabled }}
+PostgreSQL: {{ include "postgresql.primary.fullname" .Subcharts.postgresql }}:5432
+Database: {{ .Values.postgresql.auth.database }}
+Version: PostgreSQL 17 with JSONB support
+{{- else }}
+PostgreSQL: External (not managed by this chart)
+{{- end }}
+
+📦 STORAGE
+----------
+{{- if .Values.redis.enabled }}
+Redis: {{ include "redis.fullname" .Subcharts.redis }}-master:6379
+{{- end }}
+{{- if .Values.kafka.enabled }}
+Kafka: {{ include "kafka.fullname" .Subcharts.kafka }}:9092
+{{- end }}
+
+🔧 USEFUL COMMANDS
+------------------
+Check application status:
+  kubectl get pods --namespace {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "second-opinion.name" . }}
+
+View application logs:
+  kubectl logs --namespace {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "second-opinion.name" . }} -f
+
+Check application health:
+  kubectl exec --namespace {{ .Release.Namespace }} deployment/{{ include "second-opinion.fullname" . }}-app -- curl -s http://localhost:{{ .Values.app.service.targetPort }}/api/health
+
+Scale the application:
+  kubectl scale --namespace {{ .Release.Namespace }} deployment/{{ include "second-opinion.fullname" . }}-app --replicas=5
+
+Update the application:
+  helm upgrade {{ .Release.Name }} {{ .Chart.Name }} --namespace {{ .Release.Namespace }}
+
+🚨 SECURITY NOTES
+-----------------
+{{- if .Values.security.podSecurityStandards.enforced }}
+✅ Pod Security Standards: {{ .Values.security.podSecurityStandards.level | title }}
+{{- else }}
+⚠️  Pod Security Standards: Disabled
+{{- end }}
+
+{{- if .Values.security.networkPolicies.enabled }}
+✅ Network Policies: Enabled
+{{- else }}
+⚠️  Network Policies: Disabled
+{{- end }}
+
+{{- if .Values.security.rbac.create }}
+✅ RBAC: Enabled
+{{- else }}
+⚠️  RBAC: Disabled
+{{- end }}
+
+⚠️  IMPORTANT: This installation uses default passwords and secrets.
+   Please update them before using in production:
+   - Database passwords
+   - Application secrets (JWT, encryption keys)
+   - Monitoring passwords
+   - TLS certificates
+
+📚 DOCUMENTATION
+----------------
+Architecture Document: /context/Architectural-Concept-Document-v2.0-Cloud-Agnostic-Microservices.md
+Migration Plan: /MICROSERVICES_MIGRATION_PLAN.md
+Helm Values: charts/second-opinion/values.yaml
+
+🆘 TROUBLESHOOTING
+------------------
+If pods are not starting:
+  kubectl describe pods --namespace {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "second-opinion.name" . }}
+
+If database connection fails:
+  kubectl exec --namespace {{ .Release.Namespace }} deployment/{{ include "second-opinion.fullname" . }}-app -- npx prisma migrate status
+
+If ingress is not working:
+  kubectl get ingress --namespace {{ .Release.Namespace }}
+  kubectl describe ingress --namespace {{ .Release.Namespace }} {{ include "second-opinion.fullname" . }}-ingress
+
+For support, please check:
+- GitHub Issues: https://github.com/second-opinion/platform/issues
+- Documentation: https://docs.second-opinion.com
+- Architecture: v2.0 Cloud-Agnostic Microservices
+
+Happy healing! 🏥✨

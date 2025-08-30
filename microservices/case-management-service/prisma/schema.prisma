@@ -1,0 +1,353 @@
+// Case Management Service Database Schema
+// Following v2.0 Architecture requirements for PostgreSQL 17
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CaseStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  ASSIGNED
+  IN_ANALYSIS
+  AWAITING_PROFESSIONAL
+  PROFESSIONAL_REVIEWING
+  COMPLETED
+  ON_HOLD
+  CANCELLED
+  EXPIRED
+}
+
+enum CasePriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum CaseCategory {
+  ONCOLOGY
+  CARDIOLOGY
+  NEUROLOGY
+  ORTHOPEDICS
+  DERMATOLOGY
+  RADIOLOGY
+  PATHOLOGY
+  GENERAL_MEDICINE
+  PEDIATRICS
+  SURGERY
+  OTHER
+}
+
+enum DocumentType {
+  MEDICAL_RECORD
+  LAB_RESULT
+  IMAGING_STUDY
+  PATHOLOGY_REPORT
+  PRESCRIPTION
+  DISCHARGE_SUMMARY
+  CONSULTATION_REPORT
+  OTHER
+}
+
+enum DocumentStatus {
+  UPLOADED
+  PROCESSING
+  PROCESSED
+  FAILED
+  ARCHIVED
+}
+
+// Main Case Entity
+model Case {
+  id                String        @id @default(dbgenerated("gen_random_uuid()"))
+  caseNumber        String        @unique // Human-readable case identifier
+  
+  // Patient Information (denormalized for service independence)
+  customerId        String        // Reference to customer in Identity Service
+  firstName         String
+  middleName        String?
+  lastName          String
+  dateOfBirth       DateTime
+  email             String
+  phone             String?
+  
+  // Case Details
+  title             String?       // Brief case title
+  description       String?       // Patient's description of the case
+  chiefComplaint    String?       // Main medical concern
+  
+  // Medical Context
+  category          CaseCategory  @default(GENERAL_MEDICINE)
+  medicalHistory    Json?         // Previous medical conditions, surgeries, etc.
+  currentMedications Json?        // Current medications and dosages
+  allergies         Json?         // Known allergies and reactions
+  familyHistory     Json?         // Family medical history
+  
+  // Case Classification
+  status            CaseStatus    @default(DRAFT)
+  priority          CasePriority  @default(NORMAL)
+  urgencyReason     String?       // Reason for urgent/high priority
+  
+  // Timeline and Tracking
+  submittedAt       DateTime?     // When case was submitted by patient
+  reviewStartedAt   DateTime?     // When professional review began
+  completedAt       DateTime?     // When case was completed
+  expiresAt         DateTime?     // Case expiration date
+  
+  // Assignment Information
+  assignedProfessionalId String?  // Assigned medical professional
+  assignedAt        DateTime?     // When case was assigned
+  
+  // Quality Metrics
+  qualityScore      Float?        // Quality score from 0-100
+  completenessScore Float?        // Document completeness score
+  
+  // Relationships
+  documents         Document[]
+  statusHistory     CaseStatusHistory[]
+  assignments       CaseAssignment[]
+  reviews           CaseReview[]
+  
+  // Metadata and Search
+  metadata          Json?         // Flexible metadata storage
+  tags              String[]      // Case tags for categorization
+  searchVector      Unsupported("tsvector")? // Full-text search vector
+  
+  // Audit fields
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  version           Int           @default(1) // Optimistic locking
+
+  @@index([customerId])
+  @@index([caseNumber])
+  @@index([status])
+  @@index([category])
+  @@index([priority])
+  @@index([submittedAt])
+  @@index([assignedProfessionalId])
+  @@index([searchVector], type: Gin)
+  @@index([createdAt])
+  @@map("cases")
+}
+
+// Document Management
+model Document {
+  id                String          @id @default(dbgenerated("gen_random_uuid()"))
+  caseId            String
+  
+  // File Information
+  originalFilename  String
+  filename          String          // Stored filename
+  fileSize          BigInt
+  mimeType          String
+  fileExtension     String
+  
+  // Document Classification
+  documentType      DocumentType
+  category          String?         // Sub-category or specialty
+  description       String?         // Document description
+  
+  // Storage Information
+  cloudProvider     String          // aws, azure, gcp, local
+  bucketName        String?         // Cloud storage bucket
+  objectKey         String          // Cloud storage object key/path
+  storageRegion     String?         // Storage region for optimization
+  
+  // Processing Status
+  status            DocumentStatus  @default(UPLOADED)
+  processingStartedAt DateTime?
+  processingCompletedAt DateTime?
+  processingError   String?         // Error message if processing failed
+  
+  // Document Analysis
+  textContent       String?         // Extracted text content
+  ocrConfidence     Float?          // OCR confidence score (0-1)
+  pageCount         Int?            // Number of pages for multi-page documents
+  
+  // Security and Compliance
+  encryptionStatus  Boolean         @default(false)
+  checksumSHA256    String?         // File integrity checksum
+  virusScanStatus   String?         // CLEAN, INFECTED, PENDING
+  virusScanAt       DateTime?
+  
+  // Access Control
+  isPublic          Boolean         @default(false)
+  accessPermissions Json?           // Who can access this document
+  
+  // Relationships
+  case              Case            @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  extractions       DocumentExtraction[]
+  
+  // Metadata
+  metadata          Json?           // Additional file metadata
+  uploadedByType    String          // customer, professional, system
+  uploadedById      String          // ID of the uploader
+  
+  // Audit fields
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([caseId])
+  @@index([documentType])
+  @@index([status])
+  @@index([uploadedById])
+  @@index([createdAt])
+  @@map("documents")
+}
+
+// Document Text/Data Extraction Results
+model DocumentExtraction {
+  id               String    @id @default(dbgenerated("gen_random_uuid()"))
+  documentId       String
+  
+  // Extraction Details
+  extractionType   String    // text, metadata, medical_data, etc.
+  extractedData    Json      // Structured extracted data
+  confidence       Float?    // Confidence score for extraction
+  
+  // Processing Information
+  extractorName    String    // Name of the extraction service/algorithm
+  extractorVersion String?   // Version of the extractor
+  processingTime   Int?      // Processing time in milliseconds
+  
+  // Relationships
+  document         Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  
+  createdAt        DateTime  @default(now())
+
+  @@index([documentId])
+  @@index([extractionType])
+  @@map("document_extractions")
+}
+
+// Case Status Change History
+model CaseStatusHistory {
+  id          String     @id @default(dbgenerated("gen_random_uuid()"))
+  caseId      String
+  
+  // Status Change Information
+  fromStatus  CaseStatus?
+  toStatus    CaseStatus
+  reason      String?    // Reason for status change
+  notes       String?    // Additional notes
+  
+  // Change Actor
+  changedByType String   // customer, professional, system
+  changedById   String   // ID of the person who made the change
+  
+  // Relationships
+  case        Case       @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime   @default(now())
+
+  @@index([caseId])
+  @@index([toStatus])
+  @@index([changedById])
+  @@index([createdAt])
+  @@map("case_status_history")
+}
+
+// Case Assignments to Professionals
+model CaseAssignment {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()"))
+  caseId              String
+  professionalId      String    // Reference to professional in Professional Service
+  
+  // Assignment Details
+  assignmentType      String    // primary, secondary, consultant
+  specialization      String?   // Required specialization
+  isActive            Boolean   @default(true)
+  
+  // Timeline
+  assignedAt          DateTime  @default(now())
+  acceptedAt          DateTime?
+  completedAt         DateTime?
+  declinedAt          DateTime?
+  
+  // Assignment Metadata
+  priority            CasePriority @default(NORMAL)
+  estimatedHours      Int?      // Estimated time commitment
+  deadlineAt          DateTime?
+  notes               String?   // Assignment notes
+  
+  // Relationships
+  case                Case      @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([caseId])
+  @@index([professionalId])
+  @@index([isActive])
+  @@index([assignedAt])
+  @@map("case_assignments")
+}
+
+// Case Reviews and Opinions
+model CaseReview {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()"))
+  caseId              String
+  reviewerId          String    // Professional or AI system ID
+  reviewerType        String    // professional, ai_system
+  
+  // Review Content
+  reviewType          String    // initial_review, second_opinion, follow_up
+  findings            String?   // Clinical findings
+  diagnosis           String?   // Diagnosis or differential diagnosis
+  recommendations     String?   // Treatment recommendations
+  
+  // Review Quality
+  confidenceScore     Float?    // Confidence in the review (0-1)
+  reviewDuration      Int?      // Time spent on review (minutes)
+  
+  // Review Status
+  status              String    @default("draft") // draft, submitted, approved
+  isActive            Boolean   @default(true)
+  
+  // Relationships
+  case                Case      @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([caseId])
+  @@index([reviewerId])
+  @@index([reviewerType])
+  @@index([status])
+  @@map("case_reviews")
+}
+
+// Temporary Case Submissions (before patient registration)
+model TempCaseSubmission {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()"))
+  
+  // Submission Data
+  patientData         Json      // Patient information
+  caseData            Json      // Case details and medical information
+  documentReferences  Json?     // References to uploaded documents
+  
+  // Lifecycle Management
+  submissionToken     String    @unique // Token for accessing the submission
+  expiresAt           DateTime  // Expiration time
+  convertedToCaseId   String?   // Case ID if converted
+  convertedAt         DateTime? // Conversion timestamp
+  
+  // Metadata
+  clientIP            String?
+  userAgent           String?
+  
+  createdAt           DateTime  @default(now())
+
+  @@index([submissionToken])
+  @@index([expiresAt])
+  @@index([convertedAt])
+  @@map("temp_case_submissions")
+}

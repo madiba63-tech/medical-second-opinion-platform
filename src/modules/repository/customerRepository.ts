@@ -38,7 +38,6 @@ export class CustomerRepository {
           select: {
             id: true,
             caseNumber: true,
-            status: true,
             createdAt: true,
           },
           orderBy: { createdAt: 'desc' },
@@ -58,7 +57,6 @@ export class CustomerRepository {
           select: {
             id: true,
             caseNumber: true,
-            status: true,
             createdAt: true,
           },
           orderBy: { createdAt: 'desc' },

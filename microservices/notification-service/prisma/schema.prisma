@@ -1,0 +1,481 @@
+// Notification Service Database Schema
+// Following v2.0 Architecture requirements for PostgreSQL 17
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum NotificationType {
+  CASE_UPDATE
+  ASSIGNMENT
+  DEADLINE_REMINDER
+  SYSTEM_ALERT
+  MARKETING
+  SECURITY_ALERT
+  BILLING
+  WELCOME
+  PASSWORD_RESET
+  EMAIL_VERIFICATION
+  APPOINTMENT_REMINDER
+  REVIEW_REQUEST
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  PUSH
+  IN_APP
+  WEBHOOK
+  SLACK
+}
+
+enum NotificationStatus {
+  QUEUED
+  PROCESSING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+  BOUNCED
+  UNSUBSCRIBED
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum RecipientType {
+  CUSTOMER
+  PROFESSIONAL
+  ADMIN
+  SYSTEM
+}
+
+// Main Notification Entity
+model Notification {
+  id                String                @id @default(dbgenerated("gen_random_uuid()"))
+  
+  // Notification Identification
+  type              NotificationType
+  channel           NotificationChannel
+  priority          NotificationPriority  @default(NORMAL)
+  
+  // Recipient Information
+  recipientId       String                // User ID from respective service
+  recipientType     RecipientType
+  recipientEmail    String?               // Denormalized for performance
+  recipientPhone    String?               // Denormalized for performance
+  
+  // Content
+  title             String
+  message           String
+  htmlContent       String?               // HTML version for emails
+  templateId        String?               // Reference to notification template
+  templateData      Json?                 // Data for template rendering
+  
+  // Delivery Configuration
+  channel           NotificationChannel
+  deliveryMethod    String?               // specific provider (sendgrid, twilio, etc.)
+  maxRetries        Int                   @default(3)
+  retryCount        Int                   @default(0)
+  
+  // Status and Tracking
+  status            NotificationStatus    @default(QUEUED)
+  statusDetails     String?               // Additional status information
+  
+  // Scheduling
+  scheduledAt       DateTime?             // When to send (null = immediate)
+  sentAt            DateTime?             // When actually sent
+  deliveredAt       DateTime?             // When delivered
+  readAt            DateTime?             // When read by recipient
+  
+  // External References
+  externalId        String?               // Provider's message ID
+  externalStatus    String?               // Provider's status
+  webhookData       Json?                 // Webhook response data
+  
+  // Context and Relationships
+  contextId         String?               // Case ID, Assignment ID, etc.
+  contextType       String?               // case, assignment, billing, etc.
+  campaignId        String?               // Marketing campaign ID
+  
+  // Error Handling
+  errorMessage      String?
+  errorDetails      Json?
+  lastRetryAt       DateTime?
+  nextRetryAt       DateTime?
+  
+  // Preferences and Compliance
+  unsubscribeToken  String?               @unique
+  optedOut          Boolean               @default(false)
+  optedOutAt        DateTime?
+  
+  // Relationships
+  template          NotificationTemplate? @relation(fields: [templateId], references: [id])
+  events            NotificationEvent[]
+  
+  // Metadata
+  metadata          Json?                 // Additional data
+  tags              String[]              // Notification tags
+  
+  // Audit fields
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  @@index([recipientId])
+  @@index([recipientType])
+  @@index([type])
+  @@index([channel])
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([contextId, contextType])
+  @@index([campaignId])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// Notification Templates
+model NotificationTemplate {
+  id                String              @id @default(dbgenerated("gen_random_uuid()"))
+  
+  // Template Identification
+  name              String              @unique
+  displayName       String
+  description       String?
+  category          String?             // system, marketing, transactional
+  
+  // Template Content
+  subject           String?             // For email notifications
+  bodyText          String              // Plain text version
+  bodyHtml          String?             // HTML version
+  
+  // Template Configuration
+  channel           NotificationChannel
+  language          String              @default("en")
+  isActive          Boolean             @default(true)
+  
+  // Template Variables
+  variables         Json?               // Available template variables
+  requiredVariables String[]            // Required variables
+  
+  // Design and Branding
+  brandingConfig    Json?               // Colors, fonts, logos, etc.
+  layoutId          String?             // Reference to layout template
+  
+  // Version Control
+  version           String              @default("1.0.0")
+  parentTemplateId  String?             // For template variations
+  
+  // Usage Statistics
+  usageCount        BigInt              @default(0)
+  lastUsedAt        DateTime?
+  
+  // Relationships
+  notifications     Notification[]
+  parentTemplate    NotificationTemplate? @relation("TemplateHierarchy", fields: [parentTemplateId], references: [id])
+  childTemplates    NotificationTemplate[] @relation("TemplateHierarchy")
+  
+  // Audit fields
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  createdBy         String?
+  updatedBy         String?
+
+  @@index([name])
+  @@index([category])
+  @@index([channel])
+  @@index([isActive])
+  @@map("notification_templates")
+}
+
+// Notification Events and State Changes
+model NotificationEvent {
+  id                String            @id @default(dbgenerated("gen_random_uuid()"))
+  notificationId    String
+  
+  // Event Details
+  eventType         String            // queued, sent, delivered, opened, clicked, bounced, etc.
+  eventData         Json?             // Event-specific data
+  
+  // Timestamp and Source
+  occurredAt        DateTime          @default(now())
+  source            String?           // Provider, webhook, user_action
+  
+  // Provider Information
+  providerId        String?           // External provider ID
+  providerStatus    String?           // Provider-specific status
+  
+  // User Interaction
+  userAgent         String?
+  ipAddress         String?
+  deviceInfo        Json?
+  
+  // Relationships
+  notification      Notification      @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@index([notificationId])
+  @@index([eventType])
+  @@index([occurredAt])
+  @@index([source])
+  @@map("notification_events")
+}
+
+// Recipient Preferences
+model RecipientPreference {
+  id                String              @id @default(dbgenerated("gen_random_uuid()"))
+  
+  // Recipient Identification
+  recipientId       String
+  recipientType     RecipientType
+  
+  // Channel Preferences
+  emailEnabled      Boolean             @default(true)
+  smsEnabled        Boolean             @default(true)
+  pushEnabled       Boolean             @default(true)
+  inAppEnabled      Boolean             @default(true)
+  
+  // Notification Type Preferences
+  caseUpdates       Boolean             @default(true)
+  assignments       Boolean             @default(true)
+  reminders         Boolean             @default(true)
+  systemAlerts      Boolean             @default(true)
+  marketing         Boolean             @default(false)
+  securityAlerts    Boolean             @default(true)
+  billing           Boolean             @default(true)
+  
+  // Quiet Hours
+  quietHoursEnabled Boolean             @default(false)
+  quietHoursStart   String?             // HH:MM format
+  quietHoursEnd     String?             // HH:MM format
+  timeZone          String?
+  
+  // Frequency Limits
+  maxEmailsPerDay   Int?                // Rate limiting
+  maxSmsPerDay      Int?
+  lastEmailSentAt   DateTime?
+  lastSmsSentAt     DateTime?
+  
+  // Contact Information
+  primaryEmail      String?
+  secondaryEmail    String?
+  primaryPhone      String?
+  secondaryPhone    String?
+  pushTokens        String[]            // FCM/APNS tokens
+  
+  // Metadata
+  metadata          Json?
+  
+  // Audit fields
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@unique([recipientId, recipientType])
+  @@index([recipientId])
+  @@index([recipientType])
+  @@map("recipient_preferences")
+}
+
+// Push Notification Subscriptions
+model PushSubscription {
+  id                String            @id @default(dbgenerated("gen_random_uuid()"))
+  
+  // Recipient Information
+  recipientId       String
+  recipientType     RecipientType
+  
+  // Subscription Details
+  endpoint          String
+  p256dhKey         String?           // For web push
+  authKey           String?           // For web push
+  
+  // Device Information
+  deviceType        String            // web, ios, android
+  deviceId          String?           // Device identifier
+  appVersion        String?
+  
+  // Subscription Status
+  isActive          Boolean           @default(true)
+  lastUsedAt        DateTime?
+  
+  // Error Tracking
+  failureCount      Int               @default(0)
+  lastFailureAt     DateTime?
+  lastFailureReason String?
+  
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([recipientId])
+  @@index([endpoint])
+  @@index([isActive])
+  @@map("push_subscriptions")
+}
+
+// Webhook Configurations
+model WebhookConfig {
+  id                String            @id @default(dbgenerated("gen_random_uuid()"))
+  
+  // Configuration Details
+  name              String
+  url               String
+  method            String            @default("POST")
+  headers           Json?             // HTTP headers
+  
+  // Authentication
+  authType          String?           // bearer, basic, api_key
+  authCredentials   Json?             // Encrypted credentials
+  
+  // Event Filtering
+  eventTypes        String[]          // Which events to send
+  recipientTypes    RecipientType[]   // Which recipient types
+  
+  // Retry Configuration
+  maxRetries        Int               @default(3)
+  retryDelayMs      Int               @default(1000)
+  timeoutMs         Int               @default(30000)
+  
+  // Status
+  isActive          Boolean           @default(true)
+  lastTriggeredAt   DateTime?
+  failureCount      Int               @default(0)
+  
+  // Relationships
+  deliveries        WebhookDelivery[]
+  
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([isActive])
+  @@map("webhook_configs")
+}
+
+// Webhook Delivery Logs
+model WebhookDelivery {
+  id                String            @id @default(dbgenerated("gen_random_uuid()"))
+  webhookConfigId   String
+  notificationId    String?
+  
+  // Request Details
+  requestUrl        String
+  requestMethod     String
+  requestHeaders    Json?
+  requestBody       Json?
+  
+  // Response Details
+  responseStatus    Int?
+  responseHeaders   Json?
+  responseBody      String?
+  responseTime      Int?              // milliseconds
+  
+  // Status
+  success           Boolean
+  errorMessage      String?
+  retryCount        Int               @default(0)
+  
+  // Relationships
+  webhookConfig     WebhookConfig     @relation(fields: [webhookConfigId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime          @default(now())
+
+  @@index([webhookConfigId])
+  @@index([notificationId])
+  @@index([success])
+  @@index([createdAt])
+  @@map("webhook_deliveries")
+}
+
+// Notification Campaigns
+model NotificationCampaign {
+  id                String            @id @default(dbgenerated("gen_random_uuid()"))
+  
+  // Campaign Details
+  name              String            @unique
+  description       String?
+  type              String            // promotional, announcement, reminder
+  
+  // Targeting
+  targetAudience    Json              // Targeting criteria
+  recipientCount    Int?              // Estimated recipients
+  
+  // Content
+  templateId        String?
+  customContent     Json?             // Campaign-specific content
+  
+  // Scheduling
+  scheduledAt       DateTime?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  
+  // Status
+  status            String            @default("draft") // draft, scheduled, running, completed, cancelled
+  
+  // Results
+  sentCount         Int               @default(0)
+  deliveredCount    Int               @default(0)
+  openedCount       Int               @default(0)
+  clickedCount      Int               @default(0)
+  unsubscribeCount  Int               @default(0)
+  bounceCount       Int               @default(0)
+  
+  // Configuration
+  maxRecipientsPerHour Int?           // Rate limiting
+  
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  createdBy         String?
+
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([type])
+  @@map("notification_campaigns")
+}
+
+// Analytics and Reporting
+model NotificationAnalytic {
+  id                String            @id @default(dbgenerated("gen_random_uuid()"))
+  
+  // Time Period
+  date              DateTime          @db.Date
+  hour              Int?              // 0-23 for hourly metrics
+  
+  // Dimensions
+  channel           NotificationChannel?
+  type              NotificationType?
+  recipientType     RecipientType?
+  templateId        String?
+  campaignId        String?
+  
+  // Metrics
+  sent              Int               @default(0)
+  delivered         Int               @default(0)
+  opened            Int               @default(0)
+  clicked           Int               @default(0)
+  bounced           Int               @default(0)
+  unsubscribed      Int               @default(0)
+  failed            Int               @default(0)
+  
+  // Calculated Metrics
+  deliveryRate      Float?            // delivered / sent
+  openRate          Float?            // opened / delivered
+  clickRate         Float?            // clicked / opened
+  bounceRate        Float?            // bounced / sent
+  unsubscribeRate   Float?            // unsubscribed / delivered
+  
+  createdAt         DateTime          @default(now())
+
+  @@unique([date, hour, channel, type, recipientType, templateId, campaignId])
+  @@index([date])
+  @@index([channel])
+  @@index([type])
+  @@index([campaignId])
+  @@map("notification_analytics")
+}

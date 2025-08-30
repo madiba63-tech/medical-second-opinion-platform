@@ -1,0 +1,360 @@
+# Default values for second-opinion Helm chart
+# Following v2.0 Architecture requirements for cloud-agnostic deployment
+
+# Global configuration
+global:
+  # Image registry settings
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+  
+  # Cloud provider settings (aws, azure, gcp, on-premises)
+  cloudProvider: "aws"
+  
+  # Environment (production, staging, development)
+  environment: "production"
+  
+  # Security settings
+  securityContext:
+    enabled: true
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+
+# Application configuration
+app:
+  # Image settings
+  image:
+    registry: harbor.example.com
+    repository: second-opinion/app
+    tag: "v2.0.0"
+    pullPolicy: IfNotPresent
+  
+  # Replica configuration
+  replicaCount: 3
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+    annotations: {}
+  
+  # Ingress configuration
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    hosts:
+      - host: app.second-opinion.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: second-opinion-tls
+        hosts:
+          - app.second-opinion.com
+  
+  # Resource limits and requests
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  
+  # Auto-scaling configuration
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 50
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  
+  # Health checks
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+    
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+    successThreshold: 1
+  
+  # Environment variables
+  env:
+    NODE_ENV: "production"
+    APP_VERSION: "2.0.0"
+    LOG_LEVEL: "info"
+    ENABLE_METRICS: "true"
+
+# PostgreSQL configuration
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "CHANGE_ME_IN_PRODUCTION"
+    username: "second_opinion_user"
+    password: "CHANGE_ME_IN_PRODUCTION"
+    database: "secondopinion"
+  
+  architecture: standalone  # or repmgr for HA
+  
+  primary:
+    persistence:
+      enabled: true
+      storageClass: "ssd"
+      size: 100Gi
+    
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+    
+    configuration: |
+      # PostgreSQL 17 optimized configuration
+      max_connections = 200
+      shared_buffers = 256MB
+      effective_cache_size = 1GB
+      maintenance_work_mem = 64MB
+      checkpoint_completion_target = 0.9
+      wal_buffers = 16MB
+      default_statistics_target = 100
+      random_page_cost = 1.1
+      
+      # JSON optimization
+      gin_fuzzy_search_limit = 0
+      gin_pending_list_limit = 4MB
+      
+      # Logging
+      log_statement = 'mod'
+      log_min_duration_statement = 1000
+      log_line_prefix = '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
+
+# Redis configuration
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "CHANGE_ME_IN_PRODUCTION"
+  
+  architecture: standalone  # or replication
+  
+  master:
+    persistence:
+      enabled: true
+      storageClass: "ssd"
+      size: 20Gi
+    
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    
+    configuration: |
+      # Redis optimized configuration
+      maxmemory 256mb
+      maxmemory-policy allkeys-lru
+      timeout 300
+      tcp-keepalive 60
+      databases 16
+
+# Kafka configuration
+kafka:
+  enabled: true
+  
+  persistence:
+    enabled: true
+    storageClass: "ssd"
+    size: 50Gi
+  
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  
+  logRetentionHours: 168  # 7 days
+  defaultReplicationFactor: 1
+  offsetsTopicReplicationFactor: 1
+  transactionStateLogReplicationFactor: 1
+
+# Monitoring configuration
+monitoring:
+  # Prometheus
+  prometheus:
+    enabled: true
+    server:
+      persistentVolume:
+        enabled: true
+        size: 50Gi
+        storageClass: "ssd"
+      resources:
+        limits:
+          cpu: 1000m
+          memory: 2Gi
+        requests:
+          cpu: 500m
+          memory: 1Gi
+  
+  # Grafana
+  grafana:
+    enabled: true
+    adminPassword: "CHANGE_ME_IN_PRODUCTION"
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: "ssd"
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+  
+  # Jaeger
+  jaeger:
+    enabled: true
+    strategy: production
+    cassandra:
+      persistence:
+        enabled: true
+        size: 50Gi
+        storageClass: "ssd"
+
+# Elasticsearch (optional)
+elasticsearch:
+  enabled: false
+  replicas: 1
+  minimumMasterNodes: 1
+  
+  esConfig:
+    elasticsearch.yml: |
+      cluster.name: "second-opinion"
+      network.host: 0.0.0.0
+      discovery.type: single-node
+      xpack.security.enabled: false
+      xpack.ml.enabled: false
+  
+  persistence:
+    enabled: true
+    size: 100Gi
+    storageClass: "ssd"
+
+# Service mesh configuration (Istio)
+serviceMesh:
+  enabled: true
+  type: "istio"  # or "linkerd"
+  
+  # Istio configuration
+  istio:
+    injection: enabled
+    gateway:
+      enabled: true
+      hosts:
+        - "api.second-opinion.com"
+        - "app.second-opinion.com"
+    
+    # mTLS configuration
+    mtls:
+      mode: "STRICT"
+    
+    # Traffic policies
+    trafficPolicy:
+      connectionPool:
+        tcp:
+          maxConnections: 100
+        http:
+          http1MaxPendingRequests: 50
+          maxRequestsPerConnection: 10
+
+# Security settings
+security:
+  # Pod Security Standards
+  podSecurityStandards:
+    enforced: true
+    level: "restricted"
+  
+  # Network policies
+  networkPolicies:
+    enabled: true
+  
+  # RBAC
+  rbac:
+    create: true
+  
+  # Service accounts
+  serviceAccount:
+    create: true
+    annotations: {}
+
+# Backup configuration
+backup:
+  enabled: true
+  
+  # Database backup
+  postgresql:
+    enabled: true
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    retention: "30d"
+  
+  # Redis backup
+  redis:
+    enabled: true
+    schedule: "0 3 * * *"  # Daily at 3 AM
+    retention: "7d"
+
+# Multi-cloud specific configurations
+cloudProvider:
+  aws:
+    region: "eu-central-1"
+    storageClass: "gp3"
+    loadBalancerType: "nlb"
+    
+  azure:
+    region: "West Europe"
+    storageClass: "managed-premium"
+    loadBalancerType: "Standard"
+    
+  gcp:
+    region: "europe-west3"
+    storageClass: "ssd-persistent-disk"
+    loadBalancerType: "External"
+
+# Node selectors and tolerations
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - second-opinion-app
+          topologyKey: kubernetes.io/hostname

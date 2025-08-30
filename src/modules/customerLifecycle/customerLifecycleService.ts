@@ -1,5 +1,8 @@
 import { CustomerRepository } from '../repository/customerRepository';
 import { CaseRepository } from '../repository/caseRepository';
+import { CommunicationService } from './communicationService';
+import { PersonaService } from './personaService';
+import { AutomationService } from './automationService';
 
 export interface CustomerLifecycleStage {
   stage: 'onboarding' | 'active' | 'inactive' | 'churned' | 'reactivated';
@@ -19,10 +22,18 @@ export interface CustomerJourney {
 export class CustomerLifecycleService {
   private customerRepository: CustomerRepository;
   private caseRepository: CaseRepository;
+  private communicationService: CommunicationService;
+  private personaService: PersonaService;
+  private automationService: AutomationService;
 
   constructor() {
     this.customerRepository = new CustomerRepository();
     this.caseRepository = new CaseRepository();
+    this.communicationService = new CommunicationService();
+    this.personaService = new PersonaService();
+    this.automationService = new AutomationService();
+    // Break circular dependency by setting the lifecycle service reference
+    this.automationService.setLifecycleService(this);
   }
 
   /**
@@ -137,6 +148,9 @@ export class CustomerLifecycleService {
     const customer = await this.customerRepository.findById(customerId);
     if (!customer) throw new Error('Customer not found');
 
+    // Analyze customer persona for personalized approach
+    const persona = await this.personaService.analyzeCustomerPersona(customerId);
+    
     // Update stage to reactivated
     await this.updateCustomerStage(customerId, {
       stage: 'reactivated',
@@ -144,10 +158,30 @@ export class CustomerLifecycleService {
       reason: 'Re-engagement campaign',
     });
 
-    // Send re-engagement email/SMS
-    console.log(`Sending re-engagement message to ${customer.email}`);
+    // Send personalized re-engagement communication
+    const success = await this.communicationService.sendLifecycleMessage(
+      customerId,
+      'inactive',
+      {
+        portalLink: `https://platform.com/portal`,
+        reactivationLink: `https://platform.com/submit?ref=reactivation&customer=${customerId}`,
+        personaType: persona.type
+      }
+    );
 
-    return { success: true, message: 'Re-engagement triggered' };
+    // Trigger automation for follow-up sequence
+    await this.automationService.triggerEventAutomation('reengagement_initiated', {
+      customerId,
+      persona: persona.type,
+      previousStage: 'inactive'
+    });
+
+    return { 
+      success, 
+      message: success ? 'Re-engagement triggered successfully' : 'Failed to send re-engagement message',
+      persona: persona.type,
+      confidence: persona.confidence
+    };
   }
 
   /**
@@ -197,5 +231,85 @@ export class CustomerLifecycleService {
     }
 
     return atRiskCustomers.sort((a, b) => a.healthScore - b.healthScore);
+  }
+
+  /**
+   * Get customer persona analysis
+   */
+  async getCustomerPersona(customerId: string) {
+    return await this.personaService.analyzeCustomerPersona(customerId);
+  }
+
+  /**
+   * Get personalized experience recommendations
+   */
+  async getPersonalizedRecommendations(customerId: string) {
+    const persona = await this.personaService.analyzeCustomerPersona(customerId);
+    return this.personaService.getPersonalizedExperienceRecommendations(persona);
+  }
+
+  /**
+   * Send lifecycle-based communication
+   */
+  async sendLifecycleCommunication(customerId: string, messageType: string, variables?: Record<string, string>) {
+    const journey = await this.getCustomerJourney(customerId);
+    if (!journey) return false;
+
+    return await this.communicationService.sendLifecycleMessage(
+      customerId,
+      journey.currentStage.stage,
+      variables
+    );
+  }
+
+  /**
+   * Get communication history
+   */
+  async getCommunicationHistory(customerId: string) {
+    return await this.communicationService.getCommunicationHistory(customerId);
+  }
+
+  /**
+   * Create automated lifecycle campaign
+   */
+  async createLifecycleCampaign(campaignConfig: any) {
+    return this.automationService.createAutomationRule(campaignConfig);
+  }
+
+  /**
+   * Execute all automated lifecycle triggers
+   */
+  async executeLifecycleAutomations() {
+    return await this.automationService.executeAutomations();
+  }
+
+  /**
+   * Get customer segments
+   */
+  async getCustomerSegments() {
+    return await this.personaService.createCustomerSegments();
+  }
+
+  /**
+   * Trigger case submission automation
+   */
+  async onCaseSubmitted(customerId: string, caseNumber: string) {
+    await this.automationService.triggerEventAutomation('case_submitted', {
+      customerId,
+      caseNumber,
+      timestamp: new Date()
+    });
+  }
+
+  /**
+   * Trigger case completion automation
+   */
+  async onCaseCompleted(customerId: string, caseNumber: string, summary: string) {
+    await this.automationService.triggerEventAutomation('case_completed', {
+      customerId,
+      caseNumber,
+      summary,
+      timestamp: new Date()
+    });
   }
 }
