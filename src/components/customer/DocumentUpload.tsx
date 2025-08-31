@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { 
   Upload, 
   File, 
@@ -62,6 +62,13 @@ export default function DocumentUpload({
   const [dragActive, setDragActive] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Notify parent component when files are updated
+  useEffect(() => {
+    if (onUploadComplete && files.length > 0) {
+      onUploadComplete(files);
+    }
+  }, [files, onUploadComplete]);
 
   const validateFile = useCallback((file: File): { valid: boolean; error?: string } => {
     // Check file size
@@ -139,14 +146,23 @@ export default function DocumentUpload({
       }
 
       // Fallback to presigned URL approach
+      const tempSession = sessionStorage.getItem('temp_session_id') || localStorage.getItem('temp_session_id');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Add temp session header for anonymous users
+      if (tempSession) {
+        headers['x-temp-session'] = tempSession;
+      }
+      
       const presignResponse = await fetch('/api/presign-upload', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify([{
           filename: file.name,
-          mimetype: file.type
+          mimetype: file.type,
+          fileSize: file.size
         }])
       });
 

@@ -35,7 +35,8 @@ export default function RegisterStep({ tempSubmission, tempId, setTempId, onNext
 
     try {
       // First, create/update temp submission
-      const tempResponse = await fetch('/api/v1/funnel/temp', {
+      const tempUrl = tempId ? `/api/v1/funnel/temp?tempId=${tempId}` : '/api/v1/funnel/temp';
+      const tempResponse = await fetch(tempUrl, {
         method: tempId ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
