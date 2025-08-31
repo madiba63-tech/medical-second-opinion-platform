@@ -13,7 +13,7 @@ const Tesseract = require('tesseract.js');
 const pdf = require('pdf-parse');
 
 const app = express();
-const PORT = 3004;
+const PORT = process.env.PORT || 3004;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-for-development-only';
 
 // Initialize Prisma Client
