@@ -120,3 +120,5 @@ test-results.xml
 
 # Local development
 .local/
+# Professional recruitment service uploaded documents (development)
+microservices/professional-recruitment-service/documents/
