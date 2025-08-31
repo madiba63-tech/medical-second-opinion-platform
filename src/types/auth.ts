@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const PreferredChannel = z.enum(["EMAIL", "SMS"]);
+export const PreferredChannel = z.enum(["Email", "SMS", "WhatsApp"]);
 export type PreferredChannel = z.infer<typeof PreferredChannel>;
 
 export const RegisterPayload = z.object({
@@ -11,8 +11,12 @@ export const RegisterPayload = z.object({
   middleName: z.string().optional(),
   lastName: z.string().min(1),
   dob: z.string(),
+  gender: z.string().optional(),
+  countryOfResidence: z.string().optional(),
+  ethnicity: z.string().optional(),
   phone: z.string().optional(),
   preferredChannel: PreferredChannel.optional(),
+  languagePreference: z.string().optional(),
 });
 export type RegisterPayload = z.infer<typeof RegisterPayload>;
 

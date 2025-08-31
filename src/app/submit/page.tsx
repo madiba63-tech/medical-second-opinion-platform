@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import UploadStep from '@/components/submit/UploadStep';
-import ContextStep from '@/components/submit/ContextStep';
+import EnhancedContextStep from '@/components/submit/EnhancedContextStep';
+import ReviewConfirmationStep from '@/components/submit/ReviewConfirmationStep';
 import IdentifyStep from '@/components/submit/IdentifyStep';
 import RegisterStep from '@/components/submit/RegisterStep';
 import PaymentStep from '@/components/submit/PaymentStep';
@@ -191,7 +192,7 @@ export default function SubmitPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Submission Progress</h3>
               <span className="text-sm text-gray-500">
-                Step {currentStep} of {existingCustomer ? 5 : 6}
+                Step {currentStep} of {existingCustomer ? 6 : 7}
               </span>
             </div>
             
@@ -201,19 +202,19 @@ export default function SubmitPage() {
                 <span className="text-sm font-medium text-gray-700">
                   {(() => {
                     const steps = existingCustomer 
-                      ? ['Upload Documents', 'Medical Context', 'Your Information', 'Payment', 'Confirmation']
-                      : ['Upload Documents', 'Medical Context', 'Your Information', 'Create Account', 'Payment', 'Confirmation'];
+                      ? ['Upload Documents', 'Medical Questionnaire', 'Your Information', 'Review & Confirm', 'Payment', 'Confirmation']
+                      : ['Upload Documents', 'Medical Questionnaire', 'Your Information', 'Review & Confirm', 'Create Account', 'Payment', 'Confirmation'];
                     return steps[currentStep - 1];
                   })()}
                 </span>
                 <span className="text-xs text-gray-500">
-                  {Math.round((currentStep / (existingCustomer ? 5 : 6)) * 100)}%
+                  {Math.round((currentStep / (existingCustomer ? 6 : 7)) * 100)}%
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div 
                   className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${(currentStep / (existingCustomer ? 5 : 6)) * 100}%` }}
+                  style={{ width: `${(currentStep / (existingCustomer ? 6 : 7)) * 100}%` }}
                 ></div>
               </div>
             </div>
@@ -223,17 +224,19 @@ export default function SubmitPage() {
               <div className="relative flex justify-between items-center">
                 {(existingCustomer ? [
                   { step: 1, title: 'Upload Documents' },
-                  { step: 2, title: 'Medical Context' },
+                  { step: 2, title: 'Medical Questionnaire' },
                   { step: 3, title: 'Your Information' },
-                  { step: 4, title: 'Payment' },
-                  { step: 5, title: 'Confirmation' }
-                ] : [
-                  { step: 1, title: 'Upload Documents' },
-                  { step: 2, title: 'Medical Context' },
-                  { step: 3, title: 'Your Information' },
-                  { step: 4, title: 'Create Account' },
+                  { step: 4, title: 'Review & Confirm' },
                   { step: 5, title: 'Payment' },
                   { step: 6, title: 'Confirmation' }
+                ] : [
+                  { step: 1, title: 'Upload Documents' },
+                  { step: 2, title: 'Medical Questionnaire' },
+                  { step: 3, title: 'Your Information' },
+                  { step: 4, title: 'Review & Confirm' },
+                  { step: 5, title: 'Create Account' },
+                  { step: 6, title: 'Payment' },
+                  { step: 7, title: 'Confirmation' }
                 ]).map((item, index, array) => (
                   <div key={item.step} className="flex flex-col items-center flex-1 relative">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
@@ -286,7 +289,7 @@ export default function SubmitPage() {
             )}
             
             {currentStep === 2 && (
-              <ContextStep
+              <EnhancedContextStep
                 context={tempSubmission.contextInfo}
                 onUpdate={(context) => updateTempSubmission({ contextInfo: context })}
                 onNext={nextStep}
@@ -303,7 +306,15 @@ export default function SubmitPage() {
               />
             )}
             
-            {currentStep === 4 && !existingCustomer && (
+            {currentStep === 4 && (
+              <ReviewConfirmationStep
+                tempSubmission={tempSubmission}
+                onNext={nextStep}
+                onPrev={prevStep}
+              />
+            )}
+            
+            {currentStep === 5 && !existingCustomer && (
               <RegisterStep
                 tempSubmission={tempSubmission}
                 tempId={tempId}
@@ -313,23 +324,23 @@ export default function SubmitPage() {
               />
             )}
             
-            {currentStep === 4 && existingCustomer && (
-              <PaymentStep
-                tempId={tempId}
-                onNext={nextStep}
-                onPrev={prevStep}
-              />
-            )}
-            
-            {currentStep === 5 && !existingCustomer && (
-              <PaymentStep
-                tempId={tempId}
-                onNext={nextStep}
-                onPrev={prevStep}
-              />
-            )}
-            
             {currentStep === 5 && existingCustomer && (
+              <PaymentStep
+                tempId={tempId}
+                onNext={nextStep}
+                onPrev={prevStep}
+              />
+            )}
+            
+            {currentStep === 6 && !existingCustomer && (
+              <PaymentStep
+                tempId={tempId}
+                onNext={nextStep}
+                onPrev={prevStep}
+              />
+            )}
+            
+            {currentStep === 6 && existingCustomer && (
               <ConfirmStep
                 caseId={caseId}
                 setCaseId={setCaseId}
@@ -338,7 +349,7 @@ export default function SubmitPage() {
               />
             )}
             
-            {currentStep === 6 && !existingCustomer && (
+            {currentStep === 7 && !existingCustomer && (
               <ConfirmStep
                 caseId={caseId}
                 setCaseId={setCaseId}

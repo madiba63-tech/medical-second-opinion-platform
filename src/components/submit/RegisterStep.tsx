@@ -65,8 +65,12 @@ export default function RegisterStep({ tempSubmission, tempId, setTempId, onNext
           middleName: tempSubmission.personalInfo?.middleName || '',
           lastName: tempSubmission.personalInfo?.lastName || '',
           dob: tempSubmission.personalInfo?.dob || '',
+          gender: tempSubmission.personalInfo?.gender || '',
+          countryOfResidence: tempSubmission.personalInfo?.countryOfResidence || '',
+          ethnicity: tempSubmission.personalInfo?.ethnicity || '',
           phone: tempSubmission.personalInfo?.phone || '',
-          preferredChannel: tempSubmission.personalInfo?.preferredChannel || 'EMAIL',
+          preferredChannel: tempSubmission.personalInfo?.preferredChannel || 'Email',
+          languagePreference: tempSubmission.personalInfo?.languagePreference || 'English',
         }),
       });
 
@@ -160,7 +164,7 @@ export default function RegisterStep({ tempSubmission, tempId, setTempId, onNext
             onClick={onPrev}
             className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
           >
-            Back to Your Information
+            Back to Review
           </button>
           <button
             type="submit"
