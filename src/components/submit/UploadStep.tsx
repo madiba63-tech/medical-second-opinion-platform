@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import DocumentUpload from '@/components/customer/DocumentUpload';
 
 interface UploadedFile {
@@ -23,9 +23,9 @@ interface UploadStepProps {
 }
 
 export default function UploadStep({ files, onUpdate, onNext }: UploadStepProps) {
-  const handleUploadComplete = (uploadedFiles: UploadedFile[]) => {
+  const handleUploadComplete = useCallback((uploadedFiles: UploadedFile[]) => {
     onUpdate(uploadedFiles);
-  };
+  }, [onUpdate]);
 
   const completedFiles = files.filter(f => f.status === 'completed');
   const canProceed = completedFiles.length > 0;

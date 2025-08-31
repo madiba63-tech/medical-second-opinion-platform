@@ -31,8 +31,14 @@ The platform now supports three distinct environments to prevent conflicts and e
 
 ### Development Environment
 ```bash
-# Start complete development environment
+# Start complete development environment (robust version)
+./scripts/start-dev-robust.sh
+
+# Start complete development environment (basic version)
 ./scripts/start-dev.sh
+
+# Check development environment status
+./scripts/status-dev.sh
 
 # Stop development environment  
 ./scripts/stop-dev.sh

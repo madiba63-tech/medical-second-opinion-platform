@@ -34,7 +34,7 @@ export const CustomerProfile = z.object({
 export type CustomerProfile = z.infer<typeof CustomerProfile>;
 
 export const TempSubmissionPayload = z.object({
-  medicalFiles: z.array(z.any()).min(1).max(10),
+  medicalFiles: z.array(z.any()).min(0).max(10),
   contextInfo: z.any(),
   // optional early PII if provided before Identify step
 });

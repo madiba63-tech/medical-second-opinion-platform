@@ -40,15 +40,36 @@ const requestSchema = z.array(fileRequestSchema).max(10, "Maximum 10 files per r
 
 export async function POST(req: NextRequest) {
   try {
-    // Authenticate user first
-    const authResult = await authenticateRequest(req);
-    if (!authResult.success || !authResult.user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      );
+    // Check for temporary session in headers first
+    const tempSessionHeader = req.headers.get('x-temp-session');
+    let userId = null;
+    let userType = 'temp';
+    
+    console.log('Presign request - temp session header:', tempSessionHeader);
+    console.log('Presign request - all headers:', Object.fromEntries(req.headers.entries()));
+    
+    if (tempSessionHeader) {
+      // Use temporary session for anonymous users
+      userId = tempSessionHeader;
+      userType = 'temp';
+      console.log('Using temporary session:', userId);
+    } else {
+      // Try to authenticate user with JWT
+      const authResult = await authenticateRequest(req);
+      if (authResult.success && authResult.user) {
+        // Authenticated user
+        userId = authResult.user.id;
+        userType = 'authenticated';
+        console.log('Using authenticated user:', userId);
+      } else {
+        return NextResponse.json(
+          { error: "Authentication or temporary session required" },
+          { status: 401 }
+        );
+      }
     }
-
+    
+    // Parse request body
     const body = await req.json();
     
     // Validate input with comprehensive schema
@@ -81,16 +102,16 @@ export async function POST(req: NextRequest) {
         const randomId = crypto.randomUUID();
         // Sanitize filename to prevent path traversal
         const sanitizedFilename = path.basename(file.filename.replace(/[^a-zA-Z0-9.-]/g, '_'));
-        const key = `uploads/${authResult.user!.id}/${new Date().toISOString().split('T')[0]}/${randomId}-${sanitizedFilename}`;
+        const key = `uploads/${userId}/${new Date().toISOString().split('T')[0]}/${randomId}-${sanitizedFilename}`;
         
         const baseUrl = req.nextUrl.origin;
         const expiryTime = timestamp + 3600000; // 1 hour from now
         
         // Create secure signature for development
-        const signatureData = `${authResult.user!.id}:${key}:${expiryTime}`;
+        const signatureData = `${userId}:${key}:${expiryTime}`;
         const signature = Buffer.from(signatureData).toString('base64');
         
-        const signedUrl = `${baseUrl}/api/upload/dev-put?key=${encodeURIComponent(key)}&exp=${expiryTime}&sig=${encodeURIComponent(signature)}&uid=${authResult.user!.id}`;
+        const signedUrl = `${baseUrl}/api/upload/dev-put?key=${encodeURIComponent(key)}&exp=${expiryTime}&sig=${encodeURIComponent(signature)}&uid=${userId}&type=${userType}`;
         
         return {
           url: signedUrl,
@@ -116,7 +137,7 @@ export async function POST(req: NextRequest) {
         const randomId = crypto.randomUUID();
         // Sanitize filename and organize by user
         const sanitizedFilename = path.basename(file.filename.replace(/[^a-zA-Z0-9.-]/g, '_'));
-        const key = `uploads/${authResult.user!.id}/${new Date().toISOString().split('T')[0]}/${randomId}-${sanitizedFilename}`;
+        const key = `uploads/${userId}/${new Date().toISOString().split('T')[0]}/${randomId}-${sanitizedFilename}`;
 
         const command = new PutObjectCommand({
           Bucket: process.env.S3_BUCKET_NAME!,
@@ -124,9 +145,10 @@ export async function POST(req: NextRequest) {
           ContentType: file.mimetype,
           ContentLength: file.fileSize,
           Metadata: {
-            'uploaded-by': authResult.user!.id,
+            'uploaded-by': userId,
             'original-filename': file.filename,
-            'upload-timestamp': timestamp.toString()
+            'upload-timestamp': timestamp.toString(),
+            'user-type': userType
           },
         });
 
@@ -144,15 +166,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(uploadUrls);
   } catch (error) {
     if (error instanceof z.ZodError) {
+      console.error("Validation error in presign-upload:", error.issues);
       return NextResponse.json(
         { error: "Validation failed", details: error.issues },
         { status: 400 }
       );
     }
     
-    console.warn("File upload presigning failed");
+    console.error("File upload presigning failed:", error);
     return NextResponse.json(
-      { error: "Failed to generate upload URLs" },
+      { error: "Failed to generate upload URLs", details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

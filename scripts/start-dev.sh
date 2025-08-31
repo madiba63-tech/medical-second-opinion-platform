@@ -69,32 +69,32 @@ PORT=4000 npm run dev &
 sleep 2
 
 echo "🔐 Starting Patient Identity Service on port 4001..."
-cd microservices/patient-identity-service && PORT=4001 DATABASE_URL="$DATABASE_URL" JWT_SECRET="$JWT_SECRET" node identity-server.js &
+cd microservices/patient-identity-service && PORT=4001 DATABASE_URL="$DATABASE_URL" JWT_SECRET="$JWT_SECRET" node customer-onboarding-server.js &
 cd - >/dev/null
 sleep 1
 
 echo "📋 Starting Case Management Service on port 4002..."
-cd microservices/case-management-service && PORT=4002 DATABASE_URL="$DATABASE_URL" JWT_SECRET="$JWT_SECRET" node case-server.js &
+cd microservices/case-management-service && PORT=4002 DATABASE_URL="$DATABASE_URL" JWT_SECRET="$JWT_SECRET" node simple-server.js &
 cd - >/dev/null
 sleep 1
 
 echo "🤖 Starting AI Analysis Service on port 4003..."
-cd microservices/ai-analysis-service && PORT=4003 DATABASE_URL="$DATABASE_URL" JWT_SECRET="$JWT_SECRET" node ai-server.js &
+cd microservices/ai-analysis-service && PORT=4003 DATABASE_URL="$DATABASE_URL" JWT_SECRET="$JWT_SECRET" node simple-server.js &
 cd - >/dev/null
 sleep 1
 
 echo "👨‍⚕️ Starting Professional Service on port 4004..."
-cd microservices/professional-service && PORT=4004 DATABASE_URL="$DATABASE_URL" JWT_SECRET="$JWT_SECRET" node professional-server.js &
+cd microservices/professional-service && PORT=4004 DATABASE_URL="$DATABASE_URL" JWT_SECRET="$JWT_SECRET" node simple-server.js &
 cd - >/dev/null
 sleep 1
 
 echo "📢 Starting Notification Service on port 4005..."
-cd microservices/notification-service && PORT=4005 DATABASE_URL="$DATABASE_URL" JWT_SECRET="$JWT_SECRET" node notification-server.js &
+cd microservices/notification-service && PORT=4005 DATABASE_URL="$DATABASE_URL" JWT_SECRET="$JWT_SECRET" node simple-server.js &
 cd - >/dev/null
 sleep 1
 
-echo "📁 Starting File Management Service on port 4006..."
-cd microservices/file-management-service && PORT=4006 DATABASE_URL="$DATABASE_URL" JWT_SECRET="$JWT_SECRET" node file-server.js &
+echo "🏢 Starting Professional Recruitment Service on port 4006..."
+cd microservices/professional-recruitment-service && PORT=4006 DATABASE_URL="$DATABASE_URL" JWT_SECRET="$JWT_SECRET" node recruitment-server.js &
 cd - >/dev/null
 sleep 1
 
@@ -114,7 +114,7 @@ cd - >/dev/null
 sleep 1
 
 echo "🔄 Starting Workflow Engine Service on port 4010..."
-cd microservices/workflow-engine-service && PORT=4010 DATABASE_URL="$DATABASE_URL" JWT_SECRET="$JWT_SECRET" REDIS_PASSWORD="$REDIS_PASSWORD" node workflow-server.js &
+cd microservices/workflow-engine-service && PORT=4010 DATABASE_URL="$DATABASE_URL" JWT_SECRET="$JWT_SECRET" REDIS_URL="redis://:dev_redis_password@localhost:6380" node workflow-server.js &
 cd - >/dev/null
 
 echo ""
@@ -128,7 +128,7 @@ echo "  • Case Management:       http://localhost:4002"
 echo "  • AI Analysis:           http://localhost:4003"
 echo "  • Professional Service:  http://localhost:4004"
 echo "  • Notifications:         http://localhost:4005"
-echo "  • File Management:       http://localhost:4006"
+echo "  • Professional Recruitment: http://localhost:4006"
 echo "  • Payment & Billing:     http://localhost:4007"
 echo "  • Professional Workplace: http://localhost:4008"
 echo "  • Admin Management:      http://localhost:4009"

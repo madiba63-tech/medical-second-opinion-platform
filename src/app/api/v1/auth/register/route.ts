@@ -45,6 +45,7 @@ export async function POST(request: NextRequest) {
           email,
           phone,
           preferredChannel: preferredChannel || 'EMAIL',
+          hashedPassword, // Customer also needs the hashed password
           user: {
             connect: { id: user.id },
           },
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
           const caseNumber = `CASE-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
           
           // Create case
-          const caseRecord = await tx.case.create({
+          const caseRecord = await tx.medicalCase.create({
             data: {
               caseNumber,
               customerId: customer.id,
@@ -75,6 +76,8 @@ export async function POST(request: NextRequest) {
               dateOfBirth: new Date(dob),
               email,
               phone,
+              title: `Medical Second Opinion Case - ${payload.contextInfo?.diseaseType || 'General'}`,
+              description: `Second opinion request for ${payload.contextInfo?.diseaseType || 'medical condition'}`,
               ethnicity: payload.contextInfo?.ethnicity,
               gender: payload.contextInfo?.gender,
               diseaseType: payload.contextInfo?.diseaseType,
@@ -91,10 +94,10 @@ export async function POST(request: NextRequest) {
               data: payload.medicalFiles.map((file: any) => ({
                 caseId: caseRecord.id,
                 filename: file.name,
-                s3Key: file.s3Key,
+                s3Key: file.s3Key || file.uploadKey || file.key,
                 mimetype: file.type,
                 size: file.size,
-                category: file.category,
+                category: file.category || 'medical-record',
               })),
             });
           }

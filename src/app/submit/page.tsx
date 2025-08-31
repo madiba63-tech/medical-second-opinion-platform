@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import UploadStep from '@/components/submit/UploadStep';
 import ContextStep from '@/components/submit/ContextStep';
@@ -41,6 +41,54 @@ export default function SubmitPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    let hasCreatedSession = false;
+    
+    // Create temporary session for anonymous users
+    const createTempSession = async () => {
+      // Prevent multiple calls
+      if (hasCreatedSession) return;
+      hasCreatedSession = true;
+      
+      // Check if we already have a temp session to avoid duplicates
+      const existingSession = sessionStorage.getItem('temp_session_id') || localStorage.getItem('temp_session_id');
+      if (existingSession) {
+        console.log('Using existing temporary session:', existingSession);
+        setTempId(existingSession);
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:4001/api/v1/temp-sessions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ payload: {} }),
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          const sessionId = result.data.sessionId;
+          
+          // Store the session ID
+          sessionStorage.setItem('temp_session_id', sessionId);
+          localStorage.setItem('temp_session_id', sessionId);
+          setTempId(sessionId);
+          
+          console.log('Temporary session created:', sessionId);
+          console.log('Stored in sessionStorage:', sessionStorage.getItem('temp_session_id'));
+          console.log('Stored in localStorage:', localStorage.getItem('temp_session_id'));
+        }
+      } catch (error) {
+        console.error('Failed to create temporary session:', error);
+        // Generate a fallback temp session ID
+        const fallbackId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        sessionStorage.setItem('temp_session_id', fallbackId);
+        localStorage.setItem('temp_session_id', fallbackId);
+        setTempId(fallbackId);
+      }
+    };
+
     // Check if user is authenticated and fetch their info
     if (isReturningCustomer) {
       setIsLoading(true);
@@ -70,15 +118,22 @@ export default function SubmitPage() {
         }));
         setIsLoading(false);
       }, 500);
+    } else {
+      // For anonymous users, create a temporary session only once
+      createTempSession();
     }
   }, [isReturningCustomer]);
 
   const nextStep = () => setCurrentStep(prev => prev + 1);
   const prevStep = () => setCurrentStep(prev => prev - 1);
 
-  const updateTempSubmission = (data: Partial<TempSubmission>) => {
+  const updateTempSubmission = useCallback((data: Partial<TempSubmission>) => {
     setTempSubmission(prev => ({ ...prev, ...data }));
-  };
+  }, []);
+
+  const handleMedicalFilesUpdate = useCallback((files: any[]) => {
+    updateTempSubmission({ medicalFiles: files });
+  }, [updateTempSubmission]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -225,7 +280,7 @@ export default function SubmitPage() {
             {currentStep === 1 && (
               <UploadStep
                 files={tempSubmission.medicalFiles}
-                onUpdate={(files) => updateTempSubmission({ medicalFiles: files })}
+                onUpdate={handleMedicalFilesUpdate}
                 onNext={nextStep}
               />
             )}

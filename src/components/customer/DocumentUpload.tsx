@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { 
   Upload, 
   File, 
@@ -63,12 +63,19 @@ export default function DocumentUpload({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Notify parent component when files are updated
+  // Memoize completed files count to avoid infinite re-renders
+  const completedFilesCount = useMemo(() => 
+    files.filter(f => f.status === 'completed').length, 
+    [files]
+  );
+
+  // Notify parent component when completed files count changes
   useEffect(() => {
-    if (onUploadComplete && files.length > 0) {
-      onUploadComplete(files);
+    if (onUploadComplete && completedFilesCount > 0) {
+      const completedFiles = files.filter(f => f.status === 'completed');
+      onUploadComplete(completedFiles);
     }
-  }, [files, onUploadComplete]);
+  }, [completedFilesCount]);
 
   const validateFile = useCallback((file: File): { valid: boolean; error?: string } => {
     // Check file size

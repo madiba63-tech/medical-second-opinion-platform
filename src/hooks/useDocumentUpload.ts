@@ -189,17 +189,29 @@ export function useDocumentUpload(userOptions: UseDocumentUploadOptions = {}): U
   const getPresignedUrl = useCallback(async (
     filename: string,
     contentType: string,
+    fileSize: number,
     metadata: FileMetadata = {}
   ): Promise<{ uploadUrl: string; s3Key: string }> => {
     const authToken = localStorage.getItem('auth_token');
+    const tempSession = sessionStorage.getItem('temp_session_id') || localStorage.getItem('temp_session_id');
+    
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
     
-    // Only add authorization if we have a valid token
-    if (authToken && authToken.trim() && authToken !== 'null' && authToken !== 'undefined') {
-      headers['Authorization'] = `Bearer ${authToken}`;
+    // Always add temp session if available (for anonymous users)
+    if (tempSession) {
+      headers['x-temp-session'] = tempSession;
     }
+    
+    // For testing: disable auth token usage to test anonymous flow
+    // if (authToken && authToken.trim() && authToken !== 'null' && authToken !== 'undefined' && !tempSession) {
+    //   headers['Authorization'] = `Bearer ${authToken}`;
+    // }
+    
+    console.log('Sending presign request with headers:', headers);
+    console.log('Temp session from storage:', tempSession);
+    console.log('Auth token:', authToken ? 'present' : 'not present');
     
     const response = await fetch('/api/presign-upload', {
       method: 'POST',
@@ -207,6 +219,7 @@ export function useDocumentUpload(userOptions: UseDocumentUploadOptions = {}): U
       body: JSON.stringify([{
         filename,
         mimetype: contentType,
+        fileSize,
       }]),
     });
 
@@ -319,7 +332,7 @@ export function useDocumentUpload(userOptions: UseDocumentUploadOptions = {}): U
       updateProgress(fileId, { status: 'uploading', progress: 5 });
 
       // Get presigned URL
-      const { uploadUrl, s3Key } = await getPresignedUrl(file.name, file.type, metadata);
+      const { uploadUrl, s3Key } = await getPresignedUrl(file.name, file.type, file.size, metadata);
       updateProgress(fileId, { progress: 10 });
 
       // Upload file
