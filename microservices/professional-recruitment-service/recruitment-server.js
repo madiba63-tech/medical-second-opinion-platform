@@ -12,9 +12,25 @@ const sharp = require('sharp');
 const Tesseract = require('tesseract.js');
 const pdf = require('pdf-parse');
 
+// Import centralized logging, error handling, and health monitoring
+const { createLogger, createRequestLogger } = require('../../shared/logger');
+const { setupProfessionalRecruitmentHealth } = require('../../shared/healthCheck');
+const logger = createLogger('professional-recruitment');
+
 const app = express();
 const PORT = process.env.PORT || 3004;
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-for-development-only';
+const JWT_SECRET = process.env.JWT_SECRET;
+const PROFESSIONAL_ENCRYPTION_KEY = process.env.PROFESSIONAL_ENCRYPTION_KEY;
+
+// Environment validation
+if (!JWT_SECRET || JWT_SECRET === 'your-super-secret-jwt-key-for-development-only') {
+  console.error('CRITICAL: JWT_SECRET environment variable must be set with a secure value');
+  process.exit(1);
+}
+
+if (!PROFESSIONAL_ENCRYPTION_KEY) {
+  console.warn('WARNING: PROFESSIONAL_ENCRYPTION_KEY not set, using development key');
+}
 
 // Initialize Prisma Client
 const prisma = new PrismaClient();
@@ -44,12 +60,107 @@ const upload = multer({
   }
 });
 
-// Middleware
-app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3006'],
-  credentials: true
+// Security middleware
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const crypto = require('crypto');
+
+// Rate limiting
+const createAccountLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 create account requests per windowMs
+  message: 'Too many account creation attempts, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  crossOriginEmbedderPolicy: false
 }));
+
+// CORS with strict origin validation
+const allowedOrigins = process.env.NODE_ENV === 'production' 
+  ? ['https://yourdomain.com'] // Update with actual production domain
+  : ['http://localhost:3000', 'http://localhost:4000', 'http://localhost:3006'];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // Allow same-origin requests
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
+
+// Apply rate limiting
+app.use(generalLimiter);
 app.use(express.json({ limit: '10mb' }));
+
+// Enhanced request logging and monitoring
+app.use(createRequestLogger('professional-recruitment'));
+
+// Request validation and security middleware
+app.use((req, res, next) => {
+  // Add request ID for tracing
+  if (!req.requestId) {
+    req.requestId = `prof_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+  
+  // Log security-relevant actions
+  if (req.method === 'POST' && req.path.includes('/apply')) {
+    logger.security('Professional application attempt', {
+      action: 'PROFESSIONAL_APPLICATION_ATTEMPT',
+      ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+      userAgent: req.headers['user-agent'],
+      requestId: req.requestId
+    });
+  }
+  
+  next();
+});
+
+// Global error handling middleware
+app.use((error, req, res, next) => {
+  logger.errorWithContext(error, {
+    action: req.method + ' ' + req.path,
+    requestId: req.requestId,
+    ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+    userAgent: req.headers['user-agent']
+  });
+  
+  // Send user-friendly error response
+  const isProduction = process.env.NODE_ENV === 'production';
+  res.status(error.statusCode || 500).json({
+    success: false,
+    error: {
+      code: error.code || 'INTERNAL_SERVER_ERROR',
+      message: isProduction ? 'An error occurred' : error.message,
+      requestId: req.requestId,
+      timestamp: new Date().toISOString()
+    }
+  });
+});
 
 // Competency Scoring System
 const calculateCompetencyScore = (candidateData) => {
@@ -1396,23 +1507,85 @@ app.use('*', (req, res) => {
   });
 });
 
+// Setup comprehensive health monitoring
+const healthChecker = setupProfessionalRecruitmentHealth(app, prisma);
+
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
+  logger.info('Professional Recruitment Service started successfully', {
+    action: 'SERVICE_START',
+    port: PORT,
+    version: '1.0',
+    features: ['8-step-wizard', 'competency-scoring', 'ai-document-analysis']
+  });
+  
   console.log(`🎯 Professional Recruitment Service v1.0 running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
+  console.log(`🔍 Detailed health: http://localhost:${PORT}/health/detailed`);
+  console.log(`💚 Liveness probe: http://localhost:${PORT}/health/live`);
+  console.log(`✅ Readiness probe: http://localhost:${PORT}/health/ready`);
   console.log(`📋 Candidate onboarding: POST /api/v1/candidates/apply`);
-  console.log(`🔍 8-step wizard with competency scoring enabled`);
+  console.log(`🔍 8-step wizard with AI document analysis and competency scoring enabled`);
 });
 
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('🛑 Professional Recruitment Service shutting down gracefully');
-  await prisma.$disconnect();
-  process.exit(0);
+// Graceful shutdown with comprehensive cleanup
+const gracefulShutdown = async (signal) => {
+  logger.info(`Professional Recruitment Service shutting down gracefully (${signal})`, {
+    action: 'SERVICE_SHUTDOWN',
+    signal,
+    timestamp: new Date().toISOString()
+  });
+  
+  try {
+    // Stop health checks
+    if (healthChecker) {
+      healthChecker.stopPeriodicChecks();
+    }
+    
+    // Disconnect from database
+    await prisma.$disconnect();
+    
+    logger.info('Professional Recruitment Service shutdown completed', {
+      action: 'SERVICE_SHUTDOWN_COMPLETE'
+    });
+    
+    process.exit(0);
+  } catch (error) {
+    logger.error('Error during graceful shutdown', {
+      action: 'SERVICE_SHUTDOWN_ERROR',
+      error: error.message
+    });
+    process.exit(1);
+  }
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught exception - service will restart', {
+    action: 'UNCAUGHT_EXCEPTION',
+    error: error.message,
+    stack: error.stack
+  });
+  
+  // Give time for logs to flush
+  setTimeout(() => {
+    process.exit(1);
+  }, 1000);
 });
 
-process.on('SIGINT', async () => {
-  console.log('🛑 Professional Recruitment Service shutting down gracefully');
-  await prisma.$disconnect();
-  process.exit(0);
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled promise rejection - service will restart', {
+    action: 'UNHANDLED_REJECTION',
+    reason: reason ? reason.toString() : 'Unknown reason',
+    promise: promise.toString()
+  });
+  
+  // Give time for logs to flush
+  setTimeout(() => {
+    process.exit(1);
+  }, 1000);
 });

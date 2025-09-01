@@ -2,6 +2,44 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import { existsSync } from 'fs';
+import crypto from 'crypto';
+
+const PROFESSIONAL_SIGNATURE_SECRET = process.env.PROFESSIONAL_SIGNATURE_SECRET || 'professional-signature-secret-2025';
+
+// Allowed MIME types for security
+const ALLOWED_MIME_TYPES = [
+  'application/pdf',
+  'image/jpeg', 
+  'image/png',
+  'image/tiff',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'text/plain'
+];
+
+// File type detection based on magic numbers
+function detectFileType(buffer: Buffer): string | null {
+  if (buffer.length < 4) return null;
+  
+  const header = buffer.subarray(0, 4);
+  
+  // PDF
+  if (header[0] === 0x25 && header[1] === 0x50 && header[2] === 0x44 && header[3] === 0x46) {
+    return 'application/pdf';
+  }
+  
+  // JPEG
+  if (header[0] === 0xFF && header[1] === 0xD8) {
+    return 'image/jpeg';
+  }
+  
+  // PNG
+  if (header[0] === 0x89 && header[1] === 0x50 && header[2] === 0x4E && header[3] === 0x47) {
+    return 'image/png';
+  }
+  
+  return null;
+}
 
 const PROFESSIONAL_UPLOAD_DIR = path.join(process.cwd(), 'professional-uploads');
 
@@ -23,9 +61,12 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // Verify signature
-    const expectedSigData = `professional:${professionalId}:${key}:${exp}`;
-    const expectedSig = Buffer.from(expectedSigData).toString('base64');
+    // Verify cryptographic signature
+    const expectedSigData = `professional:${professionalId}:${key}:${exp}:${email}`;
+    const expectedSig = crypto
+      .createHmac('sha256', PROFESSIONAL_SIGNATURE_SECRET)
+      .update(expectedSigData)
+      .digest('hex');
     
     if (sig !== encodeURIComponent(expectedSig)) {
       console.error('Professional upload signature mismatch');
@@ -57,8 +98,35 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // Create professional-specific directory structure
-    const fullPath = path.join(PROFESSIONAL_UPLOAD_DIR, key);
+    // Validate file content type
+    const detectedType = detectFileType(fileBuffer);
+    if (detectedType && !ALLOWED_MIME_TYPES.includes(detectedType)) {
+      return NextResponse.json(
+        { error: 'File type not allowed based on content analysis' },
+        { status: 415 }
+      );
+    }
+    
+    // Prevent directory traversal attacks
+    const sanitizedKey = key.replace(/\.\./g, '').replace(/[\/\\]/g, path.sep);
+    if (sanitizedKey !== key) {
+      return NextResponse.json(
+        { error: 'Invalid file path' },
+        { status: 400 }
+      );
+    }
+    
+    // Create professional-specific directory structure with additional validation
+    const fullPath = path.resolve(PROFESSIONAL_UPLOAD_DIR, sanitizedKey);
+    
+    // Ensure the resolved path is still within the upload directory
+    if (!fullPath.startsWith(path.resolve(PROFESSIONAL_UPLOAD_DIR))) {
+      return NextResponse.json(
+        { error: 'Invalid file path' },
+        { status: 400 }
+      );
+    }
+    
     const dir = path.dirname(fullPath);
 
     // Ensure directory exists
