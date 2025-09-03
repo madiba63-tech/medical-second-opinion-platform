@@ -6,14 +6,15 @@ const lifecycleService = new CustomerLifecycleService();
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { customerId: string } }
+  { params }: { params: Promise<{ customerId: string }> }
 ) {
   // Check admin permissions
-  const authError = requireCustomerLifecyclePermission(req, 'write');
+  const authError = await requireCustomerLifecyclePermission(req, 'write');
   if (authError) return authError;
 
   try {
-    const result = await lifecycleService.triggerReEngagement(params.customerId);
+    const { customerId } = await params;
+    const result = await lifecycleService.triggerReEngagement(customerId);
     
     return NextResponse.json(result);
   } catch (error) {

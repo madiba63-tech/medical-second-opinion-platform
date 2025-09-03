@@ -173,7 +173,8 @@ start_staging() {
     log_message "INFO" "${BLUE}🚀 Starting staging environment with new code...${NC}"
     
     # Use staging environment variables
-    export NODE_ENV=staging
+    export NODE_ENV=production
+    export APP_ENV=staging
     export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/secondopinion?schema=public"
     export JWT_SECRET="second-opinion-jwt-secret-2025"
     export REDIS_PASSWORD="redis_password"

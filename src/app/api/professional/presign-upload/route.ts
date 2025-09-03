@@ -68,32 +68,27 @@ function checkRateLimit(identifier: string): boolean {
 
 export async function POST(req: NextRequest) {
   try {
-    // Authentication check
+    // Optional authentication check (allow anonymous professional applications)
     const headersList = headers();
     const authHeader = headersList.get('authorization');
+    let decodedToken = null;
+    let userIdentifier = 'anonymous';
     
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
-    
-    const token = authHeader.substring(7);
-    let decodedToken;
-    
-    try {
-      decodedToken = jwt.verify(token, JWT_SECRET) as any;
-    } catch (jwtError) {
-      return NextResponse.json(
-        { error: 'Invalid authentication token' },
-        { status: 401 }
-      );
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      
+      try {
+        decodedToken = jwt.verify(token, JWT_SECRET) as any;
+        userIdentifier = decodedToken.sub || decodedToken.email || 'authenticated';
+      } catch (jwtError) {
+        console.warn('Invalid token provided for professional upload, proceeding as anonymous');
+        // Continue as anonymous user
+      }
     }
     
     // Rate limiting based on IP and user
     const clientIp = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
-    const rateLimitKey = `${clientIp}:${decodedToken.sub || 'anonymous'}`;
+    const rateLimitKey = `${clientIp}:${userIdentifier}`;
     
     if (!checkRateLimit(rateLimitKey)) {
       return NextResponse.json(

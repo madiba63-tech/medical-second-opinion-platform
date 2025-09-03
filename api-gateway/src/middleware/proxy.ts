@@ -142,13 +142,13 @@ const serviceHealth: Record<string, boolean> = {};
 
 export const createProxyRoutes = () => {
   return proxyRoutes.map((route) => {
-    const proxyOptions: Options = {
+    const proxyOptions: Options & { onProxyReq?: any; onProxyRes?: any; onError?: any } = {
       target: route.target,
       changeOrigin: route.changeOrigin ?? true,
       timeout: route.timeout || config.proxy.timeout,
       pathRewrite: route.pathRewrite,
       
-      onProxyReq: (proxyReq, req: Request) => {
+      onProxyReq: (proxyReq: any, req: Request) => {
         logger.debug('Proxy request', {
           path: req.path,
           target: route.target,
@@ -175,7 +175,7 @@ export const createProxyRoutes = () => {
         }
       },
 
-      onProxyRes: (proxyRes, req: Request, res: Response) => {
+      onProxyRes: (proxyRes: any, req: Request, res: Response) => {
         logger.debug('Proxy response', {
           path: req.path,
           target: route.target,
@@ -192,7 +192,7 @@ export const createProxyRoutes = () => {
         proxyRes.headers['x-response-time'] = Date.now().toString();
       },
 
-      onError: (err, req: Request, res: Response) => {
+      onError: (err: any, req: Request, res: Response) => {
         logger.error('Proxy error', {
           path: req.path,
           target: route.target,

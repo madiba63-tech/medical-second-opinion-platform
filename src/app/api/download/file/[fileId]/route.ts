@@ -7,10 +7,10 @@ const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { fileId: string } }
+  { params }: { params: Promise<{ fileId: string }> }
 ) {
   try {
-    const fileId = params.fileId;
+    const { fileId } = await params;
 
     // Get file information from database
     const file = await prisma.uploadedFile.findUnique({

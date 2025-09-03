@@ -1,0 +1,184 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { 
+  StartApplicationRequestSchema, 
+  StartApplicationResponse,
+  ApplicationPathType,
+  AIExtractedCVData
+} from '@/types/dual-path-recruitment';
+
+// ========================================================================================
+// DUAL-PATH PROFESSIONAL APPLICATION - START ENDPOINT (V2)
+// ========================================================================================
+
+export async function POST(request: NextRequest) {
+  try {
+    console.log('=== STARTING DUAL-PATH PROFESSIONAL APPLICATION ===');
+    
+    // Parse multipart form data for potential file upload
+    const formData = await request.formData();
+    const pathType = formData.get('pathType') as string;
+    const applicantEmail = formData.get('applicantEmail') as string;
+    const cvFile = formData.get('cvFile') as File | null;
+
+    // Validate basic request data
+    if (!pathType || !['AI_ASSISTED', 'MANUAL'].includes(pathType)) {
+      return NextResponse.json(
+        { error: 'Invalid path type. Must be AI_ASSISTED or MANUAL' },
+        { status: 400 }
+      );
+    }
+
+    if (!applicantEmail) {
+      return NextResponse.json(
+        { error: 'Applicant email is required' },
+        { status: 400 }
+      );
+    }
+
+    // For AI-assisted path, CV file is required
+    if (pathType === 'AI_ASSISTED' && !cvFile) {
+      return NextResponse.json(
+        { error: 'CV file is required for AI-assisted application path' },
+        { status: 400 }
+      );
+    }
+
+    // Validate CV file format (PDF only)
+    if (cvFile && cvFile.type !== 'application/pdf') {
+      return NextResponse.json(
+        { error: 'CV must be a PDF file' },
+        { status: 400 }
+      );
+    }
+
+    // Generate application number
+    const applicationNumber = await generateApplicationNumber();
+    const candidateId = generateCandidateId();
+
+    console.log(`Created application ${applicationNumber} for ${applicantEmail} using ${pathType} path`);
+
+    // Initialize application record
+    const applicationData = {
+      applicationNumber,
+      candidateId,
+      pathType: pathType as ApplicationPathType,
+      email: applicantEmail,
+      status: 'DRAFT' as const,
+      createdAt: new Date()
+    };
+
+    let aiExtractedData: AIExtractedCVData | undefined;
+    let processingIssues: string[] = [];
+
+    // Process CV with AI if AI-assisted path
+    if (pathType === 'AI_ASSISTED' && cvFile) {
+      try {
+        console.log(`Processing CV with AI for application ${applicationNumber}`);
+        
+        // Convert file to buffer
+        const cvBuffer = Buffer.from(await cvFile.arrayBuffer());
+        
+        // For now, skip AI processing in development environment
+        // AI processing would be handled by a separate microservice in production
+        console.log('AI CV processing skipped in development environment');
+        processingIssues.push('AI processing not available in development mode - would be handled by microservice in production');
+        
+      } catch (error) {
+        console.error('AI CV processing error:', error);
+        processingIssues.push(`AI processing error: ${error.message}`);
+      }
+    }
+
+    // Store application in database (you'll need to implement this)
+    await storeApplicationData(applicationData);
+
+    // Prepare response
+    const response: StartApplicationResponse = {
+      success: true,
+      applicationNumber,
+      candidateId,
+      pathType: pathType as ApplicationPathType,
+      aiExtractedData,
+      nextStep: pathType === 'AI_ASSISTED' ? 
+        (aiExtractedData ? 'review_ai_data' : 'manual_entry') : 
+        'manual_entry',
+      message: pathType === 'AI_ASSISTED' ?
+        (aiExtractedData ? 
+          'AI has successfully extracted data from your CV. Please review and confirm the information.' :
+          'AI processing encountered issues. You can proceed with manual entry.') :
+        'Please proceed with manual data entry.'
+    };
+
+    console.log(`Application ${applicationNumber} started successfully`);
+
+    return NextResponse.json(response, { status: 201 });
+
+  } catch (error) {
+    console.error('Application start error:', error);
+    
+    return NextResponse.json(
+      { 
+        error: 'Failed to start application', 
+        details: error.message 
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// ========================================================================================
+// HELPER FUNCTIONS
+// ========================================================================================
+
+/**
+ * Generate unique application number
+ */
+async function generateApplicationNumber(): Promise<string> {
+  // In production, this would use your database sequence function
+  const timestamp = Date.now();
+  const year = new Date().getFullYear();
+  const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
+  
+  return `APP-${year}-${timestamp}-${randomSuffix}`;
+}
+
+/**
+ * Generate candidate UUID
+ */
+function generateCandidateId(): string {
+  // In production, use proper UUID generation
+  return 'candidate-' + Date.now() + '-' + Math.random().toString(36).substring(2, 15);
+}
+
+/**
+ * Store application data in database
+ */
+async function storeApplicationData(applicationData: any): Promise<void> {
+  // TODO: Implement database storage
+  console.log('Storing application data:', applicationData);
+  
+  // This would use your Prisma client or database service
+  // await prisma.professionalApplication.create({
+  //   data: applicationData
+  // });
+}
+
+/**
+ * Store AI processing result in database
+ */
+async function storeAIProcessingResult(processingResult: any): Promise<void> {
+  // TODO: Implement database storage  
+  console.log('Storing AI processing result:', processingResult);
+  
+  // This would use your Prisma client or database service
+  // await prisma.aiProcessingResult.create({
+  //   data: processingResult
+  // });
+}
+
+// ========================================================================================
+// ROUTE CONFIGURATION
+// ========================================================================================
+
+export const runtime = 'nodejs';
+export const maxDuration = 30; // 30 seconds for AI processing

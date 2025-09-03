@@ -10,7 +10,7 @@ const fs = require('fs').promises;
 const path = require('path');
 
 const app = express();
-const PORT = 3007;
+const PORT = process.env.PORT || 4008;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-for-development-only';
 
 // Initialize Prisma Client
@@ -26,7 +26,10 @@ const upload = multer({
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+    process.env.PATIENT_IDENTITY_SERVICE_URL || 'http://localhost:3001'
+  ],
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));

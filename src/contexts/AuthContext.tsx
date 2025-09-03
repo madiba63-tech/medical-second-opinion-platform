@@ -61,7 +61,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
           },
         });
         
-        const data = await response.json();
+        const responseText = await response.text();
+        
+        let data;
+        try {
+          data = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('Auth /me JSON Parse Error:', {
+            error: parseError.message,
+            isHTML: responseText.toLowerCase().includes('<html>'),
+            contentType: response.headers.get('content-type')
+          });
+          
+          // Handle specific parsing errors with user-friendly messages
+          if (responseText.toLowerCase().includes('<html>')) {
+            throw new Error('Server returned an error page instead of data. Please try again or contact support.');
+          } else if (responseText.length === 0) {
+            throw new Error('Server returned empty response. Please check your connection.');
+          }
+          
+          throw new Error('Unable to process server response. Please try again.');
+        }
         console.log('AuthContext: /api/v1/auth/me response:', data);
         
         if (response.ok && data.success && data.data) {
@@ -101,7 +121,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
         body: JSON.stringify({ email, password }),
       });
       
-      const data = await response.json();
+      const responseText = await response.text();
+      
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Auth Login JSON Parse Error:', {
+          error: parseError.message,
+          isHTML: responseText.toLowerCase().includes('<html>'),
+          contentType: response.headers.get('content-type')
+        });
+        
+        // Handle specific parsing errors with user-friendly messages
+        if (responseText.toLowerCase().includes('<html>')) {
+          throw new Error('Server returned an error page instead of data. Please try again or contact support.');
+        } else if (responseText.length === 0) {
+          throw new Error('Server returned empty response. Please check your connection.');
+        }
+        
+        throw new Error('Unable to process server response. Please try again.');
+      }
       
       if (data.success && data.data) {
         // Handle new API response structure

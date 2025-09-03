@@ -5,10 +5,11 @@ const customerRepository = new CustomerRepository();
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const customerData = await customerRepository.findById(params.id);
+    const { id } = await params;
+    const customerData = await customerRepository.findById(id);
     
     if (!customerData) {
       return NextResponse.json(
@@ -29,12 +30,13 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await req.json();
     
-    const updatedCustomer = await customerRepository.update(params.id, body);
+    const updatedCustomer = await customerRepository.update(id, body);
     
     return NextResponse.json(updatedCustomer);
   } catch (error) {
@@ -48,10 +50,11 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await customerRepository.delete(params.id);
+    const { id } = await params;
+    await customerRepository.delete(id);
     
     return NextResponse.json({ message: 'Customer deleted successfully' });
   } catch (error) {

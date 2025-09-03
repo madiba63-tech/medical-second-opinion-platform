@@ -146,12 +146,44 @@ class ApiClient {
         headers,
       });
 
-      const data = await response.json().catch(() => null);
+      // Get raw response text for parsing
+      const responseText = await response.text();
+      
+      let data = null;
+      if (responseText) {
+        try {
+          data = JSON.parse(responseText);
+        } catch (parseError) {
+          // Log error details for debugging
+          console.error('JSON Parse Error:', {
+            url,
+            status: response.status,
+            contentType: response.headers.get('content-type'),
+            error: parseError.message,
+            responseLength: responseText.length,
+            isHTML: responseText.toLowerCase().includes('<html>')
+          });
+          
+          // Provide helpful error message based on the response type
+          let errorMessage = 'Failed to parse server response as JSON.';
+          if (responseText.toLowerCase().includes('<!doctype html>') || responseText.toLowerCase().includes('<html>')) {
+            errorMessage = `Server returned HTML instead of JSON. This usually indicates a routing issue or server error. URL: ${url}, Status: ${response.status}`;
+          } else if (responseText.length === 0) {
+            errorMessage = `Server returned empty response. URL: ${url}, Status: ${response.status}`;
+          } else if (response.status >= 500) {
+            errorMessage = `Server error (${response.status}). The server may be down or experiencing issues.`;
+          } else if (response.status === 404) {
+            errorMessage = `API endpoint not found (404). The URL '${url}' may be incorrect or the endpoint may not exist.`;
+          }
+          
+          throw new Error(errorMessage);
+        }
+      }
 
       if (!response.ok) {
         return {
           success: false,
-          error: data?.message || data?.error || `HTTP ${response.status}`,
+          error: data?.message || data?.error || `HTTP ${response.status}: ${response.statusText}`,
         };
       }
 

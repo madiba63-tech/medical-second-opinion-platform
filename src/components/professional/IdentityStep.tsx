@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import AIDocumentUpload from './AIDocumentUpload';
+import UploadDebugger from './UploadDebugger';
 import { ExtractedData } from '@/utils/aiAgent';
 
 interface IdentityStepProps {
@@ -39,20 +40,25 @@ export default function IdentityStep({ data, onUpdate, onNext }: IdentityStepPro
           formData.append('file', file);
 
           // Get presigned URL
-          const presignResponse = await fetch('/api/presign-upload', {
+          const presignResponse = await fetch('/api/professional/presign-upload', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify([{
-              filename: file.name,
-              mimetype: file.type
-            }])
+            body: JSON.stringify({
+              files: [{
+                filename: file.name,
+                mimetype: file.type,
+                fileSize: file.size
+              }],
+              email: 'identity-upload@professional.com'
+            })
           });
 
           if (!presignResponse.ok) {
             throw new Error('Failed to get upload URL');
           }
 
-          const [{ url, key }] = await presignResponse.json();
+          const presignData = await presignResponse.json();
+          const { url, key } = presignData.uploadUrls[0];
 
           // Upload file
           const uploadResponse = await fetch(url, {
@@ -75,7 +81,20 @@ export default function IdentityStep({ data, onUpdate, onNext }: IdentityStepPro
           });
         } catch (error) {
           console.error('Upload error:', error);
-          alert('Failed to upload file. Please try again.');
+          
+          // Provide more specific error messages
+          let errorMessage = 'Failed to upload file. Please try again.';
+          if (error instanceof Error) {
+            if (error.message.includes('Failed to get upload URL')) {
+              errorMessage = 'Failed to get upload permission. Please check your connection and try again.';
+            } else if (error.message.includes('Failed to upload file')) {
+              errorMessage = 'File upload failed. Please check your internet connection and try again.';
+            } else {
+              errorMessage = `Upload failed: ${error.message}`;
+            }
+          }
+          
+          alert(errorMessage);
         } finally {
           setUploading(false);
         }
@@ -123,6 +142,23 @@ export default function IdentityStep({ data, onUpdate, onNext }: IdentityStepPro
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Debug Tools - Remove after testing */}
+        <UploadDebugger 
+          title="Government ID Upload Test"
+          accept={{
+            'application/pdf': ['.pdf'],
+            'image/jpeg': ['.jpg', '.jpeg'],
+            'image/png': ['.png']
+          }}
+        />
+        
+        <UploadDebugger 
+          title="AI Document Upload Test"
+          accept={{
+            'application/pdf': ['.pdf']
+          }}
+        />
+
         {/* AI Document Upload Option */}
         <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">

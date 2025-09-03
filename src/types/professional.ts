@@ -25,28 +25,28 @@ export const ProfessionalApplication = z.object({
     size: z.number(),
     type: z.string(),
     s3Key: z.string(),
-  }),
+  }).nullable().optional(),
   residencyCertificate: z.object({
     name: z.string(),
     size: z.number(),
     type: z.string(),
     s3Key: z.string(),
-  }),
+  }).nullable().optional(),
   fellowshipCertificate: z.object({
     name: z.string(),
     size: z.number(),
     type: z.string(),
     s3Key: z.string(),
-  }),
+  }).nullable().optional(),
   boardCertification: z.object({
-    number: z.string(),
+    number: z.string().optional(),
     certificate: z.object({
       name: z.string(),
       size: z.number(),
       type: z.string(),
       s3Key: z.string(),
-    }),
-  }),
+    }).nullable().optional(),
+  }).optional(),
   additionalCertificates: z.array(z.object({
     name: z.string(),
     size: z.number(),
@@ -63,13 +63,13 @@ export const ProfessionalApplication = z.object({
     size: z.number(),
     type: z.string(),
     s3Key: z.string(),
-  }),
+  }).nullable().optional(),
   goodStandingCertificate: z.object({
     name: z.string(),
     size: z.number(),
     type: z.string(),
     s3Key: z.string(),
-  }),
+  }).nullable().optional(),
 
   // Step 4: Professional Experience
   yearsPractice: z.number().min(0),
@@ -79,8 +79,8 @@ export const ProfessionalApplication = z.object({
     size: z.number(),
     type: z.string(),
     s3Key: z.string(),
-  }),
-  subspecialties: z.array(z.string()).min(1),
+  }).nullable().optional(),
+  subspecialties: z.array(z.string()),
   annualPatientLoad: z.number().min(0),
   previousSecondOpinions: z.number().min(0).optional(),
 
@@ -116,13 +116,13 @@ export const ProfessionalApplication = z.object({
     email: z.string().email(),
     phone: z.string().optional(),
     relationship: z.string(),
-  })).min(2),
+  })),
   malpracticeInsurance: z.object({
     name: z.string(),
     size: z.number(),
     type: z.string(),
     s3Key: z.string(),
-  }).optional(),
+  }).nullable().optional(),
   noDisciplinaryProceedings: z.boolean(),
   dataProtectionAgreement: z.boolean(),
 });

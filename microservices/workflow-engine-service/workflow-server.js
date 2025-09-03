@@ -17,12 +17,13 @@ const app = express();
 const PORT = process.env.PORT || 3010;
 const JWT_SECRET = process.env.JWT_SECRET || 'workflow-engine-jwt-secret-2025';
 const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/secondopinion?schema=public';
-const REDIS_PASSWORD = process.env.REDIS_PASSWORD || 'redis_password';
+const REDIS_PASSWORD = process.env.REDIS_PASSWORD || 'dev_redis_password';
+const REDIS_PORT = process.env.REDIS_PORT || 6380;
 
 // Redis configuration for authentication
 const redisConfig = {
   host: 'localhost',
-  port: 6379,
+  port: REDIS_PORT,
   password: REDIS_PASSWORD,
   retryDelayOnFailover: 100,
   maxRetriesPerRequest: 3
@@ -34,7 +35,7 @@ const redis = new Redis(redisConfig);
 // Redis settings for Bull queues
 const redisSettings = {
   host: 'localhost',
-  port: 6379,
+  port: REDIS_PORT,
   password: REDIS_PASSWORD
 };
 
@@ -245,7 +246,7 @@ const setupProfessionalAccount = async (data) => {
 
 const triggerAIAnalysis = async (data) => {
   try {
-    await axios.post('http://localhost:3003/api/v1/analysis/case', {
+    await axios.post(`${process.env.AI_ANALYSIS_SERVICE_URL || 'http://localhost:3003'}/api/v1/analysis/case`, {
       caseId: data.caseId,
       priority: data.urgency === 'EMERGENCY' ? 'high' : 'normal'
     });

@@ -30,12 +30,13 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await req.json();
     
-    const updatedCase = await caseRepository.update(params.id, body);
+    const updatedCase = await caseRepository.update(id, body);
     
     return NextResponse.json(updatedCase);
   } catch (error) {
@@ -49,10 +50,11 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await caseRepository.delete(params.id);
+    const { id } = await params;
+    await caseRepository.delete(id);
     
     return NextResponse.json({ message: 'Case deleted successfully' });
   } catch (error) {

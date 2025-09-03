@@ -218,7 +218,7 @@ export default function RecruitmentPage() {
         boardCertificationNumber: applicationData.boardCertificationNumber
       };
 
-      const response = await fetch('http://localhost:3004/api/v1/candidates/apply', {
+      const response = await fetch('http://localhost:4006/api/v1/candidates/apply', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -293,13 +293,56 @@ export default function RecruitmentPage() {
 
     if (hasFiles) {
       try {
-        const response = await fetch(`http://localhost:3004/api/v1/candidates/${candidateId}/documents`, {
-          method: 'POST',
-          body: formData
+        // Convert FormData to File array for the professional upload service
+        const files: File[] = [];
+        formData.forEach((value, key) => {
+          if (value instanceof File) {
+            files.push(value);
+          }
         });
 
-        if (!response.ok) {
-          console.error('Document upload failed:', response.statusText);
+        if (files.length > 0) {
+          // Use the working Next.js API route instead of the microservice
+          const fileUploadData = {
+            files: files.map(file => ({
+              filename: file.name,
+              mimetype: file.type,
+              fileSize: file.size
+            })),
+            email: applicationData.email
+          };
+
+          const response = await fetch('/api/professional/presign-upload', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(fileUploadData)
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to get upload URLs: ${response.statusText}`);
+          }
+
+          const uploadResponse = await response.json();
+
+          // Upload each file using the presigned URLs
+          await Promise.all(files.map(async (file, index) => {
+            const uploadData = uploadResponse.uploadUrls[index];
+            const fileUploadResponse = await fetch(uploadData.url, {
+              method: 'PUT',
+              body: file,
+              headers: {
+                'Content-Type': file.type
+              }
+            });
+
+            if (!fileUploadResponse.ok) {
+              throw new Error(`Failed to upload ${file.name}: ${fileUploadResponse.statusText}`);
+            }
+          }));
+
+          console.log('All professional documents uploaded successfully');
         }
       } catch (error) {
         console.error('Document upload error:', error);

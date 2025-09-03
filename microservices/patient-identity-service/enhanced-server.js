@@ -6,7 +6,7 @@ const { body, validationResult } = require('express-validator');
 const { PrismaClient } = require('../../src/generated/prisma');
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-for-development-only';
 const JWT_EXPIRES_IN = '24h';
 

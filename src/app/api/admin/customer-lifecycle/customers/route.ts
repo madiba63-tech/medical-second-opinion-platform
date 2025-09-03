@@ -8,7 +8,7 @@ const customerRepository = new CustomerRepository();
 
 export async function GET(req: NextRequest) {
   // Check admin permissions
-  const authError = requireCustomerLifecyclePermission(req, 'read');
+  const authError = await requireCustomerLifecyclePermission(req, 'read');
   if (authError) return authError;
 
   try {

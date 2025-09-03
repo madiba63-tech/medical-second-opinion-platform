@@ -33,29 +33,34 @@ export default function AIDocumentUpload({ onDataExtracted, onUploadComplete }: 
     setUploading(true);
     try {
       // Get presigned URL for upload
-      const presignResponse = await fetch('/api/presign-upload', {
+      const presignResponse = await fetch('/api/professional/presign-upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify([{
-          filename: file.name,
-          mimetype: file.type
-        }])
+        body: JSON.stringify({
+          files: [{
+            filename: file.name,
+            mimetype: file.type,
+            fileSize: file.size
+          }],
+          email: 'ai-upload@professional.com' // Placeholder for AI upload
+        })
       });
 
       if (!presignResponse.ok) {
         throw new Error('Failed to get upload URL');
       }
 
-      const [{ url, key }] = await presignResponse.json();
+      const presignData = await presignResponse.json();
+      const { url, key } = presignData.uploadUrls[0];
 
       // Upload file
-      const uploadResponse = await fetch(url, {
+      const fileUploadResponse = await fetch(url, {
         method: 'PUT',
         body: file,
         headers: { 'Content-Type': file.type }
       });
 
-      if (!uploadResponse.ok) {
+      if (!fileUploadResponse.ok) {
         throw new Error('Failed to upload file');
       }
 
@@ -69,13 +74,32 @@ export default function AIDocumentUpload({ onDataExtracted, onUploadComplete }: 
       setUploadedFile(uploadedFileData);
       onUploadComplete(uploadedFileData);
 
-      // Start AI processing
+      // Start AI processing (non-blocking)
       setProcessing(true);
-      await processDocumentWithAI(file);
+      try {
+        await processDocumentWithAI(file);
+      } catch (aiError) {
+        console.warn('AI processing failed, but file upload succeeded:', aiError);
+        // Don't fail the entire upload if AI processing fails
+        setProcessing(false);
+      }
 
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Failed to upload file. Please try again.');
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to upload file. Please try again.';
+      if (error instanceof Error) {
+        if (error.message.includes('Failed to get upload URL')) {
+          errorMessage = 'Failed to get upload permission. Please check your connection and try again.';
+        } else if (error.message.includes('Failed to upload file')) {
+          errorMessage = 'File upload failed. Please check your internet connection and try again.';
+        } else {
+          errorMessage = `Upload failed: ${error.message}`;
+        }
+      }
+      
+      alert(errorMessage);
     } finally {
       setUploading(false);
     }
@@ -94,7 +118,10 @@ export default function AIDocumentUpload({ onDataExtracted, onUploadComplete }: 
 
     } catch (error) {
       console.error('AI processing error:', error);
-      alert('Failed to process document with AI. Please try again.');
+      
+      // Don't show AI errors to user - upload already succeeded
+      console.warn('AI processing failed but file was uploaded successfully. Continuing without AI data.');
+      // You could show a less intrusive notification here instead of alert
     } finally {
       setProcessing(false);
     }
@@ -145,10 +172,10 @@ export default function AIDocumentUpload({ onDataExtracted, onUploadComplete }: 
           <div
             {...getRootProps()}
             className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-              uploading || processing
+              isDragActive
+                ? 'border-purple-400 bg-purple-50'
+                : uploading || processing
                 ? 'border-blue-300 bg-blue-50'
-                : isDragActive
-                ? 'border-blue-400 bg-blue-50'
                 : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
             }`}
           >

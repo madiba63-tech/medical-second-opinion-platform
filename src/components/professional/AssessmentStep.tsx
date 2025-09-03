@@ -25,23 +25,47 @@ export default function AssessmentStep({ data, onPrev }: AssessmentStepProps) {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
+      console.log('Submitting application data:', data);
+      
       const response = await fetch('/api/v1/recruit/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Application submission failed');
+        const errorText = await response.text();
+        console.error('Error response text:', errorText);
+        
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError);
+          throw new Error(`Server error (${response.status}): ${errorText}`);
+        }
+        
+        console.error('Parsed error data:', errorData);
+        throw new Error(errorData.error || `Application submission failed (${response.status})`);
       }
 
       const result = await response.json();
+      console.log('Success result:', result);
       alert(`Application submitted successfully! Your professional number is: ${result.proNumber}`);
       // Redirect to success page or dashboard
     } catch (error) {
-      console.error('Submission error:', error);
-      alert(error instanceof Error ? error.message : 'Application submission failed');
+      console.error('Detailed submission error:', {
+        error: error,
+        message: error.message,
+        stack: error.stack,
+        data: data
+      });
+      
+      const errorMessage = error instanceof Error ? error.message : 'Application submission failed';
+      alert(`Submission failed: ${errorMessage}`);
     } finally {
       setSubmitting(false);
     }

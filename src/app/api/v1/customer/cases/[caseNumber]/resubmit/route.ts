@@ -5,10 +5,10 @@ const prisma = new PrismaClient();
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { caseNumber: string } }
+  { params }: { params: Promise<{ caseNumber: string }> }
 ) {
   try {
-    const caseNumber = params.caseNumber;
+    const { caseNumber } = await params;
     const body = await request.json();
 
     // Get the original case

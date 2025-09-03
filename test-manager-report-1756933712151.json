@@ -1,0 +1,111 @@
+{
+  "timestamp": "2025-09-03T21:08:32.151Z",
+  "environment": "development",
+  "agent": "test-manager",
+  "summary": {
+    "total": 15,
+    "passed": 0,
+    "failed": 14,
+    "skipped": 1,
+    "successRate": "0.0"
+  },
+  "results": [
+    {
+      "test": "health_workplace",
+      "status": "FAIL",
+      "error": "HTTP undefined",
+      "duration": 10
+    },
+    {
+      "test": "health_workflow",
+      "status": "FAIL",
+      "error": "HTTP 400",
+      "duration": 18
+    },
+    {
+      "test": "health_billing",
+      "status": "FAIL",
+      "error": "HTTP 400",
+      "duration": 27
+    },
+    {
+      "test": "health_identity",
+      "status": "FAIL",
+      "error": "HTTP 400",
+      "duration": 34
+    },
+    {
+      "test": "health_cases",
+      "status": "FAIL",
+      "error": "HTTP 400",
+      "duration": 39
+    },
+    {
+      "test": "health_recruitment",
+      "status": "FAIL",
+      "error": "HTTP 400",
+      "duration": 38
+    },
+    {
+      "test": "health_admin",
+      "status": "FAIL",
+      "error": "HTTP 400",
+      "duration": 37
+    },
+    {
+      "test": "health_notifications",
+      "status": "FAIL",
+      "error": "HTTP 400",
+      "duration": 40
+    },
+    {
+      "test": "health_ai",
+      "status": "FAIL",
+      "error": "HTTP 400",
+      "duration": 45
+    },
+    {
+      "test": "health_professionals",
+      "status": "FAIL",
+      "error": "HTTP 400",
+      "duration": 48
+    },
+    {
+      "test": "health_frontend",
+      "status": "FAIL",
+      "error": "HTTP 500",
+      "duration": 159
+    },
+    {
+      "test": "user_authentication",
+      "status": "FAIL",
+      "error": "Login failed",
+      "duration": 4
+    },
+    {
+      "test": "case_submission",
+      "status": "SKIP",
+      "error": "No user token"
+    },
+    {
+      "test": "professional_workflow",
+      "status": "FAIL",
+      "error": "Registration failed",
+      "duration": 2
+    },
+    {
+      "test": "notification_system",
+      "status": "FAIL",
+      "error": "HTTP 404",
+      "duration": 1
+    }
+  ],
+  "configuration": {
+    "services": 11,
+    "timeouts": {
+      "service": 5000,
+      "test": 10000,
+      "startup": 30000
+    }
+  }
+}

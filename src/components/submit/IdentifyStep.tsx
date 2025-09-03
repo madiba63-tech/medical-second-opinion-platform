@@ -48,12 +48,55 @@ export default function IdentifyStep({ personalInfo, onUpdate, onNext, onPrev }:
   });
 
   const handleChange = (field: string, value: string) => {
-    const newData = { ...formData, [field]: value };
+    let processedValue = value;
+    
+    // Handle date format conversion if needed
+    if (field === 'dob' && value) {
+      // If user enters MM/DD/YYYY, convert to YYYY-MM-DD
+      const mmddyyyy = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      if (mmddyyyy) {
+        processedValue = `${mmddyyyy[3]}-${mmddyyyy[1]}-${mmddyyyy[2]}`;
+        console.log(`Date converted from ${value} to ${processedValue}`);
+      }
+    }
+    
+    const newData = { ...formData, [field]: processedValue };
     setFormData(newData);
     onUpdate(newData);
   };
 
-  const canProceed = formData.firstName && formData.lastName && formData.dob && formData.email && formData.gender;
+  // Enhanced validation logic
+  const isFirstNameValid = formData.firstName && formData.firstName.trim().length > 0;
+  const isLastNameValid = formData.lastName && formData.lastName.trim().length > 0;
+  const isDobValid = formData.dob && formData.dob.trim().length > 0;
+  const isEmailValid = formData.email && formData.email.trim().length > 0;
+  const isGenderValid = formData.gender && formData.gender.trim().length > 0;
+  
+  // Phone validation for SMS/WhatsApp
+  const needsPhone = formData.preferredChannel === 'SMS' || formData.preferredChannel === 'WhatsApp';
+  const isPhoneValid = !needsPhone || (formData.phone && formData.phone.trim().length > 0);
+  
+  const canProceed = isFirstNameValid && isLastNameValid && isDobValid && isEmailValid && isGenderValid && isPhoneValid;
+
+  // Enhanced debug logging
+  console.log('Form validation state:', {
+    firstName: { value: formData.firstName, valid: isFirstNameValid },
+    lastName: { value: formData.lastName, valid: isLastNameValid },
+    dob: { value: formData.dob, valid: isDobValid },
+    email: { value: formData.email, valid: isEmailValid },
+    gender: { value: formData.gender, valid: isGenderValid },
+    phone: { value: formData.phone, needed: needsPhone, valid: isPhoneValid },
+    preferredChannel: formData.preferredChannel,
+    canProceed,
+    allFieldsStatus: {
+      isFirstNameValid,
+      isLastNameValid, 
+      isDobValid,
+      isEmailValid,
+      isGenderValid,
+      isPhoneValid
+    }
+  });
 
   return (
     <div className="space-y-6">
@@ -77,9 +120,14 @@ export default function IdentifyStep({ personalInfo, onUpdate, onNext, onPrev }:
               type="text"
               value={formData.firstName}
               onChange={(e) => handleChange('firstName', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 ${
+                formData.firstName ? (isFirstNameValid ? 'border-green-300 focus:ring-green-500' : 'border-red-300 focus:ring-red-500') : 'border-gray-300 focus:ring-blue-500'
+              }`}
               required
             />
+            {formData.firstName && !isFirstNameValid && (
+              <p className="text-sm text-red-600 mt-1">First name is required</p>
+            )}
           </div>
 
           {/* Middle Name */}
@@ -104,9 +152,14 @@ export default function IdentifyStep({ personalInfo, onUpdate, onNext, onPrev }:
               type="text"
               value={formData.lastName}
               onChange={(e) => handleChange('lastName', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 ${
+                formData.lastName ? (isLastNameValid ? 'border-green-300 focus:ring-green-500' : 'border-red-300 focus:ring-red-500') : 'border-gray-300 focus:ring-blue-500'
+              }`}
               required
             />
+            {formData.lastName && !isLastNameValid && (
+              <p className="text-sm text-red-600 mt-1">Last name is required</p>
+            )}
           </div>
         </div>
       </div>
@@ -124,9 +177,14 @@ export default function IdentifyStep({ personalInfo, onUpdate, onNext, onPrev }:
               type="date"
               value={formData.dob}
               onChange={(e) => handleChange('dob', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 ${
+                formData.dob ? (isDobValid ? 'border-green-300 focus:ring-green-500' : 'border-red-300 focus:ring-red-500') : 'border-gray-300 focus:ring-blue-500'
+              }`}
               required
             />
+            {formData.dob && !isDobValid && (
+              <p className="text-sm text-red-600 mt-1">Date of birth is required</p>
+            )}
           </div>
 
           {/* Sex/Gender */}
@@ -137,7 +195,9 @@ export default function IdentifyStep({ personalInfo, onUpdate, onNext, onPrev }:
             <select
               value={formData.gender}
               onChange={(e) => handleChange('gender', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 ${
+                formData.gender ? (isGenderValid ? 'border-green-300 focus:ring-green-500' : 'border-red-300 focus:ring-red-500') : 'border-gray-300 focus:ring-blue-500'
+              }`}
               required
             >
               <option value="">Select gender</option>
@@ -145,6 +205,9 @@ export default function IdentifyStep({ personalInfo, onUpdate, onNext, onPrev }:
                 <option key={gender} value={gender}>{gender}</option>
               ))}
             </select>
+            {formData.gender && !isGenderValid && (
+              <p className="text-sm text-red-600 mt-1">Gender selection is required</p>
+            )}
           </div>
 
           {/* Country of Residence */}
@@ -196,9 +259,14 @@ export default function IdentifyStep({ personalInfo, onUpdate, onNext, onPrev }:
               type="email"
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 ${
+                formData.email ? (isEmailValid ? 'border-green-300 focus:ring-green-500' : 'border-red-300 focus:ring-red-500') : 'border-gray-300 focus:ring-blue-500'
+              }`}
               required
             />
+            {formData.email && !isEmailValid && (
+              <p className="text-sm text-red-600 mt-1">Email address is required</p>
+            )}
           </div>
 
           {/* Phone */}
@@ -210,9 +278,16 @@ export default function IdentifyStep({ personalInfo, onUpdate, onNext, onPrev }:
               type="tel"
               value={formData.phone}
               onChange={(e) => handleChange('phone', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 ${
+                needsPhone ? 
+                  (isPhoneValid ? 'border-green-300 focus:ring-green-500' : 'border-red-300 focus:ring-red-500') : 
+                  'border-gray-300 focus:ring-blue-500'
+              }`}
               placeholder="+1 (555) 123-4567"
             />
+            {needsPhone && !isPhoneValid && (
+              <p className="text-sm text-red-600 mt-1">Phone number is required for {formData.preferredChannel} notifications</p>
+            )}
           </div>
         </div>
       </div>
@@ -235,11 +310,6 @@ export default function IdentifyStep({ personalInfo, onUpdate, onNext, onPrev }:
                 <option key={channel} value={channel}>{channel}</option>
               ))}
             </select>
-            {(formData.preferredChannel === 'SMS' || formData.preferredChannel === 'WhatsApp') && !formData.phone && (
-              <p className="text-sm text-red-600 mt-2">
-                Phone number is required for {formData.preferredChannel} notifications
-              </p>
-            )}
           </div>
 
           {/* Language Preference */}
@@ -270,9 +340,9 @@ export default function IdentifyStep({ personalInfo, onUpdate, onNext, onPrev }:
         </button>
         <button
           onClick={onNext}
-          disabled={!canProceed || ((formData.preferredChannel === 'SMS' || formData.preferredChannel === 'WhatsApp') && !formData.phone)}
+          disabled={!canProceed}
           className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-            canProceed && !((formData.preferredChannel === 'SMS' || formData.preferredChannel === 'WhatsApp') && !formData.phone)
+            canProceed
               ? 'bg-blue-600 text-white hover:bg-blue-700'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           }`}

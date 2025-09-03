@@ -5,7 +5,7 @@ import { requireCustomerLifecyclePermission } from '@/middleware/adminAuth';
 const personaService = new PersonaService();
 
 export async function GET(req: NextRequest) {
-  const authError = requireCustomerLifecyclePermission(req, 'read');
+  const authError = await requireCustomerLifecyclePermission(req, 'read');
   if (authError) return authError;
 
   try {

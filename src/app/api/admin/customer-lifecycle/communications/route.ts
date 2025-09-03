@@ -5,7 +5,7 @@ import { requireCustomerLifecyclePermission } from '@/middleware/adminAuth';
 const communicationService = new CommunicationService();
 
 export async function GET(req: NextRequest) {
-  const authError = requireCustomerLifecyclePermission(req, 'read');
+  const authError = await requireCustomerLifecyclePermission(req, 'read');
   if (authError) return authError;
 
   try {
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const authError = requireCustomerLifecyclePermission(req, 'write');
+  const authError = await requireCustomerLifecyclePermission(req, 'write');
   if (authError) return authError;
 
   try {

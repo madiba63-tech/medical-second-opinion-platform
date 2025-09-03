@@ -181,7 +181,8 @@ REDIS_PASSWORD="staging-redis-password"
 JWT_SECRET="staging-jwt-secret-for-testing"
 NEXTAUTH_SECRET="staging-nextauth-secret-for-testing"
 NEXTAUTH_URL="https://staging.yourdomain.com"
-NODE_ENV="staging"
+NODE_ENV="production"
+APP_ENV="staging"
 LOG_LEVEL="debug"
 ```
 
