@@ -77,19 +77,30 @@ The Medical Second Opinion Platform enables patients to submit medical cases for
    npm install
    ```
 
-3. **Set up the database**
+3. **Set up the development environment**
    ```bash
+   # Generate Prisma client
    npx prisma generate
-   npx prisma db push
+   
+   # Start complete development environment (all services)
+   ./scripts/start-dev.sh
+   
+   # OR start individual components:
+   # Frontend only: npm run dev
+   # Database setup: npx prisma db push
    ```
 
-4. **Start the development server**
+4. **Verify all services are running**
    ```bash
-   npm run dev
+   # Check all development services health
+   npm run test:health
+   
+   # Or run comprehensive tests
+   npm run test:dev
    ```
 
 5. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+   Navigate to [http://localhost:4000](http://localhost:4000) (Development Environment)
 
 ## 🎮 How to Use
 
@@ -97,13 +108,13 @@ The Medical Second Opinion Platform enables patients to submit medical cases for
 
 The platform includes a **Role Navigation Menu** (red button in top-right corner) to switch between different user interfaces:
 
-- **🏥 Patient Portal**: `http://localhost:3000/` - Submit new cases
-- **👤 Customer Portal**: `http://localhost:3000/customer` - Track existing cases
-- **👨‍⚕️ Professional Portal**: `http://localhost:3000/professional` - Review assigned cases
-- **🎯 Professional Recruitment**: `http://localhost:3000/professional/apply` - 8-step vetting process
-- **⚙️ Admin Dashboard**: `http://localhost:3000/admin` - Manage professionals and cases
-- **📊 Case Data Repository**: `http://localhost:3000/admin/repository` - Data management and analytics
-- **🔄 Customer Lifecycle**: `http://localhost:3000/admin/customer-lifecycle` - Customer journey management
+- **🏥 Patient Portal**: `http://localhost:4000/` - Submit new cases
+- **👤 Customer Portal**: `http://localhost:4000/customer` - Track existing cases  
+- **👨‍⚕️ Professional Portal**: `http://localhost:4000/professional` - Review assigned cases
+- **🎯 Professional Recruitment**: `http://localhost:4000/professional/apply` - 8-step vetting process
+- **⚙️ Admin Dashboard**: `http://localhost:4000/admin` - Manage professionals and cases
+- **📊 Case Data Repository**: `http://localhost:4000/admin/repository` - Data management and analytics
+- **🔄 Customer Lifecycle**: `http://localhost:4000/admin/customer-lifecycle` - Customer journey management
 
 ### **Patient Journey**
 1. **Personal Information** - Fill in basic details
@@ -134,33 +145,119 @@ second-opinion/
 └── .uploads/                  # Local file storage (development)
 ```
 
-## 🧪 Testing
+## 🔧 Development Environment
 
-Run the comprehensive test suite:
+### **Architecture**
+The development environment runs a complete microservices architecture with isolated services:
 
+- **Frontend**: Next.js 15.4.7 with Turbopack (Port 4000)
+- **11 Microservices**: Individual services on ports 4001-4010  
+- **Development Database**: PostgreSQL (localhost:5433)
+- **Development Redis**: Cache & queuing (localhost:6380)
+
+### **Development Services**
+| Service | Port | Description |
+|---------|------|-------------|
+| Frontend | 4000 | Next.js application with all user interfaces |
+| Patient Identity | 4001 | Authentication and patient management |
+| Case Management | 4002 | Medical case lifecycle and storage |
+| AI Analysis | 4003 | Automated case analysis and insights |
+| Professional Service | 4004 | Professional authentication and profiles |
+| Notifications | 4005 | Email/SMS notification delivery |
+| Professional Recruitment | 4006 | 8-step vetting and onboarding |
+| Payment & Billing | 4007 | Payment processing and billing |
+| Professional Workplace | 4008 | Case review and opinion creation |
+| Admin Management | 4009 | Administrative dashboard and controls |
+| Workflow Engine | 4010 | Automated workflows and SLA monitoring |
+
+### **Quick Development Commands**
 ```bash
-# Run all tests
-npm test
+# Start complete development environment
+./scripts/start-dev.sh
 
-# Run tests with coverage
-npm run test:coverage
+# Test all services health
+npm run test:health
 
-# Run tests in watch mode
-npm run test:watch
+# Run comprehensive development tests  
+npm run test:dev
 
-# Run specific test categories
-npm run test:components
-npm run test:api
-npm run test:integration
+# Manual testing scenarios
+./test-manual-scenarios.sh
 
-# Run the comprehensive test runner
-./run-tests.sh
+# Check service status
+curl http://localhost:4001/health  # Individual service health
 ```
 
+### **Development Features**
+- 🔄 **Auto-restart**: Services restart automatically on code changes
+- 🧪 **Comprehensive Testing**: Automated test manager with health checks
+- 📊 **Health Monitoring**: Individual service health endpoints
+- 🔍 **Development Logging**: Detailed logging for debugging
+- 🏗️ **Environment Isolation**: Separate dev database and Redis
+- 📋 **Manual Testing**: Interactive testing scenarios script
+
+### **Environment Configuration**
+Development environment uses separate configuration:
+- Database: `postgresql://dev_user:dev_password@localhost:5433/secondopinion_dev`  
+- Redis: `localhost:6380` with `dev_redis_password`
+- JWT Secret: Development-specific secrets
+- Feature Flags: Debug logging enabled, mock payments, email verification skipped
+
+## 🧪 Testing
+
+### **Automated Testing**
+The platform includes comprehensive automated testing infrastructure:
+
+```bash
+# Health check all development services
+npm run test:health
+
+# Run full automated test suite  
+npm run test:dev
+
+# Watch mode for continuous testing
+npm run test:watch
+
+# Manual testing scenarios (interactive)
+./test-manual-scenarios.sh
+
+# Legacy Jest tests
+npm test
+npm run test:coverage
+```
+
+### **Test Manager Agent**
+Autonomous testing agent with comprehensive capabilities:
+- **Health Monitoring**: All 11 microservices health verification
+- **Authentication Testing**: User registration, login, token validation  
+- **Workflow Testing**: Case submission, professional assignment, reviews
+- **Integration Testing**: End-to-end workflow validation
+- **Real-time Reporting**: Detailed JSON reports with timing and metrics
+- **Watch Mode**: Continuous environment monitoring
+
+### **Manual Testing Scenarios**
+Interactive testing script covers:
+1. Frontend Application Access
+2. User Registration & Authentication  
+3. Medical Case Submission
+4. Professional Registration (AI + Manual paths)
+5. Admin Dashboard Operations
+6. Direct API Testing  
+7. Payment System Testing (Mock Mode)
+8. Notification System Testing
+9. Workflow Engine Testing
+10. End-to-End Integration Testing
+
+### **Testing Documentation**
+- [Development Testing Guide](docs/DEVELOPMENT_TESTING_GUIDE.md) - Complete testing procedures
+- [Test Manager Agent](agents/README.md) - Autonomous testing system documentation
+
 ### **Test Coverage**
-- ✅ **Unit Tests**: Component and utility testing
-- ✅ **Integration Tests**: API endpoint testing
-- ✅ **E2E Tests**: Full user journey testing
+- ✅ **Health Monitoring**: All microservices health verification
+- ✅ **Authentication Tests**: Registration, login, token validation
+- ✅ **Workflow Tests**: Case submission, assignment, review processes
+- ✅ **Integration Tests**: End-to-end user journeys
+- ✅ **API Tests**: Direct microservice testing
 - ✅ **Cross-Browser Testing**: Chrome, Safari, Firefox compatibility
 - ✅ **Performance Testing**: Load and stress testing
 
