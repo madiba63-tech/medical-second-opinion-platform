@@ -5,19 +5,26 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '@/lib/prisma';
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
+  email: z.string()
+    .email('Invalid email address')
+    .max(255, 'Email too long')
+    .transform(email => email.toLowerCase().trim()),
+  password: z.string()
+    .min(1, 'Password is required')
+    .max(200, 'Password too long'), // Prevent DoS attacks with huge passwords
 });
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log('Login attempt for:', body.email);
+    // Sanitize email for logging (remove sensitive info)
+    const sanitizedEmail = body.email ? body.email.replace(/(?<=.{2}).(?=.*@)/g, '*') : 'unknown';
+    console.log('Login attempt for:', sanitizedEmail);
     
     // Validate request body
     const validationResult = loginSchema.safeParse(body);
     if (!validationResult.success) {
-      console.log('Validation failed:', validationResult.error.errors);
+      console.log('Validation failed for:', sanitizedEmail);
       return NextResponse.json({
         success: false,
         error: 'Invalid input data',
@@ -32,24 +39,18 @@ export async function POST(request: NextRequest) {
       where: { email: email.toLowerCase() }
     });
 
-    console.log('Customer found:', !!customer);
-    if (customer) {
-      console.log('Email verified:', customer.emailVerified);
-    }
-
-    if (!customer) {
-      console.log('No customer found with email:', email);
-      return NextResponse.json({
-        success: false,
-        error: 'Invalid email or password'
-      }, { status: 401 });
-    }
-
-    // Verify password
-    const isPasswordValid = await bcrypt.compare(password, customer.hashedPassword);
-    console.log('Password valid:', isPasswordValid);
-    if (!isPasswordValid) {
-      console.log('Password verification failed');
+    // Timing attack prevention - always hash password even if user not found
+    const dummyHash = '$2a$12$dummyhashtopreventtimingattacks';
+    const targetHash = customer?.hashedPassword || dummyHash;
+    const isPasswordValid = await bcrypt.compare(password, targetHash);
+    
+    if (!customer || !isPasswordValid) {
+      // Log failed attempt without exposing which part failed
+      console.log('Authentication failed for:', sanitizedEmail);
+      
+      // Consistent delay to prevent timing attacks
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
+      
       return NextResponse.json({
         success: false,
         error: 'Invalid email or password'
@@ -58,25 +59,40 @@ export async function POST(request: NextRequest) {
 
     // Check if email is verified
     if (!customer.emailVerified) {
-      console.log('Email not verified');
+      console.log('Email not verified for:', sanitizedEmail);
       return NextResponse.json({
         success: false,
         error: 'Please verify your email address before logging in.'
       }, { status: 401 });
     }
 
-    console.log('Login successful for:', email);
+    console.log('Login successful for:', sanitizedEmail);
 
-    // Generate JWT token
-    const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-for-dev';
+    // Generate JWT token with secure secret
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      console.error('CRITICAL: JWT_SECRET not set in environment variables');
+      return NextResponse.json({
+        success: false,
+        error: 'Authentication service temporarily unavailable'
+      }, { status: 503 });
+    }
+    
     const token = jwt.sign(
       {
         userId: customer.id,
+        customerId: customer.id, // For consistency with microservices
         email: customer.email,
-        type: 'customer'
+        type: 'customer',
+        emailVerified: customer.emailVerified,
+        iat: Math.floor(Date.now() / 1000)
       },
       jwtSecret,
-      { expiresIn: '7d' }
+      { 
+        expiresIn: '24h', // Shorter expiry for security
+        issuer: 'medical-second-opinion',
+        audience: 'customer-portal'
+      }
     );
 
     // Return user profile without sensitive data
@@ -115,13 +131,13 @@ export async function POST(request: NextRequest) {
       data: {
         user: userProfile,
         token,
-        expiresIn: '7d'
+        expiresIn: '24h'
       },
       message: 'Login successful'
     });
 
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login error:', error.message);
     return NextResponse.json({
       success: false,
       error: 'Internal server error'
@@ -134,7 +150,7 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || 'http://localhost:3000',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },

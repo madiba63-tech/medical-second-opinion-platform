@@ -5,8 +5,21 @@ import crypto from "crypto";
 import { headers } from "next/headers";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-jwt-secret-for-development-32-chars';
-const PROFESSIONAL_SIGNATURE_SECRET = process.env.PROFESSIONAL_SIGNATURE_SECRET || 'professional-signature-secret-2025';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('JWT_SECRET must be set in production');
+}
+
+const PROFESSIONAL_SIGNATURE_SECRET = process.env.PROFESSIONAL_SIGNATURE_SECRET;
+if (!PROFESSIONAL_SIGNATURE_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('PROFESSIONAL_SIGNATURE_SECRET must be set in production');
+  }
+  console.warn('Using default PROFESSIONAL_SIGNATURE_SECRET in development');
+}
+
+const effectiveJwtSecret = JWT_SECRET || 'dev-jwt-secret-for-development-32-chars';
+const effectiveSignatureSecret = PROFESSIONAL_SIGNATURE_SECRET || 'professional-signature-secret-2025';
 
 // Maximum file size: 25MB (professional documents typically smaller)
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
@@ -15,12 +28,18 @@ const MAX_FILE_SIZE = 25 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = [
   'application/pdf',
   'image/jpeg',
+  'image/jpg', // Add jpg variant
   'image/png',
   'image/tiff',
+  'image/tif', // Add tif variant
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'text/plain'
+  'text/plain',
+  'application/dicom' // For medical imaging documents
 ];
+
+// Dangerous file extensions to explicitly block
+const BLOCKED_EXTENSIONS = ['.exe', '.bat', '.cmd', '.com', '.scr', '.pif', '.vbs', '.js', '.jar', '.app', '.deb', '.pkg', '.dmg'];
 
 const fileRequestSchema = z.object({
   filename: z.string()
@@ -28,8 +47,20 @@ const fileRequestSchema = z.object({
     .max(255, "Filename too long")
     .refine((filename) => {
       const sanitized = path.basename(filename);
-      return sanitized === filename && !/[<>:"|?*]/.test(filename);
-    }, "Invalid filename characters"),
+      const ext = path.extname(filename).toLowerCase();
+      
+      // Check for blocked extensions
+      if (BLOCKED_EXTENSIONS.includes(ext)) {
+        return false;
+      }
+      
+      // Check for path traversal attempts
+      if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+        return false;
+      }
+      
+      return sanitized === filename && !/[<>:"|?*\x00-\x1f]/.test(filename);
+    }, "Invalid filename or blocked file type"),
   mimetype: z.string().refine((mime) => ALLOWED_MIME_TYPES.includes(mime), {
     message: "File type not allowed. Only PDF, images, and professional documents are permitted."
   }),
@@ -44,10 +75,20 @@ const requestSchema = z.object({
   sessionType: z.literal('professional').optional().default('professional')
 });
 
-// Rate limiting map (in production, use Redis)
+// Rate limiting map (in production, use Redis with TTL)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
-const RATE_LIMIT_MAX_REQUESTS = 10;
+const RATE_LIMIT_MAX_REQUESTS = 5; // Reduced for better security
+
+// Clean up expired entries periodically to prevent memory leaks
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, record] of rateLimitMap.entries()) {
+    if (now > record.resetTime) {
+      rateLimitMap.delete(key);
+    }
+  }
+}, 60 * 1000); // Clean up every minute
 
 function checkRateLimit(identifier: string): boolean {
   const now = Date.now();
@@ -78,7 +119,7 @@ export async function POST(req: NextRequest) {
       const token = authHeader.substring(7);
       
       try {
-        decodedToken = jwt.verify(token, JWT_SECRET) as any;
+        decodedToken = jwt.verify(token, effectiveJwtSecret) as any;
         userIdentifier = decodedToken.sub || decodedToken.email || 'authenticated';
       } catch (jwtError) {
         console.warn('Invalid token provided for professional upload, proceeding as anonymous');
@@ -114,14 +155,16 @@ export async function POST(req: NextRequest) {
     
     const { files, email } = parseResult.data;
     
-    // Generate professional session ID based on email
+    // Generate professional session ID with additional entropy
     const professionalId = crypto
       .createHash('sha256')
-      .update(`professional:${email}:${Date.now()}`)
+      .update(`professional:${email}:${Date.now()}:${Math.random()}:${userIdentifier}`)
       .digest('hex')
       .substring(0, 32);
 
-    console.log(`Professional upload request from: ${email}, ID: ${professionalId}`);
+    // Log professional upload request with sanitized email
+    const sanitizedEmail = email.replace(/(?<=.{2}).(?=.*@)/g, '*');
+    console.log(`Professional upload request from: ${sanitizedEmail}, ID: ${professionalId}`);
 
     // Use local development upload (isolated from customer system)
     const uploadUrls = files.map((file) => {
@@ -133,12 +176,12 @@ export async function POST(req: NextRequest) {
       const key = `professional-documents/${professionalId}/${new Date().toISOString().split('T')[0]}/${randomId}-${sanitizedFilename}`;
       
       const baseUrl = req.nextUrl.origin;
-      const expiryTime = timestamp + 3600000; // 1 hour from now
+      const expiryTime = timestamp + 1800000; // 30 minutes from now (reduced for security)
       
       // Create cryptographically secure signature for professional uploads
       const signatureData = `professional:${professionalId}:${key}:${expiryTime}:${email}`;
       const signature = crypto
-        .createHmac('sha256', PROFESSIONAL_SIGNATURE_SECRET)
+        .createHmac('sha256', effectiveSignatureSecret)
         .update(signatureData)
         .digest('hex');
       
