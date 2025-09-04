@@ -15,6 +15,7 @@ import ComplianceAgreementComponent from './ComplianceAgreementComponent';
 import SelfAssessmentQuestionnaire from './SelfAssessmentQuestionnaire';
 import FinalReviewComponent from './FinalReviewComponent';
 import DocumentUploadComponent from './DocumentUploadComponent';
+import InternationalManualEntryComponent from './InternationalManualEntryComponent';
 
 // Application flow steps
 type ApplicationStep = 
@@ -553,21 +554,22 @@ Application Error Report:
         );
 
       case 'manual_entry':
-        // TODO: Implement manual data entry component
+        if (!applicationState.candidateId || !applicationState.applicationNumber) {
+          return (
+            <div className="text-center py-8">
+              <p className="text-red-600">Missing application information</p>
+            </div>
+          );
+        }
+        
         return (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
-            <h3 className="text-lg font-semibold text-blue-900 mb-2">Manual Entry Component</h3>
-            <p className="text-blue-700 mb-4">
-              The manual entry component will be implemented next. For now, click continue to proceed 
-              with document uploads.
-            </p>
-            <button
-              onClick={() => setApplicationState(prev => ({ ...prev, currentStep: 'document_upload' }))}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
-            >
-              Continue to Documents
-            </button>
-          </div>
+          <InternationalManualEntryComponent
+            candidateId={applicationState.candidateId}
+            applicationNumber={applicationState.applicationNumber}
+            onComplete={handleAIDataReviewComplete}
+            onPrev={handlePreviousStep}
+            initialData={applicationState.formData}
+          />
         );
 
       case 'document_upload':
