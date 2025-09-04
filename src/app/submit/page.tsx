@@ -6,6 +6,7 @@ import UploadStep from '@/components/submit/UploadStep';
 import EnhancedContextStep from '@/components/submit/EnhancedContextStep';
 import ReviewConfirmationStep from '@/components/submit/ReviewConfirmationStep';
 import IdentifyStep from '@/components/submit/IdentifyStep';
+import ExpertiseLevelStep from '@/components/submit/ExpertiseLevelStep';
 import RegisterStep from '@/components/submit/RegisterStep';
 import PaymentStep from '@/components/submit/PaymentStep';
 import ConfirmStep from '@/components/submit/ConfirmStep';
@@ -14,6 +15,8 @@ interface TempSubmission {
   medicalFiles: any[];
   contextInfo: any;
   personalInfo?: any;
+  expertiseLevel?: string;
+  urgencyLevel?: 'standard' | 'urgent' | 'emergency';
 }
 
 interface ExistingCustomer {
@@ -192,7 +195,7 @@ export default function SubmitPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Submission Progress</h3>
               <span className="text-sm text-gray-500">
-                Step {currentStep} of {existingCustomer ? 6 : 7}
+                Step {currentStep} of {existingCustomer ? 7 : 8}
               </span>
             </div>
             
@@ -202,19 +205,19 @@ export default function SubmitPage() {
                 <span className="text-sm font-medium text-gray-700">
                   {(() => {
                     const steps = existingCustomer 
-                      ? ['Upload Documents', 'Medical Questionnaire', 'Your Information', 'Review & Confirm', 'Payment', 'Confirmation']
-                      : ['Upload Documents', 'Medical Questionnaire', 'Your Information', 'Review & Confirm', 'Create Account', 'Payment', 'Confirmation'];
+                      ? ['Upload Documents', 'Medical Questionnaire', 'Your Information', 'Expertise Level', 'Review & Confirm', 'Payment', 'Confirmation']
+                      : ['Upload Documents', 'Medical Questionnaire', 'Your Information', 'Expertise Level', 'Review & Confirm', 'Create Account', 'Payment', 'Confirmation'];
                     return steps[currentStep - 1];
                   })()}
                 </span>
                 <span className="text-xs text-gray-500">
-                  {Math.round((currentStep / (existingCustomer ? 6 : 7)) * 100)}%
+                  {Math.round((currentStep / (existingCustomer ? 7 : 8)) * 100)}%
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div 
                   className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${(currentStep / (existingCustomer ? 6 : 7)) * 100}%` }}
+                  style={{ width: `${(currentStep / (existingCustomer ? 7 : 8)) * 100}%` }}
                 ></div>
               </div>
             </div>
@@ -226,17 +229,19 @@ export default function SubmitPage() {
                   { step: 1, title: 'Upload Documents' },
                   { step: 2, title: 'Medical Questionnaire' },
                   { step: 3, title: 'Your Information' },
-                  { step: 4, title: 'Review & Confirm' },
-                  { step: 5, title: 'Payment' },
-                  { step: 6, title: 'Confirmation' }
+                  { step: 4, title: 'Expertise Level' },
+                  { step: 5, title: 'Review & Confirm' },
+                  { step: 6, title: 'Payment' },
+                  { step: 7, title: 'Confirmation' }
                 ] : [
                   { step: 1, title: 'Upload Documents' },
                   { step: 2, title: 'Medical Questionnaire' },
                   { step: 3, title: 'Your Information' },
-                  { step: 4, title: 'Review & Confirm' },
-                  { step: 5, title: 'Create Account' },
-                  { step: 6, title: 'Payment' },
-                  { step: 7, title: 'Confirmation' }
+                  { step: 4, title: 'Expertise Level' },
+                  { step: 5, title: 'Review & Confirm' },
+                  { step: 6, title: 'Create Account' },
+                  { step: 7, title: 'Payment' },
+                  { step: 8, title: 'Confirmation' }
                 ]).map((item, index, array) => (
                   <div key={item.step} className="flex flex-col items-center flex-1 relative">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
@@ -307,6 +312,16 @@ export default function SubmitPage() {
             )}
             
             {currentStep === 4 && (
+              <ExpertiseLevelStep
+                selectedLevel={tempSubmission.expertiseLevel}
+                urgencyLevel={tempSubmission.urgencyLevel || 'standard'}
+                onUpdate={(level) => updateTempSubmission({ expertiseLevel: level })}
+                onNext={nextStep}
+                onPrev={prevStep}
+              />
+            )}
+
+            {currentStep === 5 && (
               <ReviewConfirmationStep
                 tempSubmission={tempSubmission}
                 onNext={nextStep}
@@ -314,7 +329,7 @@ export default function SubmitPage() {
               />
             )}
             
-            {currentStep === 5 && !existingCustomer && (
+            {currentStep === 6 && !existingCustomer && (
               <RegisterStep
                 tempSubmission={tempSubmission}
                 tempId={tempId}
@@ -324,23 +339,27 @@ export default function SubmitPage() {
               />
             )}
             
-            {currentStep === 5 && existingCustomer && (
-              <PaymentStep
-                tempId={tempId}
-                onNext={nextStep}
-                onPrev={prevStep}
-              />
-            )}
-            
-            {currentStep === 6 && !existingCustomer && (
-              <PaymentStep
-                tempId={tempId}
-                onNext={nextStep}
-                onPrev={prevStep}
-              />
-            )}
-            
             {currentStep === 6 && existingCustomer && (
+              <PaymentStep
+                tempId={tempId}
+                expertiseLevel={tempSubmission.expertiseLevel}
+                urgencyLevel={tempSubmission.urgencyLevel}
+                onNext={nextStep}
+                onPrev={prevStep}
+              />
+            )}
+            
+            {currentStep === 7 && !existingCustomer && (
+              <PaymentStep
+                tempId={tempId}
+                expertiseLevel={tempSubmission.expertiseLevel}
+                urgencyLevel={tempSubmission.urgencyLevel}
+                onNext={nextStep}
+                onPrev={prevStep}
+              />
+            )}
+            
+            {currentStep === 7 && existingCustomer && (
               <ConfirmStep
                 caseId={caseId}
                 setCaseId={setCaseId}
@@ -349,7 +368,7 @@ export default function SubmitPage() {
               />
             )}
             
-            {currentStep === 7 && !existingCustomer && (
+            {currentStep === 8 && !existingCustomer && (
               <ConfirmStep
                 caseId={caseId}
                 setCaseId={setCaseId}

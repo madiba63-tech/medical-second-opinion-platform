@@ -1,15 +1,94 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface PaymentStepProps {
   tempId: string;
+  expertiseLevel?: string;
+  urgencyLevel?: 'standard' | 'urgent' | 'emergency';
   onNext: () => void;
   onPrev: () => void;
 }
 
-export default function PaymentStep({ tempId, onNext, onPrev }: PaymentStepProps) {
+export default function PaymentStep({ tempId, expertiseLevel, urgencyLevel = 'standard', onNext, onPrev }: PaymentStepProps) {
   const [processing, setProcessing] = useState(false);
+  const [pricingData, setPricingData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Load pricing data from payment service
+  useEffect(() => {
+    const fetchPricing = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:4007/api/v1/pricing?currency=USD&jurisdiction=US');
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            setPricingData(data.data);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading pricing:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPricing();
+  }, []);
+
+  // Calculate pricing based on selected expertise level
+  const calculatePrice = (level: string | undefined) => {
+    if (!level || !pricingData?.pricing) return 299; // fallback price
+    
+    // Map frontend levels to API levels
+    const levelMap: Record<string, string> = {
+      'junior': 'JUNIOR',
+      'senior': 'SENIOR', 
+      'expert': 'EXPERT',
+      'distinguished': 'DISTINGUISHED'
+    };
+    
+    const apiLevel = levelMap[level];
+    const pricing = pricingData.pricing[apiLevel];
+    
+    if (!pricing) return 299; // fallback price
+    
+    let basePrice = pricing.basePrice;
+    
+    // Apply urgency multipliers
+    if (urgencyLevel === 'urgent') {
+      basePrice = basePrice * 1.5;
+    } else if (urgencyLevel === 'emergency') {
+      basePrice = basePrice * 2.0;
+    }
+    
+    return Math.round(basePrice);
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: pricingData?.currency || 'USD',
+      minimumFractionDigits: 2
+    }).format(price);
+  };
+
+  const getLevelTitle = (level: string | undefined) => {
+    const levelTitles: Record<string, string> = {
+      'junior': 'Junior Professional',
+      'senior': 'Senior Professional',
+      'expert': 'Expert Professional',
+      'distinguished': 'Distinguished Professional'
+    };
+    return levelTitles[level || ''] || 'Professional Review';
+  };
+
+  const basePrice = calculatePrice(expertiseLevel);
+  const aiAnalysis = Math.round(basePrice * 0.3); // 30% of base price for AI analysis
+  const processingFee = 25; // Fixed processing fee
+  const totalPrice = basePrice + aiAnalysis + processingFee;
 
   const handlePayment = async () => {
     setProcessing(true);
@@ -33,23 +112,50 @@ export default function PaymentStep({ tempId, onNext, onPrev }: PaymentStepProps
       {/* Payment Summary */}
       <div className="bg-gray-50 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Case Review Summary</h3>
+        
+        {expertiseLevel && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-blue-900">Selected Expertise Level</p>
+                <p className="text-blue-700">{getLevelTitle(expertiseLevel)}</p>
+              </div>
+              {urgencyLevel !== 'standard' && (
+                <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded-full">
+                  {urgencyLevel === 'urgent' ? 'Urgent (1.5x)' : 'Emergency (2x)'}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="space-y-3">
           <div className="flex justify-between">
-            <span className="text-gray-600">Second Opinion Review</span>
-            <span className="font-medium">$299.00</span>
+            <span className="text-gray-600">{getLevelTitle(expertiseLevel)} Review</span>
+            <span className="font-medium">{loading ? 'Loading...' : formatPrice(basePrice)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">AI Analysis</span>
-            <span className="font-medium">$99.00</span>
+            <span className="text-gray-600">AI Analysis & Processing</span>
+            <span className="font-medium">{loading ? 'Loading...' : formatPrice(aiAnalysis)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">Processing Fee</span>
-            <span className="font-medium">$25.00</span>
+            <span className="text-gray-600">Platform Fee</span>
+            <span className="font-medium">{formatPrice(processingFee)}</span>
           </div>
+          {urgencyLevel !== 'standard' && (
+            <div className="border-t pt-2">
+              <div className="text-xs text-gray-500 mb-2">
+                {urgencyLevel === 'urgent' 
+                  ? 'Urgent processing: 1.5x multiplier applied'
+                  : 'Emergency processing: 2x multiplier applied'
+                }
+              </div>
+            </div>
+          )}
           <div className="border-t pt-3">
             <div className="flex justify-between text-lg font-semibold">
               <span>Total</span>
-              <span>$423.00</span>
+              <span>{loading ? 'Loading...' : formatPrice(totalPrice)}</span>
             </div>
           </div>
         </div>
@@ -146,7 +252,7 @@ export default function PaymentStep({ tempId, onNext, onPrev }: PaymentStepProps
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           }`}
         >
-          {processing ? 'Processing Payment...' : 'Pay $423.00'}
+          {processing ? 'Processing Payment...' : `Pay ${loading ? 'Loading...' : formatPrice(totalPrice)}`}
         </button>
       </div>
     </div>

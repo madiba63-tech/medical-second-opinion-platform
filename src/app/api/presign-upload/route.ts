@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { z } from "zod";
-import { authenticateRequest } from "@/lib/auth";
+import { authService } from "@/lib/auth";
 import path from "path";
 
 // Maximum file size: 50MB
@@ -55,13 +55,23 @@ export async function POST(req: NextRequest) {
       console.log('Using temporary session:', userId);
     } else {
       // Try to authenticate user with JWT
-      const authResult = await authenticateRequest(req);
-      if (authResult.success && authResult.user) {
+      try {
+        const authHeader = req.headers.get('authorization');
+        if (!authHeader?.startsWith('Bearer ')) {
+          return NextResponse.json(
+            { error: "Authentication or temporary session required" },
+            { status: 401 }
+          );
+        }
+        
+        const token = authHeader.substring(7);
+        const userPayload = await authService.verifyAccessToken(token);
+        
         // Authenticated user
-        userId = authResult.user.id;
+        userId = userPayload.sub;
         userType = 'authenticated';
         console.log('Using authenticated user:', userId);
-      } else {
+      } catch (error) {
         return NextResponse.json(
           { error: "Authentication or temporary session required" },
           { status: 401 }

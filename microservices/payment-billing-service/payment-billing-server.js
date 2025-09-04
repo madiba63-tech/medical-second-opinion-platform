@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { body, param, query, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
 const axios = require('axios');
 const Decimal = require('decimal.js');
@@ -13,7 +13,14 @@ const { PrismaClient } = require('../../src/generated/prisma');
 // Initialize services
 const app = express();
 const PORT = process.env.PORT || 3008;
-const JWT_SECRET = process.env.JWT_SECRET || 'payment-billing-jwt-secret-2025';
+const JWT_SECRET = process.env.JWT_SECRET || (() => {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('⚠️  CRITICAL: JWT_SECRET not set in production - Payment service cannot start');
+    process.exit(1);
+  }
+  console.warn('⚠️  WARNING: Using default JWT_SECRET in development');
+  return 'payment-billing-jwt-secret-dev-only';
+})();
 const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/secondopinion?schema=public';
 const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3005';
 
@@ -26,33 +33,112 @@ const prisma = new PrismaClient({
   },
 });
 
-// Configure Winston logger
+// Configure Winston logger for PCI DSS compliance
 const logger = winston.createLogger({
   level: 'info',
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.json()
+    winston.format.json(),
+    // Custom format to mask sensitive financial data
+    winston.format((info) => {
+      if (info.message) {
+        // Mask credit card patterns
+        info.message = info.message.replace(/\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/g, '[CARD-REDACTED]');
+        // Mask bank account patterns
+        info.message = info.message.replace(/\b\d{8,17}\b/g, '[ACCOUNT-REDACTED]');
+        // Mask amounts in logs (keep first and last digit)
+        info.message = info.message.replace(/\b\d{1}\d+\.\d{2}\b/g, (match) => {
+          return match.charAt(0) + '*'.repeat(match.length - 3) + match.slice(-3);
+        });
+      }
+      return info;
+    })()
   ),
   transports: [
     new winston.transports.Console({
       format: winston.format.simple()
+    }),
+    new winston.transports.File({
+      filename: 'logs/payment-audit.log',
+      level: 'info',
+      maxsize: 5242880, // 5MB
+      maxFiles: 10,
+      tailable: true
     })
   ],
 });
 
-// Middleware
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+// Security middleware for PCI DSS compliance
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
-// Request logging middleware
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
+}));
+
+// Rate limiting for payment endpoints
+const paymentLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // limit each IP to 20 payment requests per windowMs
+  message: {
+    success: false,
+    error: 'Too many payment requests, please try again later.',
+    code: 'PAYMENT_RATE_LIMIT_EXCEEDED'
+  }
+});
+
+const quoteLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes  
+  max: 10, // limit each IP to 10 quote requests per 5 minutes
+  message: {
+    success: false,
+    error: 'Too many quote requests, please try again later.',
+    code: 'QUOTE_RATE_LIMIT_EXCEEDED'
+  }
+});
+
+// Configure CORS securely for payment processing
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:3000'];
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Body parsing with strict limits for payment data
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// Request logging middleware (PCI DSS compliant - no sensitive data logged)
 app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.path}`, {
+  const sanitizedPath = req.path.replace(/\/[a-f0-9-]{36}/gi, '/[UUID]'); // Replace UUIDs
+  const logData = {
     ip: req.ip,
     userAgent: req.get('User-Agent'),
-    body: req.method === 'POST' || req.method === 'PUT' ? req.body : undefined
-  });
+    timestamp: new Date().toISOString()
+  };
+  
+  // Never log request bodies for payment/financial endpoints
+  if (!req.path.includes('/payment') && !req.path.includes('/billing') && !req.path.includes('/invoice')) {
+    logData.body = req.method === 'POST' || req.method === 'PUT' ? req.body : undefined;
+  }
+  
+  logger.info(`${req.method} ${sanitizedPath}`, logData);
   next();
 });
 
@@ -97,12 +183,17 @@ const TAX_JURISDICTIONS = {
   'CH': ['CH']
 };
 
-// Authentication middleware
+// Enhanced authentication middleware for payment service
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
+    logger.warn('Payment service access attempted without token', {
+      ip: req.ip,
+      path: req.path,
+      userAgent: req.get('User-Agent')
+    });
     return res.status(401).json({
       success: false,
       error: 'Access token required',
@@ -112,10 +203,31 @@ const authenticateToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Additional validation for sensitive payment operations
+    if (req.path.includes('/payment') || req.path.includes('/invoice')) {
+      if (!decoded.customerId && !decoded.system && !decoded.professionalId) {
+        logger.warn('Invalid token scope for payment operation', {
+          ip: req.ip,
+          path: req.path,
+          tokenType: decoded.type
+        });
+        return res.status(403).json({
+          success: false,
+          error: 'Insufficient token scope',
+          code: 'INSUFFICIENT_SCOPE'
+        });
+      }
+    }
+    
     req.user = decoded;
     next();
   } catch (error) {
-    logger.error('Token verification failed:', error);
+    logger.error('Token verification failed in payment service', {
+      error: error.message,
+      ip: req.ip,
+      path: req.path
+    });
     return res.status(403).json({
       success: false,
       error: 'Invalid or expired token',
@@ -154,7 +266,12 @@ class InvoicingAdapter {
   }
 
   async generateInvoice(invoiceData) {
-    logger.info(`Generating invoice via ${this.providerType}`, { invoiceData });
+    // Log invoice generation without sensitive data
+    logger.info(`Generating invoice via ${this.providerType}`, { 
+      caseId: invoiceData.case_id,
+      amount: invoiceData.line_items?.[0]?.total_amount,
+      currency: invoiceData.line_items?.[0]?.currency
+    });
     
     // Mock implementation - replace with actual provider integration
     return {
@@ -168,7 +285,8 @@ class InvoicingAdapter {
   }
 
   async calculateTax(amount, jurisdiction, customerType = 'B2C') {
-    logger.info(`Calculating tax for ${jurisdiction}`, { amount, customerType });
+    // Log tax calculation without exposing amounts in detail
+    logger.info(`Calculating tax for jurisdiction: ${jurisdiction}`, { customerType });
     
     // Mock tax calculation - replace with actual provider integration
     const taxRates = {
@@ -191,7 +309,8 @@ class InvoicingAdapter {
   }
 
   async sendInvoice(invoiceId, recipientData) {
-    logger.info(`Sending invoice ${invoiceId}`, { recipientData });
+    // Log invoice sending without exposing recipient details
+    logger.info(`Sending invoice ${invoiceId}`);
     
     // Mock implementation
     return {
@@ -273,7 +392,7 @@ app.get('/api/v1/pricing', (req, res) => {
 });
 
 // Generate Case Quote
-app.post('/api/v1/cases/:caseId/quote', [
+app.post('/api/v1/cases/:caseId/quote', quoteLimiter, [
   param('caseId').isUUID(),
   body('professionalLevel').isIn(['JUNIOR', 'SENIOR', 'EXPERT', 'DISTINGUISHED']),
   body('customerCountry').isLength({ min: 2, max: 2 }),
@@ -410,10 +529,16 @@ app.post('/api/v1/cases/:caseId/quote', [
 });
 
 // Generate Invoice
-app.post('/api/v1/cases/:caseId/invoice', [
+app.post('/api/v1/cases/:caseId/invoice', paymentLimiter, [
   param('caseId').isUUID(),
   body('quoteId').isUUID(),
-  body('customerData').isObject()
+  body('customerData').isObject(),
+  body('customerData.email').isEmail().normalizeEmail(),
+  body('customerData.firstName').isLength({ min: 1, max: 100 }).trim(),
+  body('customerData.lastName').isLength({ min: 1, max: 100 }).trim(),
+  body('customerData.country').isLength({ min: 2, max: 2 }),
+  body('customerData.billingAddress').optional().isObject(),
+  body('customerData.vatNumber').optional().isLength({ min: 1, max: 50 })
 ], authenticateToken, async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -556,7 +681,7 @@ app.post('/api/v1/cases/:caseId/invoice', [
 });
 
 // Process Professional Payment
-app.post('/api/v1/professional-payments', [
+app.post('/api/v1/professional-payments', paymentLimiter, [
   body('caseId').isUUID(),
   body('professionalId').isUUID(),
   body('invoiceId').isUUID()
@@ -638,12 +763,36 @@ app.post('/api/v1/professional-payments', [
       }
     });
 
-    // Calculate professional payment amount
+    // Calculate professional payment amount with validation
     const priceConfig = PROFESSIONAL_PRICING[professional.level];
+    if (!priceConfig) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid professional level',
+        code: 'INVALID_PROFESSIONAL_LEVEL'
+      });
+    }
+    
     const professionalAmount = new Decimal(invoice.baseAmount)
       .mul(priceConfig.professionalPercentage)
       .toDecimalPlaces(2)
       .toNumber();
+      
+    // Validate calculated amount is reasonable
+    if (professionalAmount <= 0 || professionalAmount > 10000) {
+      logger.error('Suspicious professional payment amount calculated', {
+        professionalId,
+        caseId,
+        baseAmount: invoice.baseAmount,
+        calculatedAmount: professionalAmount,
+        level: professional.level
+      });
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid payment amount calculated',
+        code: 'INVALID_PAYMENT_AMOUNT'
+      });
+    }
 
     // Calculate tax jurisdiction for professional
     const professionalTaxJurisdiction = getTaxJurisdiction(professional.country);
@@ -821,7 +970,7 @@ app.get('/api/v1/payments/:paymentId/status', [
 });
 
 // Update Payment Status (Webhook endpoint for external systems)
-app.post('/api/v1/webhooks/payment-status', [
+app.post('/api/v1/webhooks/payment-status', paymentLimiter, [
   body('paymentId').isString(),
   body('status').isIn(['pending', 'processing', 'paid', 'failed', 'disputed', 'refunded']),
   body('externalTransactionId').optional().isString(),
@@ -871,15 +1020,23 @@ app.post('/api/v1/webhooks/payment-status', [
         if (medicalCase?.assignedProfessionalId) {
           // Trigger professional payment (you could use a queue here)
           try {
+            // Create system token with limited scope
+            const systemToken = jwt.sign({
+              system: true,
+              scope: 'professional_payment',
+              exp: Math.floor(Date.now() / 1000) + (5 * 60) // 5 minutes
+            }, JWT_SECRET);
+            
             await axios.post(`http://localhost:${PORT}/api/v1/professional-payments`, {
               caseId: invoice.caseId,
               professionalId: medicalCase.assignedProfessionalId,
               invoiceId: invoice.id
             }, {
               headers: {
-                'Authorization': `Bearer ${jwt.sign({ system: true }, JWT_SECRET)}`,
+                'Authorization': `Bearer ${systemToken}`,
                 'Content-Type': 'application/json'
-              }
+              },
+              timeout: 10000 // 10 second timeout
             });
           } catch (paymentError) {
             logger.error('Failed to auto-trigger professional payment:', paymentError);

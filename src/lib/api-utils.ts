@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ZodError, ZodSchema } from 'zod';
 import { 
-  authenticateRequest, 
-  checkRateLimit, 
-  getRateLimitKey, 
-  applyCORSHeaders,
+  authService,
   AuthenticatedUser,
-  RateLimitConfig 
+  JWTPayload 
 } from './auth';
 import { ErrorResponse } from './validations/caseSubmission';
 
@@ -16,6 +13,48 @@ import { ErrorResponse } from './validations/caseSubmission';
  * Provides middleware-like functionality for authentication, rate limiting,
  * validation, and error handling across all API endpoints.
  */
+
+// Rate limiting types
+export interface RateLimitConfig {
+  maxRequests: number;
+  windowMs: number;
+}
+
+// Simple rate limiting (in production, use Redis)
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
+function checkRateLimit(key: string, config: RateLimitConfig): { allowed: boolean; remaining: number; resetTime: number } {
+  const now = Date.now();
+  const record = rateLimitStore.get(key);
+  
+  if (!record || now > record.resetTime) {
+    const resetTime = now + config.windowMs;
+    rateLimitStore.set(key, { count: 1, resetTime });
+    return { allowed: true, remaining: config.maxRequests - 1, resetTime };
+  }
+  
+  if (record.count >= config.maxRequests) {
+    return { allowed: false, remaining: 0, resetTime: record.resetTime };
+  }
+  
+  record.count++;
+  return { allowed: true, remaining: config.maxRequests - record.count, resetTime: record.resetTime };
+}
+
+function getRateLimitKey(request: NextRequest, user?: AuthenticatedUser): string {
+  const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+  return user ? `user:${user.id}` : `ip:${ip}`;
+}
+
+function applyCORSHeaders(headers: Record<string, string> = {}): Record<string, string> {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Correlation-ID',
+    'Access-Control-Max-Age': '86400',
+    ...headers,
+  };
+}
 
 export interface ApiHandlerOptions {
   requireAuth?: boolean;
@@ -249,16 +288,35 @@ export function createApiHandler(handler: ApiHandler, options: ApiHandlerOptions
       // Authentication
       let user: AuthenticatedUser | undefined;
       if (options.requireAuth) {
-        const authResult = await authenticateRequest(request);
-        if (!authResult.success) {
+        try {
+          const authHeader = request.headers.get('authorization');
+          
+          if (!authHeader?.startsWith('Bearer ')) {
+            return createErrorResponse(
+              'Authorization header required',
+              401,
+              undefined,
+              request
+            );
+          }
+
+          const token = authHeader.substring(7);
+          const userPayload = await authService.verifyAccessToken(token);
+          
+          // Convert JWTPayload to AuthenticatedUser format expected by the rest of the code
+          user = {
+            id: userPayload.sub,
+            email: userPayload.email,
+            role: userPayload.role.toLowerCase() as any, // Convert from enum to lowercase string
+          } as AuthenticatedUser;
+        } catch (error) {
           return createErrorResponse(
-            authResult.error || 'Authentication failed',
-            authResult.statusCode || 401,
+            'Authentication failed',
+            401,
             undefined,
             request
           );
         }
-        user = authResult.user;
       }
 
       // Rate limiting

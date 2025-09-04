@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { hasCustomerLifecyclePermission, AdminUser } from '@/types/admin';
-import { authenticateRequest, AuthenticatedUser } from '@/lib/auth';
+import { authService, AuthenticatedUser, JWTPayload } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 /**
@@ -8,21 +8,24 @@ import { prisma } from '@/lib/prisma';
  */
 export async function getAdminUser(req: NextRequest): Promise<AdminUser | null> {
   try {
-    // Use proper JWT authentication
-    const authResult = await authenticateRequest(req);
+    // Extract JWT token from authorization header
+    const authHeader = req.headers.get('authorization');
     
-    if (!authResult.success || !authResult.user) {
+    if (!authHeader?.startsWith('Bearer ')) {
       return null;
     }
 
+    const token = authHeader.substring(7);
+    const userPayload = await authService.verifyAccessToken(token);
+    
     // Verify user has admin role
-    if (authResult.user.role !== 'admin') {
+    if (userPayload.role !== 'ADMIN') {
       return null;
     }
 
     // Fetch full admin user data with permissions from database
     const adminUser = await prisma.user.findUnique({
-      where: { id: authResult.user.id },
+      where: { id: userPayload.sub },
       include: {
         role: {
           include: {
