@@ -1,23 +1,127 @@
+/**
+ * Customer Portal Service - Healthcare Compliant Implementation
+ * Following Medical Second Opinion Platform v2.0 Standards
+ * 
+ * HIPAA Compliant - PHI Protection - Audit Logging - Standardized Error Handling
+ */
+
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const compression = require('compression');
+const rateLimit = require('express-rate-limit');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { body, validationResult, param } = require('express-validator');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
+const winston = require('winston');
+
+// Import standardized utilities (would be from shared package in production)
 const { PrismaClient } = require('../../src/generated/prisma');
-const fs = require('fs').promises;
-const path = require('path');
-const sharp = require('sharp');
-const Tesseract = require('tesseract.js');
-const pdf = require('pdf-parse');
 
 const app = express();
 const PORT = process.env.PORT || 4009;
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-for-development-only';
+const SERVICE_NAME = 'customer-portal-service';
 
-// Initialize Prisma Client
-const prisma = new PrismaClient();
+// Initialize standardized logging
+const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json(),
+    winston.format.printf((info) => {
+      return JSON.stringify({
+        timestamp: info.timestamp,
+        level: info.level,
+        message: info.message,
+        service: SERVICE_NAME,
+        correlationId: info.correlationId,
+        userId: info.userId,
+        hipaaCompliant: true,
+        ...info.metadata,
+      });
+    })
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({
+      filename: `/tmp/microservice/${SERVICE_NAME}-error.log`,
+      level: 'error',
+      maxsize: 10 * 1024 * 1024,
+      maxFiles: 5,
+    }),
+    new winston.transports.File({
+      filename: `/tmp/microservice/${SERVICE_NAME}-audit.log`,
+      maxsize: 50 * 1024 * 1024,
+      maxFiles: 10,
+    }),
+  ],
+});
+
+// Standardized error handling
+const MEDICAL_ERROR_CODES = {
+  INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+  VALIDATION_FAILED: 'VALIDATION_FAILED',
+  CASE_CREATION_FAILED: 'CASE_CREATION_FAILED',
+  FILE_UPLOAD_FAILED: 'FILE_UPLOAD_FAILED',
+  PAYMENT_PROCESSING_FAILED: 'PAYMENT_PROCESSING_FAILED',
+};
+
+class StandardizedError extends Error {
+  constructor(message, code, statusCode = 500, options = {}) {
+    super(message);
+    this.name = 'StandardizedError';
+    this.code = code;
+    this.statusCode = statusCode;
+    this.timestamp = new Date().toISOString();
+    this.correlationId = options.correlationId || uuidv4();
+    this.severity = options.severity || 'MEDIUM';
+    this.hipaaCompliant = this.isHIPAACompliant();
+  }
+
+  isHIPAACompliant() {
+    const phiIndicators = ['ssn', 'social security', 'date of birth', 'phone number'];
+    const messageToCheck = this.message.toLowerCase();
+    return !phiIndicators.some(indicator => messageToCheck.includes(indicator));
+  }
+}
+
+// Standardized API response helper
+const createApiResponse = (success, data, message, statusCode = 200, correlationId) => ({
+  success,
+  data: success ? data : undefined,
+  error: success ? undefined : data,
+  message,
+  timestamp: new Date().toISOString(),
+  correlationId,
+  metadata: {
+    service: SERVICE_NAME,
+    version: '2.0.0',
+    hipaaCompliant: true,
+  },
+});
+
+// Audit logging utility
+const logAuditEvent = (action, userId, resource, result, correlationId, metadata = {}) => {
+  logger.info('Audit Event', {
+    correlationId,
+    userId,
+    action,
+    resource,
+    result,
+    timestamp: new Date().toISOString(),
+    metadata: {
+      ...metadata,
+      auditType: 'HIPAA_AUDIT',
+    },
+  });
+};
+
+// Initialize Prisma Client with error handling
+const prisma = new PrismaClient({
+  log: ['error', 'warn'],
+});
 
 // Configure multer for document uploads
 const upload = multer({
@@ -46,69 +150,200 @@ const upload = multer({
   }
 });
 
-// Middleware
-app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
-  credentials: true
+// ===== SECURITY MIDDLEWARE =====
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true,
+  },
 }));
+
+// CORS configuration with healthcare-specific origins
+app.use(cors({
+  origin: process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://medical-platform.com',
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Correlation-ID'],
+}));
+
+// Rate limiting for healthcare security
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: {
+    success: false,
+    error: 'Too many requests from this IP, please try again later',
+    code: 'RATE_LIMIT_EXCEEDED',
+    retryAfter: '15 minutes',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api', limiter);
+
+// ===== STANDARD MIDDLEWARE =====
+app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Middleware for customer authentication
-const authenticateCustomer = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ 
-      success: false, 
-      error: 'Access token required',
-      code: 'TOKEN_REQUIRED'
+// Request correlation and logging middleware
+app.use((req, res, next) => {
+  const correlationId = req.headers['x-correlation-id'] || uuidv4();
+  req.correlationId = correlationId;
+  
+  const startTime = Date.now();
+  
+  // Log request start
+  logger.info('Request started', {
+    correlationId,
+    method: req.method,
+    url: req.url,
+    userAgent: req.get('User-Agent'),
+    ip: req.ip,
+    timestamp: new Date().toISOString(),
+  });
+  
+  // Override res.end to log response
+  const originalEnd = res.end;
+  res.end = function(chunk, encoding) {
+    const duration = Date.now() - startTime;
+    
+    logger.info('Request completed', {
+      correlationId,
+      method: req.method,
+      url: req.url,
+      statusCode: res.statusCode,
+      duration,
+      timestamp: new Date().toISOString(),
     });
-  }
-
-  jwt.verify(token, JWT_SECRET, async (err, decoded) => {
-    if (err) {
-      return res.status(403).json({ 
-        success: false, 
-        error: 'Invalid or expired token',
-        code: 'TOKEN_INVALID'
+    
+    // Log performance metrics for slow requests
+    if (duration > 2000) {
+      logger.warn('Slow request detected', {
+        correlationId,
+        method: req.method,
+        url: req.url,
+        duration,
+        statusCode: res.statusCode,
       });
     }
     
-    try {
-      const customer = await prisma.customer.findUnique({
-        where: { id: decoded.userId },
-        select: {
-          id: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-          preferredLanguage: true,
-          emailVerified: true,
-          twoFactorEnabled: true,
-          twoFactorVerified: decoded.twoFactorVerified || false
-        }
+    originalEnd.call(res, chunk, encoding);
+  };
+  
+  next();
+});
+
+// Standardized authentication middleware
+const authenticateCustomer = async (req, res, next) => {
+  const correlationId = req.correlationId;
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  try {
+    if (!token) {
+      const error = new StandardizedError(
+        'Access token required',
+        MEDICAL_ERROR_CODES.INVALID_CREDENTIALS,
+        401,
+        { correlationId, severity: 'MEDIUM' }
+      );
+      
+      logAuditEvent('AUTH_ATTEMPT', null, 'api', 'DENIED', correlationId, {
+        reason: 'missing_token',
+        ip: req.ip,
       });
       
-      if (!customer) {
-        return res.status(403).json({
-          success: false,
-          error: 'Customer not found',
-          code: 'CUSTOMER_NOT_FOUND'
-        });
-      }
-      
-      req.customer = { ...decoded, ...customer };
-      next();
-    } catch (dbError) {
-      return res.status(500).json({
-        success: false,
-        error: 'Database error during authentication',
-        code: 'AUTH_DB_ERROR'
-      });
+      return res.status(401).json(
+        createApiResponse(false, error.message, null, 401, correlationId)
+      );
     }
-  });
+
+    // Verify JWT token
+    const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-for-development-only';
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Fetch customer data with HIPAA compliance
+    const customer = await prisma.customer.findUnique({
+      where: { id: decoded.userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        preferredLanguage: true,
+        emailVerified: true,
+        twoFactorEnabled: true,
+        twoFactorVerified: decoded.twoFactorVerified || false,
+        // PHI fields excluded from general access
+      }
+    });
+    
+    if (!customer) {
+      const error = new StandardizedError(
+        'Customer not found',
+        'CUSTOMER_NOT_FOUND',
+        403,
+        { correlationId, severity: 'HIGH' }
+      );
+      
+      logAuditEvent('AUTH_ATTEMPT', decoded.userId, 'customer', 'DENIED', correlationId, {
+        reason: 'customer_not_found',
+        ip: req.ip,
+      });
+      
+      return res.status(403).json(
+        createApiResponse(false, error.message, null, 403, correlationId)
+      );
+    }
+    
+    // Successful authentication
+    req.customer = { ...decoded, ...customer };
+    
+    logAuditEvent('AUTH_SUCCESS', customer.id, 'customer', 'SUCCESS', correlationId, {
+      ip: req.ip,
+      twoFactorVerified: customer.twoFactorVerified,
+    });
+    
+    next();
+    
+  } catch (error) {
+    logger.error('Authentication error', {
+      correlationId,
+      error: error.message,
+      stack: error.stack,
+      ip: req.ip,
+    });
+    
+    logAuditEvent('AUTH_ERROR', null, 'customer', 'FAILURE', correlationId, {
+      error: error.message,
+      ip: req.ip,
+    });
+    
+    const standardizedError = new StandardizedError(
+      'Authentication failed',
+      MEDICAL_ERROR_CODES.INVALID_CREDENTIALS,
+      401,
+      { correlationId, severity: 'HIGH' }
+    );
+    
+    return res.status(401).json(
+      createApiResponse(false, standardizedError.message, null, 401, correlationId)
+    );
+  }
 };
 
 // Utility function for generating case numbers

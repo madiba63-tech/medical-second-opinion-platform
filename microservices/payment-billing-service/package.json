@@ -8,20 +8,28 @@
     "dev": "nodemon payment-billing-server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["payment", "billing", "invoicing", "medical", "second-opinion"],
+  "keywords": [
+    "payment",
+    "billing",
+    "invoicing",
+    "medical",
+    "second-opinion"
+  ],
   "author": "Second Opinion Platform",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.1.0",
-    "cors": "^2.8.5",
-    "express-validator": "^7.2.1",
-    "jsonwebtoken": "^9.0.2",
+    "axios": "^1.11.0",
     "bcryptjs": "^3.0.2",
-    "uuid": "^11.1.0",
-    "axios": "^1.7.7",
-    "decimal.js": "^10.4.3",
+    "cors": "^2.8.5",
+    "decimal.js": "^10.6.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
     "node-cron": "^3.0.3",
-    "winston": "^3.14.2"
+    "uuid": "^11.1.0",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"

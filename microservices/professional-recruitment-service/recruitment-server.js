@@ -8,7 +8,7 @@ const { v4: uuidv4 } = require('uuid');
 const { PrismaClient } = require('../../src/generated/prisma');
 const fs = require('fs').promises;
 const path = require('path');
-const sharp = require('sharp');
+const sharp = require('sharp');\nconst xss = require('xss');
 const Tesseract = require('tesseract.js');
 const pdf = require('pdf-parse');
 
@@ -40,8 +40,29 @@ const upload = multer({
   dest: 'documents/',
   limits: {
     fileSize: 25 * 1024 * 1024, // 25MB limit for medical documents
+    files: 10 // Maximum 10 files per upload
   },
   fileFilter: (req, file, cb) => {
+    // Enhanced file validation
+    if (!file.originalname || file.originalname.length > 255) {
+      return cb(new Error('Invalid filename'), false);
+    }
+    
+    // Prevent path traversal attacks
+    if (file.originalname.includes('../') || file.originalname.includes('..\\')) {
+      return cb(new Error('Invalid filename - path traversal detected'), false);
+    }
+    
+    // Check for suspicious file extensions
+    const suspiciousExtensions = ['.exe', '.bat', '.cmd', '.com', '.scr', '.pif', '.vbs', '.js', '.jar', '.php', '.asp', '.jsp'];
+    const hasSuspiciousExtension = suspiciousExtensions.some(ext => 
+      file.originalname.toLowerCase().endsWith(ext)
+    );
+    
+    if (hasSuspiciousExtension) {
+      return cb(new Error('File extension not allowed for security reasons'), false);
+    }
+    
     // Allow common document types + text for AI parsing
     const allowedTypes = [
       'application/pdf', 
@@ -52,6 +73,7 @@ const upload = multer({
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'text/plain' // Allow text files for AI parsing demos
     ];
+    
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
@@ -65,11 +87,31 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
 
-// Rate limiting
+// Enhanced rate limiting with different tiers
 const createAccountLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 create account requests per windowMs
-  message: 'Too many account creation attempts, please try again later.',
+  max: 3, // Limit each IP to 3 create account requests per windowMs
+  message: {
+    success: false,
+    error: 'Too many application attempts, please try again later.',
+    code: 'RATE_LIMIT_EXCEEDED'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for admin endpoints
+    return req.path.includes('/admin/');
+  }
+});
+
+const documentUploadLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 50, // Limit document uploads per IP per hour
+  message: {
+    success: false,
+    error: 'Too many document upload attempts, please try again later.',
+    code: 'UPLOAD_RATE_LIMIT_EXCEEDED'
+  },
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -77,22 +119,36 @@ const createAccountLimiter = rateLimit({
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Limit each IP to 100 requests per windowMs
-  message: 'Too many requests, please try again later.',
+  message: {
+    success: false,
+    error: 'Too many requests, please try again later.',
+    code: 'RATE_LIMIT_EXCEEDED'
+  },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// Security headers
+// Enhanced security headers
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
     },
   },
-  crossOriginEmbedderPolicy: false
+  crossOriginEmbedderPolicy: false,
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
 }));
 
 // CORS with strict origin validation
@@ -115,7 +171,50 @@ app.use(cors({
 
 // Apply rate limiting
 app.use(generalLimiter);
-app.use(express.json({ limit: '10mb' }));
+
+// Body parsing with size limits and input validation
+app.use(express.json({ 
+  limit: '10mb',
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Input sanitization middleware
+const xss = require('xss');
+app.use((req, res, next) => {
+  if (req.body) {
+    req.body = sanitizeInput(req.body);
+  }
+  if (req.query) {
+    req.query = sanitizeInput(req.query);
+  }
+  if (req.params) {
+    req.params = sanitizeInput(req.params);
+  }
+  next();
+});
+
+// Utility function for input sanitization
+function sanitizeInput(obj) {
+  if (typeof obj === 'string') {
+    return xss(obj.trim());
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(item => sanitizeInput(item));
+  }
+  if (obj && typeof obj === 'object') {
+    const sanitized = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        sanitized[key] = sanitizeInput(obj[key]);
+      }
+    }
+    return sanitized;
+  }
+  return obj;
+}
 
 // Enhanced request logging and monitoring
 app.use(createRequestLogger('professional-recruitment'));
@@ -563,52 +662,145 @@ const parseGenericDocument = async (content, documentType) => {
   };
 };
 
-// Authentication middleware for admin functions
-const authenticateAdmin = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+// Enhanced authentication middleware with session management
+const activeSessions = new Map();
+const failedAttempts = new Map();
 
-  if (!token) {
-    return res.status(401).json({ 
-      success: false, 
-      error: 'Admin access token required',
-      code: 'ADMIN_TOKEN_REQUIRED'
-    });
-  }
+const authenticateAdmin = async (req, res, next) => {
+  try {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const requestId = req.requestId;
 
-  jwt.verify(token, JWT_SECRET, async (err, decoded) => {
-    if (err) {
-      return res.status(403).json({ 
+    if (!token) {
+      logger.security('Admin authentication failed - missing token', {
+        action: 'ADMIN_AUTH_FAILED',
+        reason: 'TOKEN_MISSING',
+        ip: clientIP,
+        requestId,
+        timestamp: new Date().toISOString()
+      });
+      
+      return res.status(401).json({ 
         success: false, 
-        error: 'Invalid or expired token',
-        code: 'TOKEN_INVALID'
+        error: 'Admin access token required',
+        code: 'ADMIN_TOKEN_REQUIRED',
+        requestId
+      });
+    }
+
+    // Verify token with strict options
+    const decoded = jwt.verify(token, JWT_SECRET, {
+      algorithms: ['HS256'],
+      maxAge: '24h'
+    });
+    
+    // Check session validity
+    const sessionKey = `${decoded.userId}_${decoded.sessionId || 'default'}`;
+    const session = activeSessions.get(sessionKey);
+    
+    if (session && session.expiresAt > Date.now()) {
+      // Update session activity
+      session.lastActivity = Date.now();
+    } else {
+      // Session expired or invalid
+      activeSessions.delete(sessionKey);
+      logger.security('Admin authentication failed - invalid session', {
+        action: 'ADMIN_AUTH_FAILED',
+        reason: 'SESSION_INVALID',
+        userId: decoded.userId,
+        ip: clientIP,
+        requestId,
+        timestamp: new Date().toISOString()
+      });
+      
+      return res.status(403).json({
+        success: false,
+        error: 'Session expired or invalid',
+        code: 'SESSION_INVALID',
+        requestId
       });
     }
     
     // Check if user is admin
-    try {
-      const admin = await prisma.admin.findUnique({
-        where: { id: decoded.userId }
+    const admin = await prisma.admin.findUnique({
+      where: { id: decoded.userId },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        permissions: true,
+        isActive: true
+      }
+    });
+    
+    if (!admin || !admin.isActive) {
+      logger.security('Admin authentication failed - admin not found or inactive', {
+        action: 'ADMIN_AUTH_FAILED',
+        reason: 'ADMIN_NOT_FOUND_OR_INACTIVE',
+        userId: decoded.userId,
+        ip: clientIP,
+        requestId,
+        timestamp: new Date().toISOString()
       });
       
-      if (!admin) {
-        return res.status(403).json({
-          success: false,
-          error: 'Admin access required',
-          code: 'ADMIN_ACCESS_REQUIRED'
-        });
-      }
-      
-      req.admin = decoded;
-      next();
-    } catch (error) {
-      return res.status(500).json({
+      return res.status(403).json({
         success: false,
-        error: 'Admin verification failed',
-        code: 'ADMIN_VERIFICATION_ERROR'
+        error: 'Admin access required',
+        code: 'ADMIN_ACCESS_REQUIRED',
+        requestId
       });
     }
-  });
+    
+    logger.info('Admin authentication successful', {
+      action: 'ADMIN_AUTH_SUCCESS',
+      adminId: admin.id,
+      adminEmail: admin.email,
+      ip: clientIP,
+      requestId,
+      timestamp: new Date().toISOString()
+    });
+    
+    req.admin = {
+      ...decoded,
+      permissions: admin.permissions
+    };
+    next();
+    
+  } catch (error) {
+    const clientIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const requestId = req.requestId;
+    
+    // Track failed attempts
+    const attempts = failedAttempts.get(clientIP) || { count: 0, firstAttempt: Date.now() };
+    attempts.count++;
+    attempts.lastAttempt = Date.now();
+    failedAttempts.set(clientIP, attempts);
+    
+    logger.security('Admin authentication failed - token verification error', {
+      action: 'ADMIN_AUTH_FAILED',
+      reason: 'TOKEN_VERIFICATION_ERROR',
+      error: error.message,
+      ip: clientIP,
+      attempts: attempts.count,
+      requestId,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Implement progressive delays for brute force protection
+    if (attempts.count > 3) {
+      const delay = Math.min(attempts.count * 2000, 30000); // Max 30 second delay
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+    
+    return res.status(403).json({ 
+      success: false, 
+      error: 'Invalid or expired token',
+      code: 'TOKEN_INVALID',
+      requestId
+    });
+  }
 };
 
 // Health check endpoint
@@ -657,8 +849,38 @@ app.get('/', (req, res) => {
   });
 });
 
-// Submit complete application (8-step wizard in one call)
-app.post('/api/v1/candidates/apply', [
+// Enhanced input validation middleware
+const validateInput = (validations) => {
+  return async (req, res, next) => {
+    await Promise.all(validations.map(validation => validation.run(req)));
+    
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      logger.security('Input validation failed', {
+        action: 'VALIDATION_FAILED',
+        errors: errors.array(),
+        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+        path: req.path,
+        requestId: req.requestId,
+        timestamp: new Date().toISOString()
+      });
+      
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid input data',
+        code: 'VALIDATION_ERROR',
+        details: errors.array(),
+        requestId: req.requestId
+      });
+    }
+    next();
+  };
+};
+
+// Submit complete application (8-step wizard in one call) with enhanced security
+app.post('/api/v1/candidates/apply', 
+  createAccountLimiter,
+  validateInput([
   // Step 1: Identity & Contact Info
   body('firstName').notEmpty().withMessage('First name is required'),
   body('lastName').notEmpty().withMessage('Last name is required'),
@@ -675,10 +897,11 @@ app.post('/api/v1/candidates/apply', [
   body('yearsIndependentPractice').isInt({ min: 0 }).withMessage('Years of practice must be a positive number'),
   body('currentAffiliation').notEmpty().withMessage('Current affiliation is required'),
   
-  // Step 7: Compliance
-  body('noActiveDisciplinary').isBoolean().withMessage('Disciplinary declaration is required'),
-  body('dataProtectionAgreed').equals('true').withMessage('Data protection agreement must be accepted')
-], async (req, res) => {
+    // Step 7: Compliance
+    body('noActiveDisciplinary').isBoolean().withMessage('Disciplinary declaration is required'),
+    body('dataProtectionAgreed').equals('true').withMessage('Data protection agreement must be accepted')
+  ]), 
+  async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -790,10 +1013,14 @@ app.post('/api/v1/candidates/apply', [
   }
 });
 
-// Upload documents for a candidate
-app.post('/api/v1/candidates/:id/documents', upload.any(), [
-  param('id').isUUID().withMessage('Valid candidate ID is required')
-], async (req, res) => {
+// Upload documents for a candidate with enhanced security
+app.post('/api/v1/candidates/:id/documents', 
+  documentUploadLimiter,
+  upload.any(), 
+  validateInput([
+    param('id').isUUID().withMessage('Valid candidate ID is required')
+  ]), 
+  async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -916,10 +1143,14 @@ app.post('/api/v1/candidates/:id/documents', upload.any(), [
   }
 });
 
-// AI-powered application pre-population
-app.post('/api/v1/candidates/ai-prepopulate', upload.any(), [
-  body('email').isEmail().withMessage('Valid email address is required for identification')
-], async (req, res) => {
+// AI-powered application pre-population with enhanced security
+app.post('/api/v1/candidates/ai-prepopulate', 
+  documentUploadLimiter,
+  upload.any(), 
+  validateInput([
+    body('email').isEmail().withMessage('Valid email address is required for identification')
+  ]), 
+  async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -1087,9 +1318,11 @@ app.post('/api/v1/candidates/ai-prepopulate', upload.any(), [
 });
 
 // Get documents for a candidate
-app.get('/api/v1/candidates/:id/documents', [
-  param('id').isUUID().withMessage('Valid candidate ID is required')
-], async (req, res) => {
+app.get('/api/v1/candidates/:id/documents', 
+  validateInput([
+    param('id').isUUID().withMessage('Valid candidate ID is required')
+  ]), 
+  async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -1167,10 +1400,13 @@ app.get('/api/v1/candidates/:id/documents', [
 });
 
 // Download/view document (for admin review)
-app.get('/api/v1/candidates/:id/documents/:documentId/view', authenticateAdmin, [
-  param('id').isUUID().withMessage('Valid candidate ID is required'),
-  param('documentId').isUUID().withMessage('Valid document ID is required')
-], async (req, res) => {
+app.get('/api/v1/candidates/:id/documents/:documentId/view', 
+  authenticateAdmin, 
+  validateInput([
+    param('id').isUUID().withMessage('Valid candidate ID is required'),
+    param('documentId').isUUID().withMessage('Valid document ID is required')
+  ]), 
+  async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -1314,11 +1550,16 @@ app.get('/api/v1/admin/candidates', authenticateAdmin, async (req, res) => {
   }
 });
 
-// Create admin (temporary endpoint for testing)
-app.post('/api/v1/admin/create', [
-  body('email').isEmail().withMessage('Valid email is required'),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
-], async (req, res) => {
+// Create admin (temporary endpoint for testing) with enhanced security
+app.post('/api/v1/admin/create', 
+  createAccountLimiter,
+  validateInput([
+    body('email').isEmail().withMessage('Valid email is required'),
+    body('password').isLength({ min: 12 }).withMessage('Password must be at least 12 characters')
+      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 'g')
+      .withMessage('Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character')
+  ]), 
+  async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -1345,8 +1586,8 @@ app.post('/api/v1/admin/create', [
       });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Hash password with strong rounds
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create admin
     const admin = await prisma.admin.create({
@@ -1358,17 +1599,29 @@ app.post('/api/v1/admin/create', [
       }
     });
 
-    // Generate token
+    // Generate secure token with session ID
+    const sessionId = crypto.randomUUID();
     const token = jwt.sign(
       { 
         userId: admin.id, 
         email: admin.email,
         role: admin.role,
-        type: 'admin'
+        type: 'admin',
+        sessionId: sessionId
       }, 
       JWT_SECRET, 
-      { expiresIn: '24h' }
+      { expiresIn: '24h', algorithm: 'HS256' }
     );
+    
+    // Store session
+    const sessionKey = `${admin.id}_${sessionId}`;
+    activeSessions.set(sessionKey, {
+      userId: admin.id,
+      sessionId: sessionId,
+      createdAt: Date.now(),
+      lastActivity: Date.now(),
+      expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+    });
 
     console.log(`[RECRUITMENT] Admin created: ${email}`);
 
@@ -1396,11 +1649,14 @@ app.post('/api/v1/admin/create', [
 });
 
 // Review candidate application (Admin endpoint)
-app.post('/api/v1/admin/candidates/:id/review', authenticateAdmin, [
-  param('id').isUUID().withMessage('Valid candidate ID is required'),
-  body('decision').isIn(['APPROVE', 'REJECT', 'REQUEST_MORE_INFO']).withMessage('Valid decision is required'),
-  body('notes').optional().isString()
-], async (req, res) => {
+app.post('/api/v1/admin/candidates/:id/review', 
+  authenticateAdmin, 
+  validateInput([
+    param('id').isUUID().withMessage('Valid candidate ID is required'),
+    body('decision').isIn(['APPROVE', 'REJECT', 'REQUEST_MORE_INFO']).withMessage('Valid decision is required'),
+    body('notes').optional().isString().isLength({ max: 2000 })
+  ]), 
+  async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

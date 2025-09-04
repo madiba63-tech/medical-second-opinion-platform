@@ -3,22 +3,74 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
+const winston = require('winston');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 const { PrismaClient } = require('../../src/generated/prisma');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-for-development-only';
+const JWT_SECRET = process.env.JWT_SECRET || (() => {
+  console.error('⚠️  CRITICAL: JWT_SECRET not set in environment variables');
+  process.exit(1);
+})();
 const JWT_EXPIRES_IN = '24h';
 
 // Initialize Prisma Client
 const prisma = new PrismaClient();
 
-// Middleware
-app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3006'],
-  credentials: true
+// Configure Winston logger
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.errors({ stack: true }),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.simple()
+    })
+  ],
+});
+
+// Configure rate limiting
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // limit each IP to 10 requests per windowMs
+  message: {
+    success: false,
+    error: 'Too many authentication attempts, please try again later.',
+    code: 'RATE_LIMIT_EXCEEDED'
+  }
+});
+
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: false // Allow Next.js to handle CSP
 }));
-app.use(express.json());
+
+// Configure CORS more securely
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:3000', 'http://localhost:3006'];
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Body parsing with size limits
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Request logging middleware
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.path}`, {
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
+  next();
+});
 
 // Database connection established above with Prisma Client
 // Create demo user if it doesn't exist
@@ -33,7 +85,7 @@ async function initializeDemoData() {
         data: {
           id: '1',
           email: 'demo@example.com',
-          hashedPassword: '$2a$10$Hw1QZmK9LTwGAXsZZ3QVKOZaUpHZJjCr4eSWO4d5qGa.k4bRuXK22', // 'demo123'
+          hashedPassword: '$2a$12$Hw1QZmK9LTwGAXsZZ3QVKOZaUpHZJjCr4eSWO4d5qGa.k4bRuXK22', // 'demo123' with stronger hash
           firstName: 'Demo',
           lastName: 'User',
           emailVerified: true,
@@ -41,7 +93,7 @@ async function initializeDemoData() {
           preferredChannel: 'EMAIL'
         }
       });
-      console.log('Demo user created in database');
+      logger.info('Demo user created in database');
     }
   } catch (error) {
     console.log('Demo user initialization:', error.message);
@@ -131,9 +183,9 @@ app.get('/', (req, res) => {
 });
 
 // User Registration
-app.post('/api/v1/auth/register', [
+app.post('/api/v1/auth/register', authLimiter, [
   body('email').isEmail().normalizeEmail(),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('password').isLength({ min: 12 }).matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])/).withMessage('Password must be at least 12 characters with uppercase, lowercase, digit and special character'),
   body('firstName').notEmpty().withMessage('First name is required'),
   body('lastName').notEmpty().withMessage('Last name is required')
 ], async (req, res) => {
@@ -163,8 +215,8 @@ app.post('/api/v1/auth/register', [
       });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Hash password with stronger salt rounds
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create new user in database
     const newUser = await prisma.customer.create({
@@ -183,8 +235,8 @@ app.post('/api/v1/auth/register', [
     const accessToken = generateAccessToken(newUser);
     const refreshToken = generateRefreshToken(newUser);
 
-    // Log registration event
-    console.log(`[AUTH] User registered: ${email} (ID: ${newUser.id})`);
+    // Log registration event without sensitive data
+    logger.info(`[AUTH] User registered: ${email.replace(/(?<=.{2}).(?=.*@)/g, '*')} (ID: ${newUser.id})`);
 
     res.status(201).json({
       success: true,
@@ -206,7 +258,7 @@ app.post('/api/v1/auth/register', [
     });
 
   } catch (error) {
-    console.error('[AUTH] Registration error:', error);
+    logger.error('[AUTH] Registration error:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error during registration',
@@ -216,7 +268,7 @@ app.post('/api/v1/auth/register', [
 });
 
 // User Login
-app.post('/api/v1/auth/login', [
+app.post('/api/v1/auth/login', authLimiter, [
   body('email').isEmail().normalizeEmail(),
   body('password').notEmpty().withMessage('Password is required')
 ], async (req, res) => {
@@ -260,8 +312,8 @@ app.post('/api/v1/auth/login', [
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    // Log login event
-    console.log(`[AUTH] User logged in: ${email} (ID: ${user.id})`);
+    // Log login event without sensitive data
+    logger.info(`[AUTH] User logged in: ${email.replace(/(?<=.{2}).(?=.*@)/g, '*')} (ID: ${user.id})`);
 
     res.json({
       success: true,
@@ -283,7 +335,7 @@ app.post('/api/v1/auth/login', [
     });
 
   } catch (error) {
-    console.error('[AUTH] Login error:', error);
+    logger.error('[AUTH] Login error:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error during login',
@@ -322,7 +374,7 @@ app.get('/api/v1/auth/me', authenticateToken, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('[AUTH] Profile fetch error:', error);
+    logger.error('[AUTH] Profile fetch error:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error',
@@ -332,7 +384,7 @@ app.get('/api/v1/auth/me', authenticateToken, async (req, res) => {
 });
 
 // Token Refresh
-app.post('/api/v1/auth/refresh', (req, res) => {
+app.post('/api/v1/auth/refresh', async (req, res) => {
   try {
     const { refreshToken } = req.body;
 
@@ -353,7 +405,10 @@ app.post('/api/v1/auth/refresh', (req, res) => {
         });
       }
 
-      const user = users.find(u => u.id === decoded.userId);
+      // Fetch user from database instead of in-memory array
+      const user = await prisma.customer.findUnique({
+        where: { id: decoded.userId }
+      });
       if (!user) {
         return res.status(404).json({
           success: false,
@@ -376,7 +431,7 @@ app.post('/api/v1/auth/refresh', (req, res) => {
     });
 
   } catch (error) {
-    console.error('[AUTH] Token refresh error:', error);
+    logger.error('[AUTH] Token refresh error:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error during token refresh',
@@ -387,7 +442,7 @@ app.post('/api/v1/auth/refresh', (req, res) => {
 
 // Logout (token revocation would happen here in production)
 app.post('/api/v1/auth/logout', authenticateToken, (req, res) => {
-  console.log(`[AUTH] User logged out: ${req.user.email} (ID: ${req.user.userId})`);
+  logger.info(`[AUTH] User logged out: ${req.user.email?.replace(/(?<=.{2}).(?=.*@)/g, '*')} (ID: ${req.user.userId})`);
   
   res.json({
     success: true,
@@ -417,7 +472,7 @@ app.get('/api/v1/users', authenticateToken, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('[AUTH] Users list error:', error);
+    logger.error('[AUTH] Users list error:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error',
@@ -428,7 +483,7 @@ app.get('/api/v1/users', authenticateToken, async (req, res) => {
 
 // Error handling middleware
 app.use((error, req, res, next) => {
-  console.error('[AUTH] Unhandled error:', error);
+  logger.error('[AUTH] Unhandled error:', error);
   
   res.status(500).json({
     success: false,

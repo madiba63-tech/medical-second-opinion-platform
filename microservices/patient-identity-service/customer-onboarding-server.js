@@ -17,6 +17,13 @@ const JWT_SECRET = process.env.JWT_SECRET || 'second-opinion-jwt-secret-2025';
 const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/secondopinion?schema=public';
 const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3005';
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || (() => {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('⚠️  CRITICAL: ENCRYPTION_KEY not set in production');
+    process.exit(1);
+  }
+  return crypto.randomBytes(32).toString('hex');
+})();
 
 // Initialize Prisma client
 const prisma = new PrismaClient({
@@ -63,10 +70,36 @@ const loginLimiter = rateLimit({
   }
 });
 
-// Middleware
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+// Security middleware
+const helmet = require('helmet');
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
+}));
+
+// Configure CORS securely
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:3000'];
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Body parsing with size limits for healthcare documents
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Request logging middleware
 app.use((req, res, next) => {

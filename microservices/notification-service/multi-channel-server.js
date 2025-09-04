@@ -7,26 +7,49 @@ const winston = require('winston');
 const nodemailer = require('nodemailer');
 const twilio = require('twilio');
 const { PrismaClient } = require('../../src/generated/prisma');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const slowDown = require('express-slow-down');
+const xss = require('xss');
+const validator = require('validator');
+const axios = require('axios');
+const crypto = require('crypto');
 
 // Initialize services
 const app = express();
 const PORT = process.env.PORT || 3005;
-const JWT_SECRET = process.env.JWT_SECRET || 'second-opinion-jwt-secret-2025';
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/secondopinion?schema=public';
+// Validate required environment variables
+const JWT_SECRET = process.env.JWT_SECRET;
+const DATABASE_URL = process.env.DATABASE_URL;
 
-// Email configuration
-const SMTP_HOST = process.env.SMTP_HOST || 'smtp.gmail.com';
+if (!JWT_SECRET) {
+  console.error('JWT_SECRET environment variable is required');
+  process.exit(1);
+}
+if (!DATABASE_URL) {
+  console.error('DATABASE_URL environment variable is required');
+  process.exit(1);
+}
+
+// Email configuration - validate required vars
+const SMTP_HOST = process.env.SMTP_HOST;
 const SMTP_PORT = process.env.SMTP_PORT || 587;
-const SMTP_USER = process.env.SMTP_USER || 'noreply@second-opinion.com';
-const SMTP_PASS = process.env.SMTP_PASS || 'smtp-password';
+const SMTP_USER = process.env.SMTP_USER;
+const SMTP_PASS = process.env.SMTP_PASS;
 
-// Twilio configuration
-const TWILIO_SID = process.env.TWILIO_SID || 'mock-twilio-sid';
-const TWILIO_TOKEN = process.env.TWILIO_TOKEN || 'mock-twilio-token';
-const TWILIO_PHONE = process.env.TWILIO_PHONE || '+1234567890';
+// Twilio configuration - validate required vars
+const TWILIO_SID = process.env.TWILIO_SID;
+const TWILIO_TOKEN = process.env.TWILIO_TOKEN;
+const TWILIO_PHONE = process.env.TWILIO_PHONE;
 
-// WhatsApp configuration
-const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN || 'mock-whatsapp-token';
+// WhatsApp configuration - validate required vars
+const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
+
+// Security configuration
+const BCRYPT_ROUNDS = 12;
+const MAX_NOTIFICATIONS_PER_HOUR = 100;
+const MAX_BULK_NOTIFICATIONS = 50;
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
 // Initialize Prisma client
 const prisma = new PrismaClient({
@@ -80,39 +103,302 @@ try {
   logger.warn('Twilio client initialization failed:', error.message);
 }
 
-// Middleware
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+// Security middleware
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const slowDown = require('express-slow-down');
+const xss = require('xss');
+const validator = require('validator');
 
-// Request logging middleware
+// Apply Helmet for security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
+}));
+
+// Rate limiting for notifications
+const notificationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: MAX_NOTIFICATIONS_PER_HOUR,
+  message: {
+    success: false,
+    error: 'Too many notification requests. Please try again later.',
+    code: 'RATE_LIMIT_EXCEEDED'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    return req.user?.customerId || req.ip;
+  }
+});
+
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100,
+  message: {
+    success: false,
+    error: 'Too many requests, please try again later.',
+    code: 'RATE_LIMIT_EXCEEDED'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(generalLimiter);
+
+// Progressive delay for suspicious activity
+const speedLimiter = slowDown({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  delayAfter: 50,
+  delayMs: 500
+});
+
+app.use(speedLimiter);
+
+// CORS with strict origin control
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'https://localhost:3000',
+      'https://127.0.0.1:3000',
+      process.env.FRONTEND_URL
+    ].filter(Boolean);
+    
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['X-Total-Count']
+};
+
+app.use(cors(corsOptions));
+
+// Body parsing with size limits
+app.use(express.json({ 
+  limit: '1mb',
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// Input sanitization middleware
 app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.path}`, {
-    ip: req.ip,
-    userAgent: req.get('User-Agent')
-  });
+  if (req.body) {
+    req.body = sanitizeInput(req.body);
+  }
+  if (req.query) {
+    req.query = sanitizeInput(req.query);
+  }
+  if (req.params) {
+    req.params = sanitizeInput(req.params);
+  }
   next();
 });
 
-// Authentication middleware
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({
-      success: false,
-      error: 'Access token required',
-      code: 'TOKEN_MISSING'
-    });
+// Utility function for input sanitization
+function sanitizeInput(obj) {
+  if (typeof obj === 'string') {
+    return xss(obj.trim());
   }
+  if (Array.isArray(obj)) {
+    return obj.map(item => sanitizeInput(item));
+  }
+  if (obj && typeof obj === 'object') {
+    const sanitized = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        sanitized[key] = sanitizeInput(obj[key]);
+      }
+    }
+    return sanitized;
+  }
+  return obj;
+}
 
+// Sanitize template data more strictly
+function sanitizeTemplateData(data) {
+  const sanitized = {};
+  for (const key in data) {
+    if (data.hasOwnProperty(key)) {
+      const value = data[key];
+      if (typeof value === 'string') {
+        sanitized[key] = xss(value.trim());
+      } else if (typeof value === 'number') {
+        sanitized[key] = value;
+      } else if (typeof value === 'boolean') {
+        sanitized[key] = value;
+      } else if (value instanceof Date) {
+        sanitized[key] = value;
+      } else {
+        sanitized[key] = sanitizeInput(value);
+      }
+    }
+  }
+  return sanitized;
+}
+
+// Security audit logging middleware
+app.use((req, res, next) => {
+  const startTime = Date.now();
+  const clientIP = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+  const userAgent = req.get('User-Agent');
+  const requestId = require('crypto').randomUUID();
+  
+  req.requestId = requestId;
+  req.clientIP = clientIP;
+  
+  logger.info('Request received', {
+    requestId,
+    method: req.method,
+    path: req.path,
+    ip: clientIP,
+    userAgent,
+    contentType: req.get('Content-Type'),
+    contentLength: req.get('Content-Length'),
+    timestamp: new Date().toISOString()
+  });
+  
+  const originalSend = res.send;
+  res.send = function(data) {
+    const responseTime = Date.now() - startTime;
+    logger.info('Request completed', {
+      requestId,
+      method: req.method,
+      path: req.path,
+      statusCode: res.statusCode,
+      responseTime,
+      ip: clientIP,
+      timestamp: new Date().toISOString()
+    });
+    
+    if (res.statusCode >= 400) {
+      logger.warn('Security event - failed request', {
+        requestId,
+        method: req.method,
+        path: req.path,
+        statusCode: res.statusCode,
+        ip: clientIP,
+        userAgent,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    originalSend.call(this, data);
+  };
+  
+  next();
+});
+
+// Enhanced authentication middleware
+const activeSessions = new Map();
+const failedAttempts = new Map();
+
+const authenticateToken = async (req, res, next) => {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
-    next();
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    const clientIP = req.clientIP;
+
+    if (!token) {
+      logger.warn('Authentication failed - missing token', {
+        requestId: req.requestId,
+        ip: clientIP,
+        path: req.path,
+        timestamp: new Date().toISOString()
+      });
+      return res.status(401).json({
+        success: false,
+        error: 'Access token required',
+        code: 'TOKEN_MISSING'
+      });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET, {
+      algorithms: ['HS256'],
+      maxAge: '30m'
+    });
+    
+    const sessionKey = `${decoded.userId || decoded.customerId}_${decoded.sessionId}`;
+    const session = activeSessions.get(sessionKey);
+    
+    if (session && session.expiresAt > Date.now()) {
+      session.lastActivity = Date.now();
+      req.user = {
+        ...decoded,
+        sessionId: decoded.sessionId
+      };
+      
+      logger.info('Authentication successful', {
+        requestId: req.requestId,
+        userId: decoded.userId || decoded.customerId,
+        sessionId: decoded.sessionId,
+        ip: clientIP,
+        timestamp: new Date().toISOString()
+      });
+      
+      next();
+    } else {
+      activeSessions.delete(sessionKey);
+      logger.warn('Authentication failed - invalid session', {
+        requestId: req.requestId,
+        sessionId: decoded.sessionId,
+        ip: clientIP,
+        timestamp: new Date().toISOString()
+      });
+      
+      return res.status(403).json({
+        success: false,
+        error: 'Session expired or invalid',
+        code: 'SESSION_INVALID'
+      });
+    }
+    
   } catch (error) {
-    logger.error('Token verification failed:', error);
+    const clientIP = req.clientIP;
+    
+    const attempts = failedAttempts.get(clientIP) || { count: 0, firstAttempt: Date.now() };
+    attempts.count++;
+    attempts.lastAttempt = Date.now();
+    failedAttempts.set(clientIP, attempts);
+    
+    logger.error('Authentication failed - token verification error', {
+      requestId: req.requestId,
+      error: error.message,
+      ip: clientIP,
+      attempts: attempts.count,
+      timestamp: new Date().toISOString()
+    });
+    
+    if (attempts.count > 3) {
+      const delay = Math.min(attempts.count * 1000, 10000);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+    
     return res.status(403).json({
       success: false,
       error: 'Invalid or expired token',
@@ -133,7 +419,7 @@ const EMAIL_TEMPLATES = {
         <p style="margin: 20px 0;">
           <a href="${data.verificationUrl}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Verify Email Address</a>
         </p>
-        ${data.temporaryPassword ? `<p><strong>Temporary Password:</strong> ${data.temporaryPassword}</p><p>Please change your password after logging in.</p>` : ''}
+        ${data.temporaryPassword ? `<p><strong>Temporary Password:</strong> <code>${xss(data.temporaryPassword)}</code></p><p>Please change your password after logging in.</p>` : ''}
         <p>If you didn't create this account, please ignore this email.</p>
         <p>Best regards,<br>Second Opinion Platform Team</p>
       </div>
@@ -146,8 +432,8 @@ const EMAIL_TEMPLATES = {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Welcome to Second Opinion Platform!</h2>
         <p>Hello ${data.firstName},</p>
-        <p>Your account has been successfully created using ${data.provider}.</p>
-        <p>For your security, we've created a temporary password: <strong>${data.temporaryPassword}</strong></p>
+        <p>Your account has been successfully created using ${xss(data.provider)}.</p>
+        <p>For your security, we've created a temporary password: <strong><code>${xss(data.temporaryPassword)}</code></strong></p>
         <p>Please log in and change your password at your earliest convenience:</p>
         <p style="margin: 20px 0;">
           <a href="${data.loginUrl}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Login Now</a>
@@ -162,13 +448,13 @@ const EMAIL_TEMPLATES = {
     html: (data) => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Case Successfully Submitted</h2>
-        <p>Dear ${data.customerName},</p>
-        <p>Your medical case <strong>${data.caseNumber}</strong> has been successfully submitted for review.</p>
-        <p><strong>Estimated Review Time:</strong> ${data.estimatedReviewTime}</p>
+        <p>Dear ${xss(data.customerName)},</p>
+        <p>Your medical case <strong>${xss(data.caseNumber)}</strong> has been successfully submitted for review.</p>
+        <p><strong>Estimated Review Time:</strong> ${xss(data.estimatedReviewTime)}</p>
         ${data.paymentInfo ? `
           <div style="background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin: 20px 0;">
             <h3>Payment Information</h3>
-            <p><strong>Amount:</strong> ${data.paymentInfo.amount} ${data.paymentInfo.currency}</p>
+            <p><strong>Amount:</strong> ${xss(data.paymentInfo.amount)} ${xss(data.paymentInfo.currency)}</p>
             <p><strong>Quote Valid Until:</strong> ${new Date(data.paymentInfo.quoteValidUntil).toLocaleDateString()}</p>
           </div>
         ` : ''}
@@ -183,11 +469,11 @@ const EMAIL_TEMPLATES = {
     html: (data) => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Medical Professional Assigned</h2>
-        <p>Dear ${data.customerName},</p>
-        <p>Great news! Your case <strong>${data.caseNumber}</strong> has been assigned to a qualified medical professional.</p>
-        <p><strong>Professional Level:</strong> ${data.professionalLevel}</p>
-        <p><strong>Specialty:</strong> ${data.specialty}</p>
-        <p><strong>Estimated Completion:</strong> ${data.estimatedCompletion}</p>
+        <p>Dear ${xss(data.customerName)},</p>
+        <p>Great news! Your case <strong>${xss(data.caseNumber)}</strong> has been assigned to a qualified medical professional.</p>
+        <p><strong>Professional Level:</strong> ${xss(data.professionalLevel)}</p>
+        <p><strong>Specialty:</strong> ${xss(data.specialty)}</p>
+        <p><strong>Estimated Completion:</strong> ${xss(data.estimatedCompletion)}</p>
         <p>The review is now in progress. We'll notify you as soon as the opinion is ready.</p>
         <p>Best regards,<br>Second Opinion Platform Team</p>
       </div>
@@ -199,12 +485,12 @@ const EMAIL_TEMPLATES = {
     html: (data) => `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Your Medical Opinion is Ready!</h2>
-        <p>Dear ${data.customerName},</p>
-        <p>Your medical opinion for case <strong>${data.caseNumber}</strong> is now available.</p>
+        <p>Dear ${xss(data.customerName)},</p>
+        <p>Your medical opinion for case <strong>${xss(data.caseNumber)}</strong> is now available.</p>
         <p style="margin: 20px 0;">
           <a href="${data.opinionUrl}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">View Opinion</a>
         </p>
-        <p>The opinion has been prepared by our ${data.professionalLevel} level medical professional with expertise in ${data.specialty}.</p>
+        <p>The opinion has been prepared by our ${xss(data.professionalLevel)} level medical professional with expertise in ${xss(data.specialty)}.</p>
         <p>Best regards,<br>Second Opinion Platform Team</p>
       </div>
     `
@@ -245,37 +531,82 @@ const mockWhatsAppSend = async (to, message) => {
 
 const sendEmail = async (to, subject, html) => {
   try {
-    if (emailTransporter) {
+    // Validate email address
+    if (!validator.isEmail(to)) {
+      throw new Error('Invalid email address');
+    }
+    
+    // Sanitize subject and HTML content
+    const sanitizedSubject = xss(subject);
+    const sanitizedHtml = html; // HTML templates are pre-sanitized
+    
+    if (emailTransporter && SMTP_USER) {
       const result = await emailTransporter.sendMail({
         from: `"Second Opinion Platform" <${SMTP_USER}>`,
         to: to,
-        subject: subject,
-        html: html
+        subject: sanitizedSubject,
+        html: sanitizedHtml,
+        headers: {
+          'X-Mailer': 'Second-Opinion-Platform',
+          'X-Priority': '3',
+          'X-MSMail-Priority': 'Normal'
+        }
       });
+      
+      logger.info('Email sent successfully', {
+        to: to.substring(0, 3) + '***',
+        subject: sanitizedSubject.substring(0, 50),
+        messageId: result.messageId,
+        timestamp: new Date().toISOString()
+      });
+      
       return result;
     } else {
-      return await mockEmailSend(to, subject, html);
+      return await mockEmailSend(to, sanitizedSubject, sanitizedHtml);
     }
   } catch (error) {
-    logger.error('Email send error:', error);
+    logger.error('Email send error:', {
+      error: error.message,
+      to: to.substring(0, 3) + '***',
+      timestamp: new Date().toISOString()
+    });
     return await mockEmailSend(to, subject, html);
   }
 };
 
 const sendSms = async (to, message) => {
   try {
-    if (twilioClient) {
+    // Validate phone number
+    if (!validator.isMobilePhone(to, 'any', { strictMode: false })) {
+      throw new Error('Invalid phone number');
+    }
+    
+    // Sanitize message content
+    const sanitizedMessage = xss(message.substring(0, 1600)); // SMS length limit
+    
+    if (twilioClient && TWILIO_PHONE) {
       const result = await twilioClient.messages.create({
-        body: message,
+        body: sanitizedMessage,
         from: TWILIO_PHONE,
         to: to
       });
+      
+      logger.info('SMS sent successfully', {
+        to: to.substring(0, 3) + '***',
+        messageSid: result.sid,
+        timestamp: new Date().toISOString()
+      });
+      
       return result;
     } else {
-      return await mockSmsSend(to, message);
+      return await mockSmsSend(to, sanitizedMessage);
     }
   } catch (error) {
-    logger.error('SMS send error:', error);
+    logger.error('SMS send error:', {
+      error: error.message,
+      to: to.substring(0, 3) + '***',
+      timestamp: new Date().toISOString()
+    });
     return await mockSmsSend(to, message);
   }
 };
@@ -328,18 +659,64 @@ app.get('/health', (req, res) => {
 // NOTIFICATION SENDING
 // ==============================================
 
-// Send Single Notification
-app.post('/api/v1/notifications/send', [
-  body('recipient').isString().isLength({ min: 1 }),
-  body('type').isString().isLength({ min: 1 }),
-  body('channel').optional().isIn(['EMAIL', 'SMS', 'WHATSAPP']),
-  body('template').optional().isString(),
-  body('data').optional().isObject(),
-  body('subject').optional().isString(),
-  body('message').optional().isString(),
-  body('language').optional().isIn(['ENGLISH', 'GERMAN']),
-  body('scheduledFor').optional().isISO8601()
-], authenticateToken, async (req, res) => {
+// Enhanced input validation middleware
+const validateInput = (validations) => {
+  return async (req, res, next) => {
+    await Promise.all(validations.map(validation => validation.run(req)));
+    
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      logger.warn('Input validation failed', {
+        requestId: req.requestId,
+        errors: errors.array(),
+        ip: req.clientIP,
+        path: req.path,
+        timestamp: new Date().toISOString()
+      });
+      
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid input data',
+        code: 'VALIDATION_ERROR',
+        details: errors.array()
+      });
+    }
+    next();
+  };
+};
+
+// Enhanced recipient validation
+const validateRecipient = (recipient, channel) => {
+  if (channel === 'EMAIL' || recipient.includes('@')) {
+    return validator.isEmail(recipient);
+  }
+  if (channel === 'SMS' || channel === 'WHATSAPP' || recipient.startsWith('+')) {
+    return validator.isMobilePhone(recipient, 'any', { strictMode: true });
+  }
+  return false;
+};
+
+// Send Single Notification with enhanced security
+app.post('/api/v1/notifications/send', 
+  notificationLimiter,
+  validateInput([
+    body('recipient').isString().isLength({ min: 1, max: 100 }).custom((value) => {
+      if (!validator.isEmail(value) && !validator.isMobilePhone(value, 'any', { strictMode: false })) {
+        throw new Error('Invalid recipient format');
+      }
+      return true;
+    }),
+    body('type').isString().isLength({ min: 1, max: 50 }).isAlphanumeric('en-US', { ignore: '_' }),
+    body('channel').optional().isIn(['EMAIL', 'SMS', 'WHATSAPP']),
+    body('template').optional().isString().isLength({ max: 50 }).isAlphanumeric('en-US', { ignore: '_' }),
+    body('data').optional().isObject(),
+    body('subject').optional().isString().isLength({ max: 200 }),
+    body('message').optional().isString().isLength({ max: 5000 }),
+    body('language').optional().isIn(['ENGLISH', 'GERMAN']),
+    body('scheduledFor').optional().isISO8601()
+  ]), 
+  authenticateToken, 
+  async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -363,18 +740,46 @@ app.post('/api/v1/notifications/send', [
       scheduledFor
     } = req.body;
 
-    // Determine notification channel(s)
+    // Enhanced recipient and channel validation
+    if (!validateRecipient(recipient, channel)) {
+      logger.warn('Invalid recipient format detected', {
+        requestId: req.requestId,
+        recipient: recipient.substring(0, 3) + '***',
+        channel,
+        ip: req.clientIP,
+        timestamp: new Date().toISOString()
+      });
+      
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid recipient format',
+        code: 'INVALID_RECIPIENT'
+      });
+    }
+
+    // Determine notification channel(s) with validation
     let channels = [];
     if (channel) {
+      if (!validateRecipient(recipient, channel)) {
+        return res.status(400).json({
+          success: false,
+          error: `Recipient format not compatible with ${channel} channel`,
+          code: 'RECIPIENT_CHANNEL_MISMATCH'
+        });
+      }
       channels = [channel];
     } else {
-      // Auto-determine based on recipient
-      if (recipient.includes('@')) {
+      // Auto-determine based on recipient with validation
+      if (validator.isEmail(recipient)) {
         channels = ['EMAIL'];
-      } else if (recipient.startsWith('+')) {
-        channels = ['SMS', 'WHATSAPP'];
+      } else if (validator.isMobilePhone(recipient, 'any', { strictMode: false })) {
+        channels = ['SMS'];
       } else {
-        channels = ['EMAIL']; // Default
+        return res.status(400).json({
+          success: false,
+          error: 'Unable to determine channel from recipient format',
+          code: 'CHANNEL_DETECTION_FAILED'
+        });
       }
     }
 
@@ -392,12 +797,16 @@ app.post('/api/v1/notifications/send', [
           
           if (channelType === 'EMAIL' && EMAIL_TEMPLATES[templateKey]) {
             const emailTemplate = EMAIL_TEMPLATES[templateKey];
-            finalSubject = emailTemplate.subject.replace(/#{(\w+)}/g, (match, key) => data[key] || match);
-            finalMessage = emailTemplate.html(data);
+            // Sanitize template data before processing
+            const sanitizedData = sanitizeTemplateData(data);
+            finalSubject = emailTemplate.subject.replace(/#{(\w+)}/g, (match, key) => sanitizedData[key] || match);
+            finalMessage = emailTemplate.html(sanitizedData);
           } else if (channelType === 'SMS' && SMS_TEMPLATES[templateKey]) {
-            finalMessage = SMS_TEMPLATES[templateKey](data);
+            const sanitizedData = sanitizeTemplateData(data);
+            finalMessage = SMS_TEMPLATES[templateKey](sanitizedData);
           } else if (channelType === 'WHATSAPP' && WHATSAPP_TEMPLATES[templateKey]) {
-            finalMessage = WHATSAPP_TEMPLATES[templateKey](data);
+            const sanitizedData = sanitizeTemplateData(data);
+            finalMessage = WHATSAPP_TEMPLATES[templateKey](sanitizedData);
           }
         }
 
@@ -499,14 +908,23 @@ app.post('/api/v1/notifications/send', [
   }
 });
 
-// Send Bulk Notifications
-app.post('/api/v1/notifications/bulk', [
-  body('notifications').isArray({ min: 1, max: 100 }),
-  body('notifications.*.recipient').isString(),
-  body('notifications.*.type').isString(),
-  body('notifications.*.channel').optional().isIn(['EMAIL', 'SMS', 'WHATSAPP']),
-  body('notifications.*.data').optional().isObject()
-], authenticateToken, async (req, res) => {
+// Send Bulk Notifications with enhanced security
+app.post('/api/v1/notifications/bulk', 
+  notificationLimiter,
+  validateInput([
+    body('notifications').isArray({ min: 1, max: MAX_BULK_NOTIFICATIONS }),
+    body('notifications.*.recipient').isString().isLength({ min: 1, max: 100 }).custom((value) => {
+      if (!validator.isEmail(value) && !validator.isMobilePhone(value, 'any', { strictMode: false })) {
+        throw new Error('Invalid recipient format');
+      }
+      return true;
+    }),
+    body('notifications.*.type').isString().isLength({ min: 1, max: 50 }).isAlphanumeric('en-US', { ignore: '_' }),
+    body('notifications.*.channel').optional().isIn(['EMAIL', 'SMS', 'WHATSAPP']),
+    body('notifications.*.data').optional().isObject()
+  ]), 
+  authenticateToken, 
+  async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -523,16 +941,24 @@ app.post('/api/v1/notifications/bulk', [
 
     for (const notificationData of notifications) {
       try {
-        // Process each notification individually
-        // This would ideally be done with a queue system in production
+        // Validate each notification before processing
+        if (!validateRecipient(notificationData.recipient, notificationData.channel)) {
+          throw new Error('Invalid recipient format');
+        }
+        
+        // Process each notification individually with security checks
+        // In production, use a secure queue system with authentication
         const response = await axios.post(
           `http://localhost:${PORT}/api/v1/notifications/send`,
           notificationData,
           {
             headers: {
               'Authorization': req.headers.authorization,
-              'Content-Type': 'application/json'
-            }
+              'Content-Type': 'application/json',
+              'X-Request-ID': req.requestId
+            },
+            timeout: 30000,
+            maxRedirects: 0
           }
         );
 
@@ -580,9 +1006,10 @@ app.post('/api/v1/notifications/bulk', [
 // ==============================================
 
 // Get Notification
-app.get('/api/v1/notifications/:notificationId', [
-  param('notificationId').isUUID()
-], authenticateToken, async (req, res) => {
+app.get('/api/v1/notifications/:notificationId', 
+  validateInput([param('notificationId').isUUID()]), 
+  authenticateToken, 
+  async (req, res) => {
   try {
     const { notificationId } = req.params;
 
@@ -638,13 +1065,16 @@ app.get('/api/v1/notifications/:notificationId', [
 });
 
 // List Notifications
-app.get('/api/v1/notifications', [
-  query('status').optional().isString(),
-  query('channel').optional().isIn(['EMAIL', 'SMS', 'WHATSAPP']),
-  query('type').optional().isString(),
-  query('limit').optional().isInt({ min: 1, max: 100 }),
-  query('offset').optional().isInt({ min: 0 })
-], authenticateToken, async (req, res) => {
+app.get('/api/v1/notifications', 
+  validateInput([
+    query('status').optional().isString().isLength({ max: 20 }).isAlpha(),
+    query('channel').optional().isIn(['EMAIL', 'SMS', 'WHATSAPP']),
+    query('type').optional().isString().isLength({ max: 50 }).isAlphanumeric('en-US', { ignore: '_' }),
+    query('limit').optional().isInt({ min: 1, max: 100 }),
+    query('offset').optional().isInt({ min: 0 })
+  ]), 
+  authenticateToken, 
+  async (req, res) => {
   try {
     const { status, channel, type, limit = 20, offset = 0 } = req.query;
 
@@ -711,9 +1141,10 @@ app.get('/api/v1/notifications', [
 });
 
 // Mark Notification as Read
-app.patch('/api/v1/notifications/:notificationId/read', [
-  param('notificationId').isUUID()
-], authenticateToken, async (req, res) => {
+app.patch('/api/v1/notifications/:notificationId/read', 
+  validateInput([param('notificationId').isUUID()]), 
+  authenticateToken, 
+  async (req, res) => {
   try {
     const { notificationId } = req.params;
 
@@ -863,19 +1294,131 @@ const processScheduledNotifications = async () => {
   }
 };
 
+// Cleanup old sessions and failed attempts periodically
+setInterval(() => {
+  const now = Date.now();
+  
+  // Clean expired sessions
+  for (const [key, session] of activeSessions.entries()) {
+    if (session.expiresAt < now) {
+      activeSessions.delete(key);
+    }
+  }
+  
+  // Clean old failed attempts (older than 1 hour)
+  for (const [ip, attempts] of failedAttempts.entries()) {
+    if (now - attempts.firstAttempt > 60 * 60 * 1000) {
+      failedAttempts.delete(ip);
+    }
+  }
+}, 5 * 60 * 1000); // Run every 5 minutes
+
 // Run scheduled notifications processor every minute
 setInterval(processScheduledNotifications, 60 * 1000);
 
-// Start server
+// Enhanced error handling middleware
+app.use((error, req, res, next) => {
+  const requestId = req.requestId || 'unknown';
+  const clientIP = req.clientIP || 'unknown';
+  
+  logger.error('Application error occurred', {
+    requestId,
+    error: error.message,
+    stack: error.stack,
+    ip: clientIP,
+    path: req.path,
+    method: req.method,
+    timestamp: new Date().toISOString()
+  });
+  
+  // Handle specific error types
+  if (error.name === 'JsonWebTokenError') {
+    return res.status(401).json({
+      success: false,
+      error: 'Invalid authentication token',
+      code: 'TOKEN_INVALID',
+      requestId
+    });
+  }
+  
+  if (error.name === 'TokenExpiredError') {
+    return res.status(401).json({
+      success: false,
+      error: 'Authentication token expired',
+      code: 'TOKEN_EXPIRED',
+      requestId
+    });
+  }
+  
+  if (error.message === 'Not allowed by CORS') {
+    return res.status(403).json({
+      success: false,
+      error: 'Cross-origin request not allowed',
+      code: 'CORS_ERROR',
+      requestId
+    });
+  }
+  
+  // Generic error response
+  res.status(500).json({
+    success: false,
+    error: 'Internal server error',
+    code: 'INTERNAL_ERROR',
+    requestId
+  });
+});
+
+// Handle 404 routes
+app.use('*', (req, res) => {
+  logger.warn('Route not found', {
+    path: req.originalUrl,
+    method: req.method,
+    ip: req.clientIP,
+    userAgent: req.get('User-Agent'),
+    timestamp: new Date().toISOString()
+  });
+  
+  res.status(404).json({
+    success: false,
+    error: 'Endpoint not found',
+    code: 'NOT_FOUND'
+  });
+});
+
+// Start server with enhanced security logging
 app.listen(PORT, () => {
+  logger.info('🛡️ Multi-Channel Notification Service v1.0 started with enhanced security', {
+    port: PORT,
+    environment: process.env.NODE_ENV || 'development',
+    securityFeatures: [
+      'helmet-security-headers',
+      'rate-limiting',
+      'input-validation',
+      'xss-protection',
+      'recipient-validation',
+      'session-management',
+      'audit-logging',
+      'content-sanitization'
+    ],
+    providers: {
+      email: emailTransporter && SMTP_USER ? 'SMTP' : 'Mock',
+      sms: twilioClient && TWILIO_PHONE ? 'Twilio' : 'Mock',
+      whatsapp: 'Mock'
+    },
+    maxNotificationsPerHour: MAX_NOTIFICATIONS_PER_HOUR,
+    maxBulkNotifications: MAX_BULK_NOTIFICATIONS,
+    timestamp: new Date().toISOString()
+  });
+  
   console.log(`📨 Multi-Channel Notification Service v1.0 running on port ${PORT}`);
+  console.log(`🛡️ Security enhancements: Helmet, Rate Limiting, Input Validation, XSS Protection`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`📤 Send notification: POST /api/v1/notifications/send`);
   console.log(`📮 Bulk send: POST /api/v1/notifications/bulk`);
   console.log(`📋 List notifications: GET /api/v1/notifications`);
   console.log(`📄 Templates: GET /api/v1/templates`);
   console.log(`📡 Channels: EMAIL, SMS, WhatsApp`);
-  console.log(`🎯 Providers: ${emailTransporter ? 'SMTP' : 'Mock'}, ${twilioClient ? 'Twilio' : 'Mock'}, Mock WhatsApp`);
+  console.log(`🎯 Providers: ${emailTransporter && SMTP_USER ? 'SMTP' : 'Mock'}, ${twilioClient && TWILIO_PHONE ? 'Twilio' : 'Mock'}, Mock WhatsApp`);
 });
 
 // Graceful shutdown
