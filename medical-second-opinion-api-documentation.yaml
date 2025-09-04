@@ -1,0 +1,3038 @@
+openapi: 3.1.0
+info:
+  title: Medical Second Opinion Platform API
+  description: |
+    Comprehensive API documentation for the Medical Second Opinion Platform's microservices architecture.
+    
+    This platform provides medical second opinion services through a distributed microservices architecture
+    consisting of 11 specialized services handling different aspects of the medical consultation process.
+    
+    ## Architecture Overview
+    - **Patient Identity Service** (Port 4001): Patient registration, authentication, and identity management
+    - **Case Management Service** (Port 4002): Medical case lifecycle management and document handling
+    - **AI Analysis Service** (Port 4003): Automated medical document analysis and insights
+    - **Professional Service** (Port 4004): Medical professional management and credentials
+    - **Notification Service** (Port 4005): Multi-channel communication and alerts
+    - **Professional Recruitment Service** (Port 4006): Professional onboarding and vetting
+    - **Payment & Billing Service** (Port 4007): Financial transactions and invoicing
+    - **Professional Workplace Service** (Port 4008): Professional case management interface
+    - **Admin Management Service** (Port 4009): Administrative oversight and monitoring
+    - **Workflow Engine Service** (Port 4010): Process automation and SLA monitoring
+    
+    ## Authentication
+    Most endpoints require JWT token authentication. Tokens are obtained through the respective authentication endpoints.
+    
+    ## Rate Limiting
+    API rate limiting is implemented across all services to ensure fair usage and system stability.
+    
+    ## Error Handling
+    All services follow consistent error response patterns with structured error codes and messages.
+    
+  version: 2.0.0
+  contact:
+    name: Medical Second Opinion Platform
+    email: support@medicalsecondopinion.com
+  license:
+    name: Proprietary
+    url: https://medicalsecondopinion.com/license
+
+servers:
+  - url: http://localhost:4001
+    description: Patient Identity Service
+  - url: http://localhost:4002
+    description: Case Management Service
+  - url: http://localhost:4003
+    description: AI Analysis Service
+  - url: http://localhost:4004
+    description: Professional Service
+  - url: http://localhost:4005
+    description: Notification Service
+  - url: http://localhost:4006
+    description: Professional Recruitment Service
+  - url: http://localhost:4007
+    description: Payment & Billing Service
+  - url: http://localhost:4008
+    description: Professional Workplace Service
+  - url: http://localhost:4009
+    description: Admin Management Service
+  - url: http://localhost:4010
+    description: Workflow Engine Service
+
+tags:
+  - name: Authentication
+    description: User authentication and session management
+  - name: Patient Management
+    description: Patient registration and profile management
+  - name: Case Management
+    description: Medical case creation and lifecycle management
+  - name: Document Management
+    description: Medical document upload and processing
+  - name: AI Analysis
+    description: Automated medical document analysis
+  - name: Professional Management
+    description: Medical professional profiles and credentials
+  - name: Professional Recruitment
+    description: Professional application and vetting process
+  - name: Professional Workplace
+    description: Professional case review interface
+  - name: Notifications
+    description: Multi-channel communication system
+  - name: Payment & Billing
+    description: Financial transactions and invoicing
+  - name: Administration
+    description: Platform administration and monitoring
+  - name: Workflow Management
+    description: Process automation and orchestration
+
+security:
+  - bearerAuth: []
+  - apiKeyAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from authentication endpoints
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for service-to-service communication
+
+  schemas:
+    # Common schemas
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - error
+        - code
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Human-readable error message
+        code:
+          type: string
+          description: Machine-readable error code
+        details:
+          type: array
+          description: Additional error details
+          items:
+            type: object
+
+    SuccessResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          description: Response payload
+        message:
+          type: string
+          description: Optional success message
+
+    PaginationResponse:
+      type: object
+      properties:
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+
+    # Patient Identity Service Schemas
+    PatientRegistration:
+      type: object
+      required:
+        - email
+        - password
+        - firstName
+        - lastName
+        - dateOfBirth
+        - phoneNumber
+      properties:
+        email:
+          type: string
+          format: email
+          description: Patient's email address
+        password:
+          type: string
+          minLength: 8
+          description: Strong password with mixed characters
+        firstName:
+          type: string
+          minLength: 2
+          maxLength: 50
+        lastName:
+          type: string
+          minLength: 2
+          maxLength: 50
+        dateOfBirth:
+          type: string
+          format: date
+          description: Patient's date of birth (YYYY-MM-DD)
+        phoneNumber:
+          type: string
+          pattern: '^[+]?[\d\s\-\(\)]+$'
+        gender:
+          type: string
+          enum: [male, female, other, prefer_not_to_say]
+        address:
+          $ref: '#/components/schemas/Address'
+        medicalHistory:
+          type: string
+          description: Brief medical history
+        emergencyContact:
+          $ref: '#/components/schemas/EmergencyContact'
+        preferredLanguage:
+          type: string
+          default: en
+          enum: [en, es, fr, de, it]
+
+    Address:
+      type: object
+      required:
+        - street
+        - city
+        - country
+        - postalCode
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+          minLength: 2
+          maxLength: 2
+          description: ISO 3166-1 alpha-2 country code
+        postalCode:
+          type: string
+
+    EmergencyContact:
+      type: object
+      required:
+        - name
+        - phoneNumber
+        - relationship
+      properties:
+        name:
+          type: string
+        phoneNumber:
+          type: string
+        relationship:
+          type: string
+
+    PatientProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        phoneNumber:
+          type: string
+        gender:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        medicalHistory:
+          type: string
+        emergencyContact:
+          $ref: '#/components/schemas/EmergencyContact'
+        preferredLanguage:
+          type: string
+        registeredAt:
+          type: string
+          format: date-time
+        lastLoginAt:
+          type: string
+          format: date-time
+        verified:
+          type: boolean
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+
+    # Medical Case Schemas
+    MedicalCase:
+      type: object
+      required:
+        - title
+        - category
+        - urgency
+        - requestedProfessionalLevel
+      properties:
+        id:
+          type: string
+          format: uuid
+        caseNumber:
+          type: string
+          description: Auto-generated case number
+        title:
+          type: string
+          maxLength: 200
+          description: Brief case title
+        category:
+          type: string
+          enum: [cardiology, neurology, oncology, orthopedics, radiology, pathology, general_medicine]
+        urgency:
+          type: string
+          enum: [ROUTINE, URGENT, EMERGENCY]
+          default: ROUTINE
+        requestedProfessionalLevel:
+          type: string
+          enum: [JUNIOR, SENIOR, EXPERT, DISTINGUISHED]
+        description:
+          type: string
+          maxLength: 2000
+          description: Detailed case description
+        symptoms:
+          type: array
+          items:
+            type: string
+        currentDiagnosis:
+          type: string
+          description: Current diagnosis if available
+        treatmentHistory:
+          type: string
+          description: Previous treatments
+        specificQuestions:
+          type: array
+          items:
+            type: string
+          description: Specific questions for the professional
+        status:
+          type: string
+          enum: [DRAFT, SUBMITTED, FILES_UPLOADED, QUESTIONNAIRE_COMPLETED, PAYMENT_CONFIRMED, ASSIGNED_TO_PROFESSIONAL, IN_REVIEW, OPINION_READY_FOR_SIGNATURE, OPINION_SIGNED, COMPLETED, CANCELLED]
+        priority:
+          type: integer
+          minimum: 1
+          maximum: 5
+        customerId:
+          type: string
+          format: uuid
+        assignedProfessionalId:
+          type: string
+          format: uuid
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        assignedAt:
+          type: string
+          format: date-time
+          nullable: true
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        estimatedCompletionTime:
+          type: string
+          description: Estimated time for completion
+
+    CaseDocument:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        caseId:
+          type: string
+          format: uuid
+        fileName:
+          type: string
+        fileType:
+          type: string
+          enum: [application/pdf, image/jpeg, image/png, application/dicom]
+        fileSize:
+          type: integer
+          description: File size in bytes
+        category:
+          type: string
+          enum: [lab_results, imaging, medical_records, prescription, referral, other]
+        uploadedAt:
+          type: string
+          format: date-time
+        processedAt:
+          type: string
+          format: date-time
+          nullable: true
+        aiAnalyzed:
+          type: boolean
+          default: false
+        metadata:
+          type: object
+          description: Additional file metadata
+
+    # AI Analysis Schemas
+    AIAnalysis:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        caseId:
+          type: string
+          format: uuid
+        analysisType:
+          type: string
+          enum: [document_analysis, case_summary, risk_assessment, treatment_suggestions]
+        summary:
+          type: string
+          description: AI-generated case summary
+        keyFindings:
+          type: array
+          items:
+            type: string
+          description: Key medical findings identified
+        riskFactors:
+          type: array
+          items:
+            type: string
+          description: Identified risk factors
+        recommendations:
+          type: array
+          items:
+            type: string
+          description: AI-suggested recommendations
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Confidence score of the analysis
+        processingTime:
+          type: number
+          description: Processing time in seconds
+        createdAt:
+          type: string
+          format: date-time
+        model:
+          type: string
+          description: AI model used for analysis
+        version:
+          type: string
+          description: Model version
+
+    # Professional Schemas
+    MedicalProfessional:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        proNumber:
+          type: string
+          description: Professional license number
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        phoneNumber:
+          type: string
+        specialization:
+          type: string
+          enum: [cardiology, neurology, oncology, orthopedics, radiology, pathology, general_medicine]
+        subspecialties:
+          type: array
+          items:
+            type: string
+        level:
+          type: string
+          enum: [JUNIOR, SENIOR, EXPERT, DISTINGUISHED]
+        country:
+          type: string
+          minLength: 2
+          maxLength: 2
+          description: ISO 3166-1 alpha-2 country code
+        licenseNumber:
+          type: string
+        licenseExpiryDate:
+          type: string
+          format: date
+        medicalSchool:
+          type: string
+        graduationYear:
+          type: integer
+        boardCertifications:
+          type: array
+          items:
+            type: string
+        yearsOfExperience:
+          type: integer
+          minimum: 0
+        currentPosition:
+          type: string
+        institutionAffiliation:
+          type: string
+        researchExperience:
+          type: string
+        publicationCount:
+          type: integer
+          minimum: 0
+        languages:
+          type: array
+          items:
+            type: string
+        consultationFee:
+          type: number
+          minimum: 0
+        availability:
+          type: object
+          properties:
+            timezone:
+              type: string
+            workingHours:
+              type: object
+            maxCasesPerWeek:
+              type: integer
+        vetted:
+          type: boolean
+          description: Whether the professional has been vetted
+        vettedAt:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          enum: [pending_review, active, inactive, suspended]
+        averageRating:
+          type: number
+          minimum: 1
+          maximum: 5
+          nullable: true
+        totalReviews:
+          type: integer
+          minimum: 0
+        completedCases:
+          type: integer
+          minimum: 0
+        registeredAt:
+          type: string
+          format: date-time
+
+    # Notification Schemas
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        recipient:
+          type: string
+          format: email
+        type:
+          type: string
+          enum: [case_update, payment_reminder, professional_assignment, opinion_ready, system_alert]
+        channel:
+          type: string
+          enum: [email, sms, push, in_app]
+        template:
+          type: string
+          description: Template identifier
+        subject:
+          type: string
+        content:
+          type: string
+        data:
+          type: object
+          description: Dynamic data for template rendering
+        status:
+          type: string
+          enum: [pending, sent, delivered, failed, bounced]
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+          default: normal
+        scheduledFor:
+          type: string
+          format: date-time
+          nullable: true
+        sentAt:
+          type: string
+          format: date-time
+          nullable: true
+        deliveredAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        retryCount:
+          type: integer
+          default: 0
+        maxRetries:
+          type: integer
+          default: 3
+
+    # Payment & Billing Schemas
+    CaseQuote:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        caseId:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+          format: uuid
+        professionalLevel:
+          type: string
+          enum: [JUNIOR, SENIOR, EXPERT, DISTINGUISHED]
+        currency:
+          type: string
+          enum: [EUR, USD, GBP, CAD, CHF]
+          default: EUR
+        baseAmount:
+          type: number
+          minimum: 0
+        taxAmount:
+          type: number
+          minimum: 0
+        totalAmount:
+          type: number
+          minimum: 0
+        professionalAmount:
+          type: number
+          minimum: 0
+        platformAmount:
+          type: number
+          minimum: 0
+        urgencyLevel:
+          type: string
+          enum: [STANDARD, URGENT, EMERGENCY]
+        taxJurisdiction:
+          type: string
+        exchangeRate:
+          type: number
+          minimum: 0
+        status:
+          type: string
+          enum: [draft, sent, accepted, expired, cancelled]
+        validUntil:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        caseId:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+          format: uuid
+        quoteId:
+          type: string
+          format: uuid
+        invoiceNumber:
+          type: string
+        externalInvoiceId:
+          type: string
+          description: External payment system invoice ID
+        currency:
+          type: string
+        baseAmount:
+          type: number
+        taxAmount:
+          type: number
+        totalAmount:
+          type: number
+        status:
+          type: string
+          enum: [generated, sent, paid, failed, disputed, refunded]
+        invoiceUrl:
+          type: string
+          format: uri
+        pdfUrl:
+          type: string
+          format: uri
+        dueDate:
+          type: string
+          format: date-time
+        paidAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    # Workflow Schemas
+    WorkflowInstance:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        workflowType:
+          type: string
+          enum: [case_processing, professional_onboarding, peer_review, case_exception]
+        entityId:
+          type: string
+          format: uuid
+          description: ID of the entity this workflow is processing
+        status:
+          type: string
+          enum: [active, completed, failed, cancelled]
+        currentStep:
+          type: string
+          description: Current workflow step ID
+        stepIndex:
+          type: integer
+          minimum: 0
+        data:
+          type: object
+          description: Workflow execution data
+        createdAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdBy:
+          type: string
+          format: uuid
+
+paths:
+  # Patient Identity Service Endpoints (Port 4001)
+  /api/v1/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new patient
+      description: Creates a new patient account with comprehensive profile information
+      operationId: registerPatient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatientRegistration'
+            example:
+              email: "john.doe@example.com"
+              password: "SecurePass123!"
+              firstName: "John"
+              lastName: "Doe"
+              dateOfBirth: "1985-06-15"
+              phoneNumber: "+1-555-0123"
+              gender: "male"
+              address:
+                street: "123 Main St"
+                city: "New York"
+                state: "NY"
+                country: "US"
+                postalCode: "10001"
+              medicalHistory: "No significant medical history"
+              emergencyContact:
+                name: "Jane Doe"
+                phoneNumber: "+1-555-0124"
+                relationship: "spouse"
+              preferredLanguage: "en"
+      responses:
+        '201':
+          description: Patient registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                success: true
+                data:
+                  customerId: "550e8400-e29b-41d4-a716-446655440000"
+                  email: "john.doe@example.com"
+                  verificationRequired: true
+                message: "Registration successful. Please verify your email."
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: "Validation failed"
+                code: "VALIDATION_ERROR"
+                details:
+                  - field: "email"
+                    message: "Email already registered"
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Patient login
+      description: Authenticates a patient and returns access tokens
+      operationId: loginPatient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+            example:
+              email: "john.doe@example.com"
+              password: "SecurePass123!"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          token:
+                            type: string
+                            description: JWT access token
+                          refreshToken:
+                            type: string
+                            description: Refresh token
+                          customer:
+                            $ref: '#/components/schemas/PatientProfile'
+              example:
+                success: true
+                data:
+                  token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  refreshToken: "def50200..."
+                  customer:
+                    id: "550e8400-e29b-41d4-a716-446655440000"
+                    email: "john.doe@example.com"
+                    firstName: "John"
+                    lastName: "Doe"
+                    verified: true
+                    status: "active"
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Account not verified or suspended
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/auth/verify-email:
+    post:
+      tags:
+        - Authentication
+      summary: Verify email address
+      description: Verifies patient's email address using verification code
+      operationId: verifyEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - verificationCode
+              properties:
+                email:
+                  type: string
+                  format: email
+                verificationCode:
+                  type: string
+                  minLength: 6
+                  maxLength: 6
+      responses:
+        '200':
+          description: Email verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Invalid verification code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Case Management Service Endpoints (Port 4002)
+  /api/v1/cases:
+    post:
+      tags:
+        - Case Management
+      summary: Create a new medical case
+      description: Creates a new medical case for second opinion
+      operationId: createCase
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - category
+                - urgency
+                - requestedProfessionalLevel
+              properties:
+                title:
+                  type: string
+                  maxLength: 200
+                category:
+                  type: string
+                  enum: [cardiology, neurology, oncology, orthopedics, radiology, pathology, general_medicine]
+                urgency:
+                  type: string
+                  enum: [ROUTINE, URGENT, EMERGENCY]
+                requestedProfessionalLevel:
+                  type: string
+                  enum: [JUNIOR, SENIOR, EXPERT, DISTINGUISHED]
+                description:
+                  type: string
+                  maxLength: 2000
+                symptoms:
+                  type: array
+                  items:
+                    type: string
+                currentDiagnosis:
+                  type: string
+                treatmentHistory:
+                  type: string
+                specificQuestions:
+                  type: array
+                  items:
+                    type: string
+            example:
+              title: "Cardiac MRI Analysis - Chest Pain Evaluation"
+              category: "cardiology"
+              urgency: "URGENT"
+              requestedProfessionalLevel: "EXPERT"
+              description: "45-year-old male presenting with chest pain..."
+              symptoms: ["chest pain", "shortness of breath", "fatigue"]
+              currentDiagnosis: "Suspected coronary artery disease"
+              treatmentHistory: "Beta blockers initiated"
+              specificQuestions: ["Is cardiac catheterization indicated?"]
+      responses:
+        '201':
+          description: Case created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/MedicalCase'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      tags:
+        - Case Management
+      summary: Get patient's cases
+      description: Retrieves all cases for the authenticated patient
+      operationId: getPatientCases
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [DRAFT, SUBMITTED, FILES_UPLOADED, QUESTIONNAIRE_COMPLETED, PAYMENT_CONFIRMED, ASSIGNED_TO_PROFESSIONAL, IN_REVIEW, COMPLETED, CANCELLED]
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        '200':
+          description: Cases retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          cases:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/MedicalCase'
+                          pagination:
+                            $ref: '#/components/schemas/PaginationResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/cases/{caseId}:
+    get:
+      tags:
+        - Case Management
+      summary: Get case details
+      description: Retrieves detailed information about a specific case
+      operationId: getCaseById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Case details retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/MedicalCase'
+        '404':
+          description: Case not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Case Management
+      summary: Update case details
+      description: Updates case information (only allowed for draft cases)
+      operationId: updateCase
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  maxLength: 200
+                description:
+                  type: string
+                  maxLength: 2000
+                symptoms:
+                  type: array
+                  items:
+                    type: string
+                urgency:
+                  type: string
+                  enum: [ROUTINE, URGENT, EMERGENCY]
+                requestedProfessionalLevel:
+                  type: string
+                  enum: [JUNIOR, SENIOR, EXPERT, DISTINGUISHED]
+      responses:
+        '200':
+          description: Case updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/MedicalCase'
+        '400':
+          description: Case cannot be updated (not in draft status)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Case not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/cases/{caseId}/documents:
+    post:
+      tags:
+        - Document Management
+      summary: Upload case documents
+      description: Uploads medical documents for a case (supports multiple files)
+      operationId: uploadCaseDocuments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Medical documents (PDF, JPEG, PNG, DICOM)
+                categories:
+                  type: array
+                  items:
+                    type: string
+                    enum: [lab_results, imaging, medical_records, prescription, referral, other]
+                  description: Document categories (must match file count)
+      responses:
+        '201':
+          description: Documents uploaded successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          uploadedFiles:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/CaseDocument'
+                          totalFiles:
+                            type: integer
+                          totalSize:
+                            type: integer
+                            description: Total size in bytes
+        '400':
+          description: Invalid file type or size
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      tags:
+        - Document Management
+      summary: Get case documents
+      description: Retrieves all documents for a specific case
+      operationId: getCaseDocuments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Documents retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          documents:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/CaseDocument'
+
+  # AI Analysis Service Endpoints (Port 4003)
+  /api/v1/analysis/case/{caseId}:
+    post:
+      tags:
+        - AI Analysis
+      summary: Trigger AI analysis for a case
+      description: Initiates AI analysis of all uploaded documents for a case
+      operationId: analyzeCase
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                priority:
+                  type: string
+                  enum: [low, normal, high]
+                  default: normal
+                analysisTypes:
+                  type: array
+                  items:
+                    type: string
+                    enum: [document_analysis, case_summary, risk_assessment, treatment_suggestions]
+                  default: ["document_analysis", "case_summary"]
+      responses:
+        '202':
+          description: Analysis initiated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          analysisId:
+                            type: string
+                            format: uuid
+                          status:
+                            type: string
+                            enum: [queued, processing, completed, failed]
+                          estimatedCompletion:
+                            type: string
+                            format: date-time
+        '400':
+          description: No documents available for analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Case not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      tags:
+        - AI Analysis
+      summary: Get AI analysis results
+      description: Retrieves AI analysis results for a case
+      operationId: getAnalysisResults
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Analysis results retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          analyses:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/AIAnalysis'
+                          latestAnalysis:
+                            $ref: '#/components/schemas/AIAnalysis'
+        '404':
+          description: No analysis found for this case
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Professional Service Endpoints (Port 4004)
+  /api/v1/professionals/register:
+    post:
+      tags:
+        - Professional Management
+      summary: Register as a medical professional
+      description: Submit application to join the platform as a medical professional
+      operationId: registerProfessional
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - firstName
+                - lastName
+                - phoneNumber
+                - specialization
+                - licenseNumber
+                - country
+                - yearsOfExperience
+              properties:
+                email:
+                  type: string
+                  format: email
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                phoneNumber:
+                  type: string
+                specialization:
+                  type: string
+                  enum: [cardiology, neurology, oncology, orthopedics, radiology, pathology, general_medicine]
+                subspecialties:
+                  type: array
+                  items:
+                    type: string
+                level:
+                  type: string
+                  enum: [JUNIOR, SENIOR, EXPERT, DISTINGUISHED]
+                country:
+                  type: string
+                  minLength: 2
+                  maxLength: 2
+                licenseNumber:
+                  type: string
+                licenseExpiryDate:
+                  type: string
+                  format: date
+                medicalSchool:
+                  type: string
+                graduationYear:
+                  type: integer
+                boardCertifications:
+                  type: array
+                  items:
+                    type: string
+                yearsOfExperience:
+                  type: integer
+                  minimum: 0
+                currentPosition:
+                  type: string
+                institutionAffiliation:
+                  type: string
+                languages:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Professional registration submitted successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          professionalId:
+                            type: string
+                            format: uuid
+                          applicationNumber:
+                            type: string
+                          status:
+                            type: string
+                            enum: [pending_review]
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Professional already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/professionals/search:
+    get:
+      tags:
+        - Professional Management
+      summary: Search medical professionals
+      description: Search for available medical professionals by specialty and criteria
+      operationId: searchProfessionals
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: specialization
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [cardiology, neurology, oncology, orthopedics, radiology, pathology, general_medicine]
+        - name: level
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [JUNIOR, SENIOR, EXPERT, DISTINGUISHED]
+        - name: country
+          in: query
+          required: false
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 2
+        - name: language
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: available
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        '200':
+          description: Professionals retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          professionals:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/MedicalProfessional'
+                          pagination:
+                            $ref: '#/components/schemas/PaginationResponse'
+
+  # Professional Workplace Service Endpoints (Port 4008)
+  /api/v1/professional/auth/login:
+    post:
+      tags:
+        - Professional Management
+      summary: Professional login
+      description: Authenticate medical professional with 2FA
+      operationId: professionalLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: 2FA verification required
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          tempToken:
+                            type: string
+                            description: Temporary token for 2FA verification
+                          twoFactorMethod:
+                            type: string
+                            enum: [email, sms]
+                          demoCode:
+                            type: string
+                            description: Demo 2FA code (remove in production)
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Professional not vetted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/professional/auth/verify-2fa:
+    post:
+      tags:
+        - Professional Management
+      summary: Verify 2FA code
+      description: Complete professional login with 2FA verification
+      operationId: verifyProfessional2FA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tempToken
+                - verificationCode
+              properties:
+                tempToken:
+                  type: string
+                verificationCode:
+                  type: string
+                  minLength: 6
+                  maxLength: 6
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          token:
+                            type: string
+                            description: Professional access token
+                          professional:
+                            $ref: '#/components/schemas/MedicalProfessional'
+        '401':
+          description: Invalid verification code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/professional/cases/backlog:
+    get:
+      tags:
+        - Professional Workplace
+      summary: Get case backlog
+      description: Retrieve available cases for professional assignment
+      operationId: getProfessionalCaseBacklog
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [available, assigned, in_progress, completed]
+            default: available
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        '200':
+          description: Case backlog retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          cases:
+                            type: array
+                            items:
+                              allOf:
+                                - $ref: '#/components/schemas/MedicalCase'
+                                - type: object
+                                  properties:
+                                    matchScore:
+                                      type: integer
+                                      minimum: 0
+                                      maximum: 100
+                                      description: Professional-case compatibility score
+                                    daysWaiting:
+                                      type: integer
+                                      description: Days since case submission
+                                    estimatedTime:
+                                      type: string
+                                      description: Estimated completion time
+                          pagination:
+                            $ref: '#/components/schemas/PaginationResponse'
+                          filters:
+                            type: object
+                            properties:
+                              status:
+                                type: string
+                              availableStatuses:
+                                type: array
+                                items:
+                                  type: string
+                              professionalLevel:
+                                type: string
+        '401':
+          description: Unauthorized - Professional authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/professional/cases/{caseId}/select:
+    post:
+      tags:
+        - Professional Workplace
+      summary: Select/claim a case
+      description: Professional selects a case for review
+      operationId: selectCase
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Case assigned successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          caseId:
+                            type: string
+                            format: uuid
+                          caseNumber:
+                            type: string
+                          assignedAt:
+                            type: string
+                            format: date-time
+                          nextStep:
+                            type: string
+                            enum: [review_documents]
+        '404':
+          description: Case not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Case already assigned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/professional/dashboard:
+    get:
+      tags:
+        - Professional Workplace
+      summary: Get professional dashboard
+      description: Retrieve professional dashboard metrics and active cases
+      operationId: getProfessionalDashboard
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dashboard data retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          metrics:
+                            type: object
+                            properties:
+                              casesThisQuarter:
+                                type: integer
+                              totalCases:
+                                type: integer
+                              averageRating:
+                                type: number
+                                minimum: 1
+                                maximum: 5
+                              totalEarnings:
+                                type: number
+                              avgResponseTime:
+                                type: number
+                                description: Average response time in days
+                          activeCases:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                caseNumber:
+                                  type: string
+                                title:
+                                  type: string
+                                patient:
+                                  type: string
+                                  description: Patient name
+                                status:
+                                  type: string
+                                assignedAt:
+                                  type: string
+                                  format: date-time
+                                dueDate:
+                                  type: string
+                                  format: date-time
+                          recentActivity:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                caseNumber:
+                                  type: string
+                                action:
+                                  type: string
+                                timestamp:
+                                  type: string
+                                  format: date-time
+                                amount:
+                                  type: string
+                                  nullable: true
+
+  # Payment & Billing Service Endpoints (Port 4007)
+  /api/v1/pricing:
+    get:
+      tags:
+        - Payment & Billing
+      summary: Get pricing information
+      description: Retrieve current pricing for different professional levels and currencies
+      operationId: getPricing
+      parameters:
+        - name: currency
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [EUR, USD, GBP, CAD, CHF]
+            default: EUR
+        - name: jurisdiction
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [EU, US, CA, CH]
+            default: EU
+      responses:
+        '200':
+          description: Pricing information retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          pricing:
+                            type: object
+                            additionalProperties:
+                              type: object
+                              properties:
+                                basePrice:
+                                  type: number
+                                currency:
+                                  type: string
+                                professionalPercentage:
+                                  type: number
+                                platformPercentage:
+                                  type: number
+                          currency:
+                            type: string
+                          jurisdiction:
+                            type: string
+                          lastUpdated:
+                            type: string
+                            format: date-time
+              example:
+                success: true
+                data:
+                  pricing:
+                    JUNIOR:
+                      basePrice: 150.00
+                      currency: EUR
+                      professionalPercentage: 0.65
+                      platformPercentage: 0.35
+                    SENIOR:
+                      basePrice: 250.00
+                      currency: EUR
+                      professionalPercentage: 0.70
+                      platformPercentage: 0.30
+                  currency: EUR
+                  jurisdiction: EU
+
+  /api/v1/cases/{caseId}/quote:
+    post:
+      tags:
+        - Payment & Billing
+      summary: Generate case quote
+      description: Generate pricing quote for a medical case
+      operationId: generateCaseQuote
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - professionalLevel
+                - customerCountry
+              properties:
+                professionalLevel:
+                  type: string
+                  enum: [JUNIOR, SENIOR, EXPERT, DISTINGUISHED]
+                customerCountry:
+                  type: string
+                  minLength: 2
+                  maxLength: 2
+                  description: ISO 3166-1 alpha-2 country code
+                currency:
+                  type: string
+                  enum: [EUR, USD, GBP, CAD, CHF]
+                  default: EUR
+                urgency:
+                  type: string
+                  enum: [STANDARD, URGENT, EMERGENCY]
+                  default: STANDARD
+            example:
+              professionalLevel: EXPERT
+              customerCountry: DE
+              currency: EUR
+              urgency: URGENT
+      responses:
+        '200':
+          description: Quote generated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          quoteId:
+                            type: string
+                            format: uuid
+                          caseId:
+                            type: string
+                            format: uuid
+                          pricing:
+                            type: object
+                            properties:
+                              baseAmount:
+                                type: number
+                              taxAmount:
+                                type: number
+                              totalAmount:
+                                type: number
+                              currency:
+                                type: string
+                              taxJurisdiction:
+                                type: string
+                              taxType:
+                                type: string
+                          professionalPayment:
+                            type: object
+                            properties:
+                              amount:
+                                type: number
+                              percentage:
+                                type: number
+                          platformFee:
+                            type: number
+                          urgencyLevel:
+                            type: string
+                          validUntil:
+                            type: string
+                            format: date-time
+                          breakdown:
+                            type: object
+                            properties:
+                              baseServiceFee:
+                                type: number
+                              urgencyMultiplier:
+                                type: number
+                              exchangeRate:
+                                type: number
+                              taxRate:
+                                type: number
+        '404':
+          description: Case not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/cases/{caseId}/invoice:
+    post:
+      tags:
+        - Payment & Billing
+      summary: Generate invoice
+      description: Generate invoice for a medical case based on approved quote
+      operationId: generateInvoice
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - quoteId
+                - customerData
+              properties:
+                quoteId:
+                  type: string
+                  format: uuid
+                customerData:
+                  type: object
+                  required:
+                    - email
+                    - firstName
+                    - lastName
+                    - billingAddress
+                    - country
+                  properties:
+                    email:
+                      type: string
+                      format: email
+                    firstName:
+                      type: string
+                    lastName:
+                      type: string
+                    billingAddress:
+                      $ref: '#/components/schemas/Address'
+                    country:
+                      type: string
+                      minLength: 2
+                      maxLength: 2
+                    vatNumber:
+                      type: string
+                      nullable: true
+      responses:
+        '200':
+          description: Invoice generated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          invoiceId:
+                            type: string
+                            format: uuid
+                          invoiceNumber:
+                            type: string
+                          externalInvoiceId:
+                            type: string
+                          totalAmount:
+                            type: number
+                          currency:
+                            type: string
+                          dueDate:
+                            type: string
+                            format: date-time
+                          invoiceUrl:
+                            type: string
+                            format: uri
+                          pdfUrl:
+                            type: string
+                            format: uri
+                          status:
+                            type: string
+                            enum: [generated]
+        '404':
+          description: Valid quote not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/payments/{paymentId}/status:
+    get:
+      tags:
+        - Payment & Billing
+      summary: Get payment status
+      description: Retrieve payment status for invoice or professional payment
+      operationId: getPaymentStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Payment status retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          paymentId:
+                            type: string
+                            format: uuid
+                          type:
+                            type: string
+                            enum: [customer_payment, professional_payment]
+                          amount:
+                            type: number
+                          currency:
+                            type: string
+                          status:
+                            type: string
+                            enum: [pending, processing, paid, failed, disputed, refunded]
+                          createdAt:
+                            type: string
+                            format: date-time
+                          paidAt:
+                            type: string
+                            format: date-time
+                            nullable: true
+        '404':
+          description: Payment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Notification Service Endpoints (Port 4005)
+  /api/v1/notifications/send:
+    post:
+      tags:
+        - Notifications
+      summary: Send notification
+      description: Send notification via specified channel
+      operationId: sendNotification
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - recipient
+                - type
+                - template
+              properties:
+                recipient:
+                  type: string
+                  format: email
+                  description: Recipient email address
+                type:
+                  type: string
+                  enum: [case_update, payment_reminder, professional_assignment, opinion_ready, system_alert]
+                template:
+                  type: string
+                  description: Template identifier
+                channel:
+                  type: string
+                  enum: [email, sms, push, in_app]
+                  default: email
+                data:
+                  type: object
+                  description: Template data for personalization
+                priority:
+                  type: string
+                  enum: [low, normal, high, urgent]
+                  default: normal
+                scheduledFor:
+                  type: string
+                  format: date-time
+                  nullable: true
+                  description: Schedule notification for future delivery
+            example:
+              recipient: "john.doe@example.com"
+              type: "case_update"
+              template: "case_status_update"
+              channel: "email"
+              data:
+                patientName: "John Doe"
+                caseNumber: "CASE-12345"
+                status: "In Review"
+                professionalName: "Dr. Smith"
+              priority: "normal"
+      responses:
+        '202':
+          description: Notification queued successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          notificationId:
+                            type: string
+                            format: uuid
+                          status:
+                            type: string
+                            enum: [queued]
+                          estimatedDelivery:
+                            type: string
+                            format: date-time
+        '400':
+          description: Invalid template or data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/notifications/{notificationId}/status:
+    get:
+      tags:
+        - Notifications
+      summary: Get notification status
+      description: Check delivery status of a notification
+      operationId: getNotificationStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Notification status retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Notification'
+        '404':
+          description: Notification not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Admin Management Service Endpoints (Port 4009)
+  /api/v1/admin/auth/login:
+    post:
+      tags:
+        - Administration
+      summary: Admin login
+      description: Authenticate platform administrator
+      operationId: adminLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+            example:
+              email: "admin@medicalsecondopinion.com"
+              password: "AdminPass123!"
+      responses:
+        '200':
+          description: Admin authentication successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          token:
+                            type: string
+                            description: Admin JWT token (12h expiry)
+                          admin:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              email:
+                                type: string
+                                format: email
+                              role:
+                                type: string
+                                enum: [admin, super_admin, quality_manager]
+                              firstName:
+                                type: string
+                              lastName:
+                                type: string
+        '401':
+          description: Invalid admin credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/admin/dashboard:
+    get:
+      tags:
+        - Administration
+      summary: Admin dashboard
+      description: Retrieve comprehensive platform health and metrics
+      operationId: getAdminDashboard
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dashboard data retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          platformHealth:
+                            type: object
+                            properties:
+                              healthScore:
+                                type: integer
+                                minimum: 0
+                                maximum: 100
+                                description: Overall platform health score
+                              cases:
+                                type: object
+                                properties:
+                                  total:
+                                    type: integer
+                                  active:
+                                    type: integer
+                                  completed24h:
+                                    type: integer
+                                  orphaned:
+                                    type: integer
+                                    description: Cases without professional assignment
+                                  breachedSLA:
+                                    type: integer
+                                    description: Cases exceeding SLA timelines
+                              professionals:
+                                type: object
+                                properties:
+                                  total:
+                                    type: integer
+                                  active:
+                                    type: integer
+                                  pendingApplications:
+                                    type: integer
+                              revenue:
+                                type: object
+                                properties:
+                                  last24h:
+                                    type: number
+                              alerts:
+                                type: object
+                                properties:
+                                  orphanedCases:
+                                    type: boolean
+                                  breachedSLA:
+                                    type: boolean
+                                  pendingApplications:
+                                    type: boolean
+                          recentActivity:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                action:
+                                  type: string
+                                entityType:
+                                  type: string
+                                performedBy:
+                                  type: string
+                                timestamp:
+                                  type: string
+                                  format: date-time
+                                details:
+                                  type: object
+                          pendingTasks:
+                            type: object
+                            properties:
+                              professionalApplications:
+                                type: integer
+                              orphanedCases:
+                                type: integer
+                              breachedSLA:
+                                type: integer
+                              qualityReviews:
+                                type: integer
+                          realTimeMetrics:
+                            type: object
+                            properties:
+                              activeUsers:
+                                type: integer
+                              activeProfessionals:
+                                type: integer
+                              casesInProgress:
+                                type: integer
+                          lastUpdated:
+                            type: string
+                            format: date-time
+        '403':
+          description: Admin privileges required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/admin/professionals/applications:
+    get:
+      tags:
+        - Administration
+      summary: Get professional applications
+      description: Retrieve professional applications for review
+      operationId: getProfessionalApplications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending_review, under_review, approved, rejected]
+            default: pending_review
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Professional applications retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          applications:
+                            type: array
+                            items:
+                              allOf:
+                                - $ref: '#/components/schemas/MedicalProfessional'
+                                - type: object
+                                  properties:
+                                    professionalDocuments:
+                                      type: array
+                                      items:
+                                        type: object
+                                        properties:
+                                          id:
+                                            type: string
+                                            format: uuid
+                                          documentType:
+                                            type: string
+                                          fileName:
+                                            type: string
+                                          uploadedAt:
+                                            type: string
+                                            format: date-time
+                                          verificationStatus:
+                                            type: string
+                                            enum: [pending, verified, rejected]
+                                    professionalReviews:
+                                      type: array
+                                      items:
+                                        type: object
+                                        properties:
+                                          rating:
+                                            type: number
+                                            minimum: 1
+                                            maximum: 5
+                                          feedback:
+                                            type: string
+                                          createdAt:
+                                            type: string
+                                            format: date-time
+                                    performance:
+                                      type: object
+                                      nullable: true
+                                      description: Performance data for approved professionals
+                                      properties:
+                                        performanceScore:
+                                          type: integer
+                                        totalCases:
+                                          type: integer
+                                        completedCases:
+                                          type: integer
+                                        completionRate:
+                                          type: number
+                                        averageRating:
+                                          type: number
+                                        averageResponseTime:
+                                          type: number
+                          pagination:
+                            $ref: '#/components/schemas/PaginationResponse'
+                          status:
+                            type: string
+
+  /api/v1/admin/professionals/{professionalId}/review:
+    post:
+      tags:
+        - Administration
+      summary: Review professional application
+      description: Approve, reject, or request more information for professional application
+      operationId: reviewProfessionalApplication
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: professionalId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - action
+              properties:
+                action:
+                  type: string
+                  enum: [approve, reject, request_more_info]
+                feedback:
+                  type: string
+                  description: Review feedback for the professional
+                conditions:
+                  type: array
+                  items:
+                    type: string
+                  description: Conditions or requirements for approval
+            example:
+              action: "approve"
+              feedback: "Excellent credentials and experience. Approved for EXPERT level."
+              conditions: ["Complete platform training within 30 days"]
+      responses:
+        '200':
+          description: Professional application reviewed successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          professionalId:
+                            type: string
+                            format: uuid
+                          action:
+                            type: string
+                          status:
+                            type: string
+                          vetted:
+                            type: boolean
+                          reviewedAt:
+                            type: string
+                            format: date-time
+        '404':
+          description: Professional not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # Workflow Engine Service Endpoints (Port 4010)
+  /api/v1/workflows/trigger:
+    post:
+      tags:
+        - Workflow Management
+      summary: Trigger workflow
+      description: Initiate a workflow process for an entity
+      operationId: triggerWorkflow
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - workflowType
+                - entityId
+                - data
+              properties:
+                workflowType:
+                  type: string
+                  enum: [case_processing, professional_onboarding, peer_review, case_exception]
+                entityId:
+                  type: string
+                  format: uuid
+                  description: ID of the entity to process
+                data:
+                  type: object
+                  description: Workflow-specific data
+            example:
+              workflowType: "case_processing"
+              entityId: "550e8400-e29b-41d4-a716-446655440000"
+              data:
+                caseId: "550e8400-e29b-41d4-a716-446655440000"
+                urgency: "URGENT"
+                professionalLevel: "EXPERT"
+                specialty: "cardiology"
+      responses:
+        '200':
+          description: Workflow triggered successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          workflowInstanceId:
+                            type: string
+                            format: uuid
+                          workflowType:
+                            type: string
+                          currentStep:
+                            type: string
+                          status:
+                            type: string
+                            enum: [active]
+        '400':
+          description: Invalid workflow type or data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/workflows/{workflowInstanceId}:
+    get:
+      tags:
+        - Workflow Management
+      summary: Get workflow status
+      description: Retrieve current status and progress of a workflow instance
+      operationId: getWorkflowStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workflowInstanceId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Workflow status retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          workflowInstance:
+                            $ref: '#/components/schemas/WorkflowInstance'
+                          definition:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              steps:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    id:
+                                      type: string
+                                    name:
+                                      type: string
+                                    timeout:
+                                      type: integer
+                                      description: Step timeout in milliseconds
+                              escalationLevels:
+                                type: array
+                                items:
+                                  type: string
+                          progress:
+                            type: object
+                            properties:
+                              currentStepIndex:
+                                type: integer
+                              totalSteps:
+                                type: integer
+                              percentage:
+                                type: integer
+                                minimum: 0
+                                maximum: 100
+        '404':
+          description: Workflow instance not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/sla/monitor:
+    get:
+      tags:
+        - Workflow Management
+      summary: Monitor SLA compliance
+      description: Get current SLA compliance metrics across all case statuses
+      operationId: monitorSLA
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: SLA compliance data retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          overallCompliance:
+                            type: integer
+                            minimum: 0
+                            maximum: 100
+                            description: Overall SLA compliance percentage
+                          statusBreakdown:
+                            type: object
+                            additionalProperties:
+                              type: object
+                              properties:
+                                target:
+                                  type: number
+                                  description: Target time in hours
+                                warning:
+                                  type: number
+                                  description: Warning threshold in hours
+                                warningCount:
+                                  type: integer
+                                  description: Cases approaching SLA breach
+                                breachedCount:
+                                  type: integer
+                                  description: Cases that breached SLA
+                                compliance:
+                                  type: integer
+                                  minimum: 0
+                                  maximum: 100
+                                  description: Compliance percentage for this status
+                          timestamp:
+                            type: string
+                            format: date-time
+              example:
+                success: true
+                data:
+                  overallCompliance: 87
+                  statusBreakdown:
+                    FILES_UPLOADED:
+                      target: 0.5
+                      warning: 0.33
+                      warningCount: 2
+                      breachedCount: 0
+                      compliance: 100
+                    ASSIGNED_TO_PROFESSIONAL:
+                      target: 72
+                      warning: 60
+                      warningCount: 3
+                      breachedCount: 1
+                      compliance: 85
+                  timestamp: "2025-01-15T10:30:00Z"
+
+  # Health Check Endpoints for all services
+  /health:
+    get:
+      tags:
+        - System Health
+      summary: Service health check
+      description: Check service health and availability (available on all ports)
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is operational
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                  - service
+                  - version
+                  - timestamp
+                properties:
+                  status:
+                    type: string
+                    enum: [operational, degraded, maintenance]
+                  service:
+                    type: string
+                    description: Service name
+                  version:
+                    type: string
+                    description: Service version
+                  features:
+                    type: array
+                    items:
+                      type: string
+                    description: Available features
+                  endpoints:
+                    type: object
+                    description: Available API endpoints
+                  timestamp:
+                    type: string
+                    format: date-time
+              example:
+                status: "operational"
+                service: "patient-identity-service"
+                version: "2.0.0"
+                features:
+                  - "patient-registration"
+                  - "multi-factor-authentication"
+                  - "session-management"
+                endpoints:
+                  register: "POST /api/v1/auth/register"
+                  login: "POST /api/v1/auth/login"
+                  profile: "GET /api/v1/auth/profile"
+                timestamp: "2025-01-15T10:30:00Z"
+
+# Common response examples and additional documentation
+examples:
+  ValidationError:
+    summary: Validation Error Example
+    value:
+      success: false
+      error: "Validation failed"
+      code: "VALIDATION_ERROR"
+      details:
+        - field: "email"
+          message: "Valid email address is required"
+        - field: "password"
+          message: "Password must be at least 8 characters"
+
+  UnauthorizedError:
+    summary: Unauthorized Access Example
+    value:
+      success: false
+      error: "Access token required"
+      code: "TOKEN_MISSING"
+
+  ForbiddenError:
+    summary: Forbidden Access Example
+    value:
+      success: false
+      error: "Insufficient privileges"
+      code: "ACCESS_DENIED"
+
+  NotFoundError:
+    summary: Resource Not Found Example
+    value:
+      success: false
+      error: "Resource not found"
+      code: "RESOURCE_NOT_FOUND"
+
+  ServerError:
+    summary: Internal Server Error Example
+    value:
+      success: false
+      error: "Internal server error"
+      code: "INTERNAL_ERROR"
+
+webhooks:
+  paymentStatusUpdate:
+    post:
+      requestBody:
+        description: Payment status update from external payment provider
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - paymentId
+                - status
+              properties:
+                paymentId:
+                  type: string
+                  description: External payment ID
+                status:
+                  type: string
+                  enum: [pending, processing, paid, failed, disputed, refunded]
+                externalTransactionId:
+                  type: string
+                paidAt:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: Payment status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
