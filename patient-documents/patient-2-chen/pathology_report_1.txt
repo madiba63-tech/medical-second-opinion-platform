@@ -1,0 +1,7 @@
+PATIENT: Robert Demo Chen
+DOCUMENT TYPE: Lung Biopsy Pathology
+DATE: 2025-09-05
+
+Adenocarcinoma, moderately differentiated, EGFR wild-type, ALK negative, PD-L1 expression 45%
+
+Generated for demo purposes - Second Opinion Platform

@@ -1,0 +1,7 @@
+PATIENT: Susan Demo Johnson
+DOCUMENT TYPE: BRCA Testing
+DATE: 2025-09-05
+
+BRCA1 pathogenic mutation detected (c.5266dupC), homologous recombination deficient
+
+Generated for demo purposes - Second Opinion Platform

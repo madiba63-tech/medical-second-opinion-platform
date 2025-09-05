@@ -1,0 +1,7 @@
+PATIENT: Ahmed Demo Hassan
+DOCUMENT TYPE: Microsatellite Instability Testing
+DATE: 2025-09-05
+
+Microsatellite stable (MSS), KRAS wild-type, suitable for anti-EGFR therapy consideration
+
+Generated for demo purposes - Second Opinion Platform

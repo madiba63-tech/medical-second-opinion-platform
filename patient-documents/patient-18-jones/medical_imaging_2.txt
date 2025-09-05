@@ -1,0 +1,7 @@
+PATIENT: William Demo Jones
+DOCUMENT TYPE: CT Neck with Contrast
+DATE: 2025-09-05
+
+Left vocal cord mass 2.8cm, no cartilage invasion, no suspicious lymph nodes
+
+Generated for demo purposes - Second Opinion Platform

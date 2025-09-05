@@ -1,0 +1,7 @@
+PATIENT: Carlos Demo Martinez
+DOCUMENT TYPE: Pancreatic Biopsy
+DATE: 2025-09-05
+
+Ductal adenocarcinoma, moderately differentiated, KRAS mutated, p53 altered
+
+Generated for demo purposes - Second Opinion Platform

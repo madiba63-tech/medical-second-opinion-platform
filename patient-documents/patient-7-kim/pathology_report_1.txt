@@ -1,0 +1,7 @@
+PATIENT: Lisa Demo Kim
+DOCUMENT TYPE: Thyroid FNA Cytology
+DATE: 2025-09-05
+
+Papillary thyroid carcinoma, classical variant, 1.8cm nodule, Bethesda VI
+
+Generated for demo purposes - Second Opinion Platform

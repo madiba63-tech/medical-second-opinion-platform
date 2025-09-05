@@ -1,0 +1,7 @@
+PATIENT: Maria Demo Rodriguez
+DOCUMENT TYPE: Breast Biopsy Pathology Report
+DATE: 2025-09-05
+
+Invasive ductal carcinoma, Grade 2, ER positive (95%), PR positive (80%), HER2 negative, Ki-67 15%
+
+Generated for demo purposes - Second Opinion Platform

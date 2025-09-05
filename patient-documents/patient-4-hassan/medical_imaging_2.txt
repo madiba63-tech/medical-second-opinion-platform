@@ -1,0 +1,7 @@
+PATIENT: Ahmed Demo Hassan
+DOCUMENT TYPE: Post-operative CT Scan
+DATE: 2025-09-05
+
+Status post right hemicolectomy, no residual disease, normal liver
+
+Generated for demo purposes - Second Opinion Platform

@@ -1,0 +1,7 @@
+PATIENT: Kevin Demo Lee
+DOCUMENT TYPE: CT Urography
+DATE: 2025-09-05
+
+Irregular bladder mass 3.5cm, no hydronephrosis, normal upper tracts
+
+Generated for demo purposes - Second Opinion Platform

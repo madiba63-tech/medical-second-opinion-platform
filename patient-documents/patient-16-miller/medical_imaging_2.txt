@@ -1,0 +1,7 @@
+PATIENT: David Demo Miller
+DOCUMENT TYPE: CT Chest/Abdomen
+DATE: 2025-09-05
+
+Gastric antral mass 4.8cm, perigastric lymphadenopathy, no distant metastases
+
+Generated for demo purposes - Second Opinion Platform

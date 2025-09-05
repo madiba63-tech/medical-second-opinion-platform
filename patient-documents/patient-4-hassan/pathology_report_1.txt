@@ -1,0 +1,7 @@
+PATIENT: Ahmed Demo Hassan
+DOCUMENT TYPE: Colon Resection Pathology
+DATE: 2025-09-05
+
+Adenocarcinoma, moderately differentiated, T3N1M0, 3/15 lymph nodes positive, microsatellite stable
+
+Generated for demo purposes - Second Opinion Platform

@@ -1,0 +1,7 @@
+PATIENT: Daniel Demo Anderson
+DOCUMENT TYPE: Post-operative CT
+DATE: 2025-09-05
+
+Status post left radical nephrectomy, no residual disease, normal right kidney
+
+Generated for demo purposes - Second Opinion Platform

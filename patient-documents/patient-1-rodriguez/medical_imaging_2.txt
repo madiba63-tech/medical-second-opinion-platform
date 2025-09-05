@@ -1,0 +1,7 @@
+PATIENT: Maria Demo Rodriguez
+DOCUMENT TYPE: Bilateral Mammography
+DATE: 2025-09-05
+
+Left breast mass 2.3cm with spiculated margins, no lymphadenopathy visible
+
+Generated for demo purposes - Second Opinion Platform

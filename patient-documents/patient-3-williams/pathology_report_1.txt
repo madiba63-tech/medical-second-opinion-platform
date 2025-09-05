@@ -1,0 +1,7 @@
+PATIENT: Jennifer Demo Williams
+DOCUMENT TYPE: Melanoma Pathology Report
+DATE: 2025-09-05
+
+Malignant melanoma, Breslow depth 2.8mm, ulcerated, mitotic rate 6/mm², BRAF V600E mutation positive
+
+Generated for demo purposes - Second Opinion Platform

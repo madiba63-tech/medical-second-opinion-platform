@@ -1,0 +1,7 @@
+PATIENT: Robert Demo Chen
+DOCUMENT TYPE: PET-CT Scan
+DATE: 2025-09-05
+
+Right upper lobe mass 4.2cm, mediastinal lymphadenopathy, no distant metastases
+
+Generated for demo purposes - Second Opinion Platform

@@ -1,0 +1,7 @@
+PATIENT: Michael Demo Brown
+DOCUMENT TYPE: Prostate Biopsy Pathology
+DATE: 2025-09-05
+
+Adenocarcinoma, Gleason score 7 (3+4), 4/12 cores positive, 30% core involvement
+
+Generated for demo purposes - Second Opinion Platform

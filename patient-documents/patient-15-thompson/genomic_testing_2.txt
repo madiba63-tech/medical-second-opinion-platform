@@ -1,0 +1,7 @@
+PATIENT: Michelle Demo Thompson
+DOCUMENT TYPE: FISH Analysis
+DATE: 2025-09-05
+
+MYC rearrangement negative, BCL-2 rearrangement negative, not double hit
+
+Generated for demo purposes - Second Opinion Platform

@@ -1,0 +1,7 @@
+PATIENT: Michelle Demo Thompson
+DOCUMENT TYPE: LDH and Beta-2 Microglobulin
+DATE: 2025-09-05
+
+LDH: 650 U/L (elevated), β2-microglobulin: 3.2 mg/L
+
+Generated for demo purposes - Second Opinion Platform

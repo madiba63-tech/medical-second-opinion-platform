@@ -1,0 +1,7 @@
+PATIENT: Patricia Demo Wilson
+DOCUMENT TYPE: Hormone Receptors
+DATE: 2025-09-05
+
+ER positive, PR positive, suitable for hormone therapy consideration
+
+Generated for demo purposes - Second Opinion Platform

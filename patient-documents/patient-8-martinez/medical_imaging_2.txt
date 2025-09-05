@@ -1,0 +1,7 @@
+PATIENT: Carlos Demo Martinez
+DOCUMENT TYPE: Pancreatic Protocol CT
+DATE: 2025-09-05
+
+3.2cm mass in pancreatic head, abutting SMA <180°, borderline resectable
+
+Generated for demo purposes - Second Opinion Platform

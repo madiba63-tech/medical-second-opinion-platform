@@ -1,0 +1,7 @@
+PATIENT: Nancy Demo White
+DOCUMENT TYPE: Myeloma Workup
+DATE: 2025-09-05
+
+M-protein: 3.2 g/dL, Free light chains: λ/κ ratio 15.2, β2-microglobulin: 4.1 mg/L
+
+Generated for demo purposes - Second Opinion Platform
