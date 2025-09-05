@@ -347,7 +347,10 @@ app.get('/health', (req, res) => {
       quote: 'POST /api/v1/cases/:id/quote',
       invoice: 'POST /api/v1/cases/:id/invoice',
       professionalPayment: 'POST /api/v1/professional-payments',
-      paymentStatus: 'GET /api/v1/payments/:id/status'
+      paymentStatus: 'GET /api/v1/payments/:id/status',
+      compensationCalculation: 'GET /api/v1/professionals/:id/compensation/calculate',
+      earningsSummary: 'GET /api/v1/professionals/:id/earnings',
+      paymentSummary: 'GET /api/v1/professionals/:id/payments'
     },
     supportedCurrencies: Object.keys(EXCHANGE_RATES),
     supportedJurisdictions: Object.keys(TAX_JURISDICTIONS),
@@ -1056,6 +1059,289 @@ app.post('/api/v1/webhooks/payment-status', paymentLimiter, [
       success: false,
       error: 'Failed to update payment status',
       code: 'PAYMENT_STATUS_UPDATE_ERROR'
+    });
+  }
+});
+
+// Calculate Professional Compensation for a Case
+app.get('/api/v1/professionals/:professionalId/compensation/calculate', [
+  param('professionalId').isUUID(),
+  query('caseUrgency').optional().isIn(['STANDARD', 'URGENT', 'EMERGENCY']),
+  query('currency').optional().isIn(Object.keys(EXCHANGE_RATES))
+], authenticateToken, async (req, res) => {
+  try {
+    const { professionalId } = req.params;
+    const { caseUrgency = 'STANDARD', currency = 'EUR' } = req.query;
+
+    // Get professional details
+    const professional = await prisma.medicalProfessional.findUnique({
+      where: { id: professionalId },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        level: true,
+        country: true,
+        specialization: true
+      }
+    });
+
+    if (!professional) {
+      return res.status(404).json({
+        success: false,
+        error: 'Professional not found',
+        code: 'PROFESSIONAL_NOT_FOUND'
+      });
+    }
+
+    // Get pricing configuration for professional level
+    const priceConfig = PROFESSIONAL_PRICING[professional.level];
+    if (!priceConfig) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid professional level for compensation calculation',
+        code: 'INVALID_PROFESSIONAL_LEVEL'
+      });
+    }
+
+    // Calculate base compensation in requested currency
+    let baseCompensation = convertCurrency(priceConfig.basePrice, priceConfig.currency, currency);
+
+    // Apply urgency multiplier
+    const urgencyMultipliers = {
+      'STANDARD': 1.0,
+      'URGENT': 1.5,
+      'EMERGENCY': 2.0
+    };
+    const urgencyMultiplier = urgencyMultipliers[caseUrgency];
+    const adjustedBasePrice = new Decimal(baseCompensation).mul(urgencyMultiplier).toNumber();
+
+    // Calculate professional's share
+    const professionalCompensation = new Decimal(adjustedBasePrice)
+      .mul(priceConfig.professionalPercentage)
+      .toDecimalPlaces(2)
+      .toNumber();
+
+    const platformFee = new Decimal(adjustedBasePrice)
+      .minus(professionalCompensation)
+      .toDecimalPlaces(2)
+      .toNumber();
+
+    // Get tax jurisdiction for professional
+    const taxJurisdiction = getTaxJurisdiction(professional.country);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        professionalId,
+        professional: {
+          name: `Dr. ${professional.firstName} ${professional.lastName}`,
+          level: professional.level,
+          country: professional.country,
+          specialization: professional.specialization
+        },
+        compensation: {
+          baseServicePrice: adjustedBasePrice,
+          professionalAmount: professionalCompensation,
+          platformAmount: platformFee,
+          currency: currency,
+          professionalPercentage: priceConfig.professionalPercentage * 100,
+          urgencyLevel: caseUrgency,
+          urgencyMultiplier: urgencyMultiplier
+        },
+        taxJurisdiction,
+        breakdown: {
+          baseRate: priceConfig.basePrice,
+          baseCurrency: priceConfig.currency,
+          exchangeRate: EXCHANGE_RATES[currency] / EXCHANGE_RATES[priceConfig.currency],
+          urgencyBonus: (urgencyMultiplier - 1) * 100
+        },
+        calculatedAt: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    logger.error('Professional compensation calculation error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to calculate professional compensation',
+      code: 'COMPENSATION_CALCULATION_ERROR'
+    });
+  }
+});
+
+// Get Professional Earnings Summary
+app.get('/api/v1/professionals/:professionalId/earnings', [
+  param('professionalId').isUUID(),
+  query('period').optional().isIn(['month', 'quarter', 'year', 'all']),
+  query('year').optional().isInt({ min: 2020, max: 2030 }),
+  query('currency').optional().isIn(Object.keys(EXCHANGE_RATES))
+], authenticateToken, async (req, res) => {
+  try {
+    const { professionalId } = req.params;
+    const { period = 'month', year = new Date().getFullYear(), currency = 'EUR' } = req.query;
+
+    // Get professional details
+    const professional = await prisma.medicalProfessional.findUnique({
+      where: { id: professionalId },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        level: true,
+        country: true
+      }
+    });
+
+    if (!professional) {
+      return res.status(404).json({
+        success: false,
+        error: 'Professional not found',
+        code: 'PROFESSIONAL_NOT_FOUND'
+      });
+    }
+
+    // Calculate date range based on period
+    let startDate, endDate;
+    const currentDate = new Date();
+    
+    switch (period) {
+      case 'month':
+        startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        break;
+      case 'quarter':
+        const currentQuarter = Math.floor(currentDate.getMonth() / 3);
+        startDate = new Date(currentDate.getFullYear(), currentQuarter * 3, 1);
+        endDate = new Date(currentDate.getFullYear(), (currentQuarter + 1) * 3, 0);
+        break;
+      case 'year':
+        startDate = new Date(year, 0, 1);
+        endDate = new Date(year, 11, 31);
+        break;
+      case 'all':
+        startDate = new Date(2020, 0, 1);
+        endDate = new Date(2030, 11, 31);
+        break;
+    }
+
+    // Get payments within date range
+    const payments = await prisma.professionalPayment.findMany({
+      where: {
+        professionalId: professionalId,
+        createdAt: {
+          gte: startDate,
+          lte: endDate
+        }
+      },
+      include: {
+        case: {
+          select: {
+            caseNumber: true,
+            category: true,
+            completedAt: true,
+            urgency: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    // Convert amounts to requested currency and calculate statistics
+    let totalEarnings = 0;
+    let totalCases = 0;
+    const earningsByStatus = {};
+    const earningsByUrgency = {};
+    const earningsByMonth = {};
+
+    const processedPayments = payments.map(payment => {
+      // Convert to requested currency
+      const convertedAmount = convertCurrency(payment.amount, payment.currency, currency);
+      totalEarnings += convertedAmount;
+      totalCases += 1;
+
+      // Group by status
+      const status = payment.status;
+      earningsByStatus[status] = (earningsByStatus[status] || 0) + convertedAmount;
+
+      // Group by urgency (if available)
+      const urgency = payment.case?.urgency || 'STANDARD';
+      earningsByUrgency[urgency] = (earningsByUrgency[urgency] || 0) + convertedAmount;
+
+      // Group by month
+      const monthKey = payment.createdAt.toISOString().substring(0, 7); // YYYY-MM
+      earningsByMonth[monthKey] = (earningsByMonth[monthKey] || 0) + convertedAmount;
+
+      return {
+        id: payment.id,
+        caseId: payment.caseId,
+        caseNumber: payment.case?.caseNumber,
+        category: payment.case?.category,
+        amount: convertedAmount,
+        originalAmount: payment.amount,
+        originalCurrency: payment.currency,
+        status: payment.status,
+        urgency: urgency,
+        scheduledDate: payment.scheduledPaymentDate,
+        paidDate: payment.paidAt,
+        createdDate: payment.createdAt
+      };
+    });
+
+    // Calculate averages and performance metrics
+    const averagePerCase = totalCases > 0 ? totalEarnings / totalCases : 0;
+    const paidPayments = payments.filter(p => p.status === 'paid');
+    const pendingAmount = (earningsByStatus['pending'] || 0);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        professionalId,
+        professional: {
+          name: `Dr. ${professional.firstName} ${professional.lastName}`,
+          level: professional.level,
+          country: professional.country
+        },
+        period: {
+          type: period,
+          year: parseInt(year),
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString()
+        },
+        earnings: {
+          total: parseFloat(totalEarnings.toFixed(2)),
+          totalCases: totalCases,
+          averagePerCase: parseFloat(averagePerCase.toFixed(2)),
+          pendingAmount: parseFloat(pendingAmount.toFixed(2)),
+          currency: currency
+        },
+        breakdown: {
+          byStatus: Object.keys(earningsByStatus).reduce((acc, key) => {
+            acc[key] = parseFloat(earningsByStatus[key].toFixed(2));
+            return acc;
+          }, {}),
+          byUrgency: Object.keys(earningsByUrgency).reduce((acc, key) => {
+            acc[key] = parseFloat(earningsByUrgency[key].toFixed(2));
+            return acc;
+          }, {}),
+          byMonth: Object.keys(earningsByMonth).reduce((acc, key) => {
+            acc[key] = parseFloat(earningsByMonth[key].toFixed(2));
+            return acc;
+          }, {})
+        },
+        payments: processedPayments,
+        calculatedAt: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    logger.error('Professional earnings summary error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch professional earnings',
+      code: 'EARNINGS_SUMMARY_ERROR'
     });
   }
 });
