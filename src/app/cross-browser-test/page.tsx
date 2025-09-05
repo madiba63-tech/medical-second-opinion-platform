@@ -36,6 +36,8 @@ export default function CrossBrowserTestPage() {
   const [apiTests, setApiTests] = useState<APITest[]>([]);
   const [cssTests, setCssTests] = useState<any>({});
   const [jsTests, setJsTests] = useState<any>({});
+  const [performanceTests, setPerformanceTests] = useState<any>({});
+  const [realTimeTests, setRealTimeTests] = useState<any>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -43,6 +45,8 @@ export default function CrossBrowserTestPage() {
     runAPITests();
     runCSSTests();
     runJSTests();
+    runPerformanceTests();
+    runRealTimeTests();
     setLoading(false);
   }, []);
 
@@ -248,6 +252,104 @@ export default function CrossBrowserTestPage() {
     setJsTests(tests);
   };
 
+  const runPerformanceTests = () => {
+    const tests = {
+      navigationTiming: (() => {
+        try {
+          const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+          if (navigation) {
+            return {
+              domContentLoaded: Math.round(navigation.domContentLoadedEventEnd - navigation.navigationStart),
+              loadComplete: Math.round(navigation.loadEventEnd - navigation.navigationStart),
+              firstPaint: Math.round(navigation.loadEventEnd - navigation.navigationStart),
+            };
+          }
+          return null;
+        } catch {
+          return null;
+        }
+      })(),
+      memoryInfo: (() => {
+        try {
+          const memory = (performance as any).memory;
+          if (memory) {
+            return {
+              usedJSHeapSize: Math.round(memory.usedJSHeapSize / 1024 / 1024 * 100) / 100,
+              totalJSHeapSize: Math.round(memory.totalJSHeapSize / 1024 / 1024 * 100) / 100,
+              jsHeapSizeLimit: Math.round(memory.jsHeapSizeLimit / 1024 / 1024 * 100) / 100,
+            };
+          }
+          return null;
+        } catch {
+          return null;
+        }
+      })(),
+      connectionInfo: (() => {
+        try {
+          const connection = (navigator as any).connection;
+          if (connection) {
+            return {
+              effectiveType: connection.effectiveType,
+              downlink: connection.downlink,
+              rtt: connection.rtt,
+            };
+          }
+          return null;
+        } catch {
+          return null;
+        }
+      })(),
+    };
+
+    setPerformanceTests(tests);
+  };
+
+  const runRealTimeTests = () => {
+    const tests = {
+      localStorage: (() => {
+        try {
+          localStorage.setItem('test', 'value');
+          const result = localStorage.getItem('test') === 'value';
+          localStorage.removeItem('test');
+          return result;
+        } catch {
+          return false;
+        }
+      })(),
+      sessionStorage: (() => {
+        try {
+          sessionStorage.setItem('test', 'value');
+          const result = sessionStorage.getItem('test') === 'value';
+          sessionStorage.removeItem('test');
+          return result;
+        } catch {
+          return false;
+        }
+      })(),
+      cookies: (() => {
+        try {
+          document.cookie = 'test=value';
+          const result = document.cookie.includes('test=value');
+          document.cookie = 'test=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          return result;
+        } catch {
+          return false;
+        }
+      })(),
+      geolocation: 'geolocation' in navigator,
+      notifications: 'Notification' in window,
+      serviceWorker: 'serviceWorker' in navigator,
+      pushManager: 'PushManager' in window,
+      websockets: 'WebSocket' in window,
+      webRTC: !!(window as any).RTCPeerConnection,
+      fullscreen: !!(document as any).fullscreenEnabled || !!(document as any).webkitFullscreenEnabled,
+      deviceOrientation: 'DeviceOrientationEvent' in window,
+      touchEvents: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
+    };
+
+    setRealTimeTests(tests);
+  };
+
   const getBrowserIcon = (name: string) => {
     switch (name.toLowerCase()) {
       case 'chrome': return '🟢';
@@ -369,8 +471,71 @@ export default function CrossBrowserTestPage() {
           </div>
         </div>
 
+        {/* Performance Tests */}
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Performance Metrics</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Navigation Timing */}
+            <div>
+              <h3 className="text-lg font-medium mb-2">Navigation Timing</h3>
+              {performanceTests.navigationTiming ? (
+                <div className="space-y-1 text-sm">
+                  <p><strong>DOM Content Loaded:</strong> {performanceTests.navigationTiming.domContentLoaded}ms</p>
+                  <p><strong>Load Complete:</strong> {performanceTests.navigationTiming.loadComplete}ms</p>
+                  <p><strong>First Paint:</strong> {performanceTests.navigationTiming.firstPaint}ms</p>
+                </div>
+              ) : (
+                <p className="text-gray-500 text-sm">Navigation timing not available</p>
+              )}
+            </div>
+
+            {/* Memory Info */}
+            <div>
+              <h3 className="text-lg font-medium mb-2">Memory Usage</h3>
+              {performanceTests.memoryInfo ? (
+                <div className="space-y-1 text-sm">
+                  <p><strong>Used:</strong> {performanceTests.memoryInfo.usedJSHeapSize}MB</p>
+                  <p><strong>Total:</strong> {performanceTests.memoryInfo.totalJSHeapSize}MB</p>
+                  <p><strong>Limit:</strong> {performanceTests.memoryInfo.jsHeapSizeLimit}MB</p>
+                </div>
+              ) : (
+                <p className="text-gray-500 text-sm">Memory info not available</p>
+              )}
+            </div>
+
+            {/* Connection Info */}
+            <div>
+              <h3 className="text-lg font-medium mb-2">Connection</h3>
+              {performanceTests.connectionInfo ? (
+                <div className="space-y-1 text-sm">
+                  <p><strong>Type:</strong> {performanceTests.connectionInfo.effectiveType}</p>
+                  <p><strong>Downlink:</strong> {performanceTests.connectionInfo.downlink} Mbps</p>
+                  <p><strong>RTT:</strong> {performanceTests.connectionInfo.rtt}ms</p>
+                </div>
+              ) : (
+                <p className="text-gray-500 text-sm">Connection info not available</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Real-time Feature Tests */}
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Real-time Features & APIs</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {Object.entries(realTimeTests).map(([feature, supported]) => (
+              <div key={feature} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                <span className="font-medium capitalize text-sm">{feature.replace(/([A-Z])/g, ' $1')}</span>
+                <span className={supported ? 'text-green-600' : 'text-red-600'}>
+                  {getFeatureStatus(supported)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Recommendations */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
           <h2 className="text-2xl font-semibold text-blue-900 mb-4">Cross-Browser Development Recommendations</h2>
           <div className="space-y-3 text-blue-800">
             <p><strong>1. Use Feature Detection:</strong> Always check for feature support before using modern APIs.</p>
@@ -379,6 +544,39 @@ export default function CrossBrowserTestPage() {
             <p><strong>4. Polyfills:</strong> Include polyfills for missing features in older browsers.</p>
             <p><strong>5. Testing Strategy:</strong> Test in all major browsers before deployment.</p>
             <p><strong>6. Fallbacks:</strong> Always provide fallback solutions for unsupported features.</p>
+          </div>
+        </div>
+
+        {/* Live Testing Tools */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-2xl font-semibold mb-4">Live Testing Tools</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-lg font-medium mb-2">Quick Actions</h3>
+              <div className="space-y-2">
+                <button 
+                  onClick={() => window.location.reload()} 
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm"
+                >
+                  Reload Tests
+                </button>
+                <button 
+                  onClick={() => navigator.clipboard?.writeText(window.location.href)} 
+                  className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm"
+                >
+                  Copy Test URL
+                </button>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-lg font-medium mb-2">Test Coverage</h3>
+              <div className="space-y-1 text-sm">
+                <p><strong>Browser Support:</strong> Chrome, Firefox, Safari, Edge</p>
+                <p><strong>Mobile Support:</strong> iOS Safari, Chrome Mobile</p>
+                <p><strong>Features Tested:</strong> {Object.keys(realTimeTests).length + Object.keys(cssTests).length + Object.keys(jsTests).length}</p>
+                <p><strong>API Endpoints:</strong> {apiTests.length}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

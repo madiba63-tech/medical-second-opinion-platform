@@ -87,7 +87,37 @@ Categories: Doctor's Letter | Image | Lab Report | Other Document
 - Mock payment processing
 - Security indicators
 
-### Step 6: Terms & Consent
+### Step 4: Expertise Level Selection
+**Purpose**: Select professional expertise level and calculate pricing
+**Components**: ExpertiseLevelStep.tsx
+**Features**:
+- Four expertise levels: Junior, Senior, Expert, Distinguished
+- Real-time pricing calculation with urgency multipliers
+- Integration with Payment & Billing Service (port 4007)
+- Dynamic pricing display based on selection
+- Base pricing from $299-899 with urgency modifiers
+
+### Step 5: Review Submission
+**Purpose**: Allow user to review and edit all data
+**Components**: ReviewSubmission.tsx
+**Features**: 
+- Display all collected data including expertise level
+- Edit buttons to return to previous steps
+- File list with categories
+- Calculated pricing summary
+- Data validation summary
+
+### Step 6: Payment Processing
+**Purpose**: Handle consultation fee payment with actual calculated pricing
+**Components**: PaymentSection.tsx
+**Features**:
+- Dynamic service pricing display
+- Payment method selection
+- Real-time pricing updates
+- Security indicators
+- Integration with payment processing
+
+### Step 7: Terms & Consent
 **Purpose**: Legal consent and final submission
 **Components**: TermsConsent.tsx
 **Features**:
@@ -95,12 +125,13 @@ Categories: Doctor's Letter | Image | Lab Report | Other Document
 - Required consent checkbox
 - Final data submission to `/api/upload-request`
 
-### Step 7: Confirmation
+### Step 8: Confirmation
 **Purpose**: Confirm successful submission
 **Components**: ConfirmationScreen.tsx
 **Features**:
 - Case number display
 - Process timeline explanation
+- Customer portal redirect functionality
 - Contact information
 - Print/email options
 
@@ -431,6 +462,54 @@ ProfessionalAccount {
 - **File Size Optimization**: Compression and validation
 - **Background Processing**: Async operations where possible
 
+## 🧪 Cross-Browser Testing Infrastructure
+
+### Automated Testing Framework
+**Components**: `tests/e2e/`, `playwright.config.ts`, `agents/test-manager.js`
+**Features**:
+- **105 Automated Tests** across 8 browser projects
+- **Browser Coverage**: Chrome, Firefox, Safari, Edge, Mobile Chrome, Mobile Safari
+- **Test Categories**: Functional (27), Visual Regression (30), API Compatibility (24), Mobile (24)
+- **Live Testing Page**: `/cross-browser-test` for real-time browser compatibility verification
+
+### Cross-Browser Test Suite
+**Purpose**: Ensure consistent user experience across all major browsers
+**Components**: 
+- `cross-browser.browser.spec.ts` - Main compatibility tests
+- `visual-regression.visual.spec.ts` - UI consistency verification
+- `api-compatibility.api.spec.ts` - Network and API functionality
+- `mobile-compatibility.mobile.spec.ts` - Touch and mobile-specific features
+- `browser-helpers.ts` - Shared testing utilities
+
+### Test Manager Integration
+**Enhancement**: Cross-browser testing integrated as Step 6 in full test suite
+**Features**:
+- Automated Chrome, Firefox, and Safari testing
+- Browser-specific performance monitoring
+- Real-time feature detection and compatibility reporting
+- Integration with existing health checks and system monitoring
+
+### Browser Optimization Layer
+**File**: `src/styles/browser-compatibility.css`
+**Features**:
+- Safari-specific fixes (webkit prefixes, font rendering, input styling)
+- Firefox optimizations (scroll styling, focus management, font smoothing)
+- Chrome performance enhancements (hardware acceleration, autofill styling)
+- Mobile browser optimizations (touch targets, viewport fixes, orientation handling)
+- Accessibility enhancements (high contrast, reduced motion, focus management)
+- Performance optimizations (GPU acceleration, smooth animations)
+
+### Live Testing Interface
+**URL**: `http://localhost:4000/cross-browser-test`
+**Features**:
+- **Real-time Browser Detection**: Automatic current browser and version identification
+- **60+ JavaScript Features**: async/await, optional chaining, promises, storage APIs
+- **20+ CSS Features**: Grid, Flexbox, custom properties, container queries, backdrop filters
+- **15+ Real-time APIs**: localStorage, geolocation, notifications, performance monitoring
+- **API Endpoint Testing**: Live testing of all platform endpoints with response times
+- **Performance Metrics**: Navigation timing, memory usage, network connection info
+- **Quick Testing Tools**: Page reload tests, URL sharing, browser-specific recommendations
+
 ## 📈 Monitoring & Analytics
 
 ### Key Metrics
@@ -438,11 +517,15 @@ ProfessionalAccount {
 - **Form Completion Rate**: Step-by-step abandonment tracking
 - **Response Times**: API endpoint performance
 - **Error Rates**: Failed submissions and reasons
+- **Cross-Browser Compatibility**: Browser-specific success rates and performance metrics
+- **Feature Support Matrix**: Real-time API and CSS feature compatibility tracking
 
 ### Health Checks
 - **Database Connectivity**: Connection pool status
 - **Storage Availability**: S3/local storage health
 - **API Responsiveness**: Endpoint response times
 - **Memory Usage**: Application resource consumption
+- **Browser Compatibility**: Automated cross-browser functionality verification
+- **Performance Benchmarks**: Target metrics compliance across browsers
 
 This architecture provides a robust, secure, and scalable foundation for medical second opinion consultations while maintaining HIPAA-ready compliance and excellent user experience.

@@ -336,6 +336,185 @@ class TestManager extends EventEmitter {
       return false;
     }
   }
+
+  async testCrossBrowserCompatibility() {
+    this.log('🌐 Running cross-browser compatibility tests...', 'info');
+    
+    const browsers = ['chrome', 'firefox', 'safari'];
+    const browserResults = {};
+    
+    // Test each browser
+    for (const browser of browsers) {
+      const testName = `cross_browser_${browser}`;
+      this.emit('test:start', testName);
+      const startTime = Date.now();
+      
+      try {
+        // Run Playwright tests for specific browser
+        const result = await this.runPlaywrightTest(browser);
+        const duration = Date.now() - startTime;
+        
+        if (result.success) {
+          this.emit('test:pass', testName, duration);
+          this.results.push({ 
+            test: testName, 
+            status: 'PASS', 
+            duration,
+            metadata: { 
+              browser, 
+              tests_passed: result.passed,
+              tests_total: result.total 
+            }
+          });
+          browserResults[browser] = { success: true, ...result };
+        } else {
+          this.emit('test:fail', testName, `${result.failed}/${result.total} tests failed`, duration);
+          this.results.push({ 
+            test: testName, 
+            status: 'FAIL', 
+            error: `${result.failed}/${result.total} tests failed`,
+            duration,
+            metadata: { 
+              browser, 
+              tests_passed: result.passed,
+              tests_failed: result.failed,
+              tests_total: result.total 
+            }
+          });
+          browserResults[browser] = { success: false, ...result };
+        }
+        
+      } catch (error) {
+        const duration = Date.now() - startTime;
+        this.emit('test:fail', testName, error.message, duration);
+        this.results.push({ 
+          test: testName, 
+          status: 'FAIL', 
+          error: error.message, 
+          duration,
+          metadata: { browser }
+        });
+        browserResults[browser] = { success: false, error: error.message };
+      }
+    }
+    
+    // Test cross-browser test page accessibility
+    await this.testCrossBrowserTestPage();
+    
+    return browserResults;
+  }
+  
+  async runPlaywrightTest(browser) {
+    return new Promise((resolve, reject) => {
+      let playwrightCommand = '';
+      
+      switch (browser) {
+        case 'chrome':
+          playwrightCommand = 'npm run test:browser:chrome';
+          break;
+        case 'firefox':
+          playwrightCommand = 'npm run test:browser:firefox';
+          break;
+        case 'safari':
+          playwrightCommand = 'npm run test:browser:safari';
+          break;
+        default:
+          return reject(new Error(`Unsupported browser: ${browser}`));
+      }
+      
+      exec(playwrightCommand, { timeout: 60000 }, (error, stdout, stderr) => {
+        if (error) {
+          // Parse test results from stderr/stdout even if command failed
+          const output = stdout + stderr;
+          const passedMatch = output.match(/(\d+) passed/);
+          const failedMatch = output.match(/(\d+) failed/);
+          const totalTests = (passedMatch ? parseInt(passedMatch[1]) : 0) + 
+                            (failedMatch ? parseInt(failedMatch[1]) : 0);
+          
+          if (totalTests > 0) {
+            resolve({
+              success: failedMatch ? parseInt(failedMatch[1]) === 0 : true,
+              passed: passedMatch ? parseInt(passedMatch[1]) : 0,
+              failed: failedMatch ? parseInt(failedMatch[1]) : 0,
+              total: totalTests,
+              output: output
+            });
+          } else {
+            reject(error);
+          }
+        } else {
+          // Parse successful test results
+          const passedMatch = stdout.match(/(\d+) passed/);
+          const failedMatch = stdout.match(/(\d+) failed/);
+          const passed = passedMatch ? parseInt(passedMatch[1]) : 0;
+          const failed = failedMatch ? parseInt(failedMatch[1]) : 0;
+          
+          resolve({
+            success: failed === 0,
+            passed,
+            failed,
+            total: passed + failed,
+            output: stdout
+          });
+        }
+      });
+    });
+  }
+  
+  async testCrossBrowserTestPage() {
+    const testName = 'cross_browser_test_page';
+    this.emit('test:start', testName);
+    const startTime = Date.now();
+    
+    try {
+      // Test that the cross-browser test page is accessible
+      const response = await fetch('http://localhost:4000/cross-browser-test', {
+        timeout: 10000
+      });
+      
+      const duration = Date.now() - startTime;
+      
+      if (response.ok) {
+        this.emit('test:pass', testName, duration);
+        this.results.push({ 
+          test: testName, 
+          status: 'PASS', 
+          duration,
+          metadata: { 
+            status: response.status,
+            url: 'http://localhost:4000/cross-browser-test'
+          }
+        });
+        return true;
+      } else {
+        this.emit('test:fail', testName, `HTTP ${response.status}`, duration);
+        this.results.push({ 
+          test: testName, 
+          status: 'FAIL', 
+          error: `HTTP ${response.status}`, 
+          duration,
+          metadata: { 
+            status: response.status,
+            url: 'http://localhost:4000/cross-browser-test'
+          }
+        });
+        return false;
+      }
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      this.emit('test:fail', testName, error.message, duration);
+      this.results.push({ 
+        test: testName, 
+        status: 'FAIL', 
+        error: error.message, 
+        duration,
+        metadata: { 
+          url: 'http://localhost:4000/cross-browser-test'
+        }
+      });
+      return false;
+    }
+  }
   
   async checkEnvironmentStatus() {
     this.log('🏥 Checking development environment status...', 'info');
@@ -402,6 +581,9 @@ class TestManager extends EventEmitter {
       
       // 5. Notification system tests
       await this.testNotificationSystem();
+      
+      // 6. Cross-browser compatibility tests
+      await this.testCrossBrowserCompatibility();
       
       // Generate summary
       const passed = this.results.filter(r => r.status === 'PASS').length;

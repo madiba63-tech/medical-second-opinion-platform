@@ -30,7 +30,21 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset --force",
-    "precommit": "npm run standards:check && npm run security:audit"
+    "precommit": "npm run standards:check && npm run security:audit",
+    "test:browser": "playwright test --project=chromium --project=firefox --project=webkit",
+    "test:browser:chrome": "playwright test --project=chromium",
+    "test:browser:firefox": "playwright test --project=firefox", 
+    "test:browser:safari": "playwright test --project=webkit",
+    "test:browser:mobile": "playwright test --project='Mobile Chrome' --project='Mobile Safari'",
+    "test:browser:visual": "playwright test --project=visual-chromium --project=visual-firefox --project=visual-webkit",
+    "test:browser:api": "playwright test --project=api-chromium --project=api-firefox --project=api-webkit",
+    "test:browser:all": "playwright test",
+    "test:browser:headed": "playwright test --headed",
+    "test:browser:debug": "playwright test --debug",
+    "test:browser:ui": "playwright test --ui",
+    "test:browser:report": "playwright show-report",
+    "test:browser:update-snapshots": "playwright test --update-snapshots",
+    "test:cross-browser": "npm run test:browser:all"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0",
@@ -70,6 +84,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@faker-js/faker": "^8.0.0",
+    "@playwright/test": "^1.55.0",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
@@ -94,6 +109,7 @@
     "lint-staged": "^15.0.0",
     "pdf-lib": "^1.17.1",
     "pg": "^8.16.3",
+    "pixelmatch": "^7.1.0",
     "postcss": "^8.5.6",
     "prettier": "^3.0.0",
     "prisma": "^6.14.0",

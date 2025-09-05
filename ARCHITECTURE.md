@@ -47,18 +47,26 @@ graph TB
         U[Invoicing & Accounting Module]
         V[Professional Recruitment Module]
         W[Case Review Module]
+        X[Payment & Billing Service]
     end
 
     subgraph "Data Layer"
-        X[(SQLite Database)]
-        Y[Local File Storage]
-        Z[External AI Analysis]
+        Y[(SQLite Database)]
+        Z[Local File Storage]
+        AA[External AI Analysis]
+    end
+
+    subgraph "Quality Assurance Layer"
+        BB[Test Manager Agent]
+        CC[Cross-Browser Testing Suite]
+        DD[Automated Health Monitoring]
+        EE[Performance Benchmarking]
     end
 
     subgraph "External Services"
-        AA[Email Service]
-        BB[SMS Service]
-        CC[Payment Gateway]
+        FF[Email Service]
+        GG[SMS Service]
+        HH[Payment Gateway]
     end
 
     %% User interfaces connect to API layer
@@ -73,20 +81,36 @@ graph TB
     N --> U
     N --> V
     N --> W
+    N --> X
     
     %% Business logic connects to data layer
-    S --> X
     S --> Y
     S --> Z
-    T --> X
-    U --> X
-    V --> X
-    W --> X
+    S --> AA
+    T --> Y
+    U --> Y
+    V --> Y
+    W --> Y
+    X --> Y
+    
+    %% Quality Assurance layer monitors all components
+    BB --> N
+    BB --> S
+    BB --> T
+    BB --> U
+    BB --> V
+    BB --> W
+    BB --> X
+    CC --> N
+    DD --> Y
+    DD --> Z
+    EE --> N
     
     %% Business logic connects to external services
-    T --> AA
-    T --> BB
-    U --> CC
+    T --> FF
+    T --> GG
+    U --> HH
+    X --> HH
 ```
 
 ## 🔄 System Flow Diagrams
@@ -98,23 +122,27 @@ flowchart TD
     A[Patient Lands on Portal] --> B[Fill Personal Information]
     B --> C[Upload & Classify Documents]
     C --> D[Provide Medical Context]
-    D --> E[Review All Information]
-    E --> F[Process Payment]
-    F --> G[Accept Terms & Consent]
-    G --> H[Submit Case]
+    D --> E[Select Expertise Level & Urgency]
+    E --> F[Review All Information]
+    F --> G[Process Payment with Dynamic Pricing]
+    G --> H[Accept Terms & Consent]
+    H --> I[Submit Case]
     
-    H --> I[Generate Case Number]
-    I --> J[Store in Repository Module]
-    I --> K[Create Customer Record]
-    I --> L[Process Payment Record]
+    I --> J[Generate Case Number]
+    J --> K[Store in Repository Module]
+    J --> L[Create Customer Record]
+    J --> M[Process Payment Record]
+    J --> N[Update Payment & Billing Service]
     
-    J --> M[Trigger AI Analysis]
-    K --> N[Send Confirmation Email]
-    L --> O[Send Payment Confirmation]
+    K --> O[Trigger AI Analysis]
+    L --> P[Send Confirmation Email]
+    M --> Q[Send Payment Confirmation]
+    N --> R[Record Expertise Level & Pricing]
     
-    M --> P[Case Ready for Assignment]
-    N --> Q[Customer Can Track Case]
-    O --> R[Payment Confirmed]
+    O --> S[Case Ready for Assignment]
+    P --> T[Customer Can Track Case via Portal]
+    Q --> U[Payment Confirmed with Invoice]
+    R --> V[Professional Assignment Based on Expertise Level]
 ```
 
 ### 2. Professional Case Review Flow
@@ -166,6 +194,57 @@ flowchart TD
     
     F --> O[Generate Reports]
     O --> P[Export Data]
+```
+
+### 4. Cross-Browser Testing & Quality Assurance Flow
+
+```mermaid
+flowchart TD
+    A[Test Manager Agent Initiated] --> B[Run Health Checks]
+    B --> C[Execute User Authentication Tests]
+    C --> D[Test Professional Workflows]
+    D --> E[Verify Notification Systems]
+    E --> F[Start Cross-Browser Testing]
+    
+    F --> G[Launch Chrome Tests]
+    F --> H[Launch Firefox Tests]
+    F --> I[Launch Safari Tests]
+    
+    G --> J[Test Homepage Loading]
+    G --> K[Test Form Interactions]
+    G --> L[Test API Compatibility]
+    G --> M[Test Performance Metrics]
+    
+    H --> N[Verify CSS Rendering]
+    H --> O[Test JavaScript Features]
+    H --> P[Check Local Storage]
+    H --> Q[Validate Responsive Design]
+    
+    I --> R[Test Mobile Compatibility]
+    I --> S[Verify Touch Events]
+    I --> T[Check Viewport Behavior]
+    I --> U[Test Safari-Specific Features]
+    
+    J --> V[Generate Cross-Browser Report]
+    K --> V
+    L --> V
+    M --> V
+    N --> V
+    O --> V
+    P --> V
+    Q --> V
+    R --> V
+    S --> V
+    T --> V
+    U --> V
+    
+    V --> W[Update Live Testing Page]
+    V --> X[Log Test Results]
+    V --> Y[Alert on Critical Failures]
+    
+    W --> Z[Real-Time Browser Compatibility Dashboard]
+    X --> AA[Historical Testing Data]
+    Y --> BB[Automated Issue Notifications]
 ```
 
 ## 🏛️ Component Architecture
@@ -529,6 +608,22 @@ graph TB
         Q[Prettier]
     end
     
+    subgraph "Cross-Browser Testing"
+        R[Playwright Framework]
+        S[Chrome Testing]
+        T[Firefox Testing]
+        U[Safari Testing]
+        V[Mobile Browser Testing]
+        W[Visual Regression Testing]
+    end
+    
+    subgraph "Quality Assurance"
+        X[Test Manager Agent]
+        Y[Automated Health Monitoring]
+        Z[Performance Benchmarking]
+        AA[Browser Compatibility CSS]
+    end
+    
     A --> B
     B --> C
     C --> D
@@ -546,6 +641,20 @@ graph TB
     N --> O
     O --> P
     P --> Q
+    
+    R --> S
+    S --> T
+    T --> U
+    U --> V
+    V --> W
+    
+    X --> Y
+    Y --> Z
+    Z --> AA
+    
+    %% Cross-browser testing integrates with frontend
+    R --> A
+    X --> G
 ```
 
 ## 📈 Performance Architecture
@@ -695,12 +804,167 @@ graph TD
 - Offline capability
 - Push notifications
 
-### 5. **Internationalization**
+### 5. **Cross-Browser Testing Infrastructure**
+- Playwright-based automated testing across 8 browser projects
+- Real-time browser compatibility monitoring with live testing page
+- Browser-specific optimization layer for Safari, Firefox, Chrome, and mobile browsers
+- Integration with Test Manager Agent for continuous quality assurance
+
+### 6. **Enhanced Payment Processing**
+- Dynamic pricing calculation based on expertise levels (Junior, Senior, Expert, Distinguished)
+- Real-time integration with Payment & Billing Service (port 4007)
+- Urgency multipliers for standard, urgent, and emergency case processing
+- Customer portal integration for payment tracking and invoice management
+
+### 7. **Internationalization**
 - Multi-language support
 - Regional compliance (GDPR, HIPAA, etc.)
 - Localized payment processing
 
+## 🧪 Cross-Browser Testing Architecture & Workflow
+
+### Testing Infrastructure Overview
+
+The Medical Second Opinion Platform implements comprehensive cross-browser testing to ensure consistent functionality and user experience across all major browsers and devices.
+
+### Test Manager Agent Integration
+
+**File**: `agents/test-manager.js`  
+**Integration Point**: Step 6 of Full Test Suite
+
+The Test Manager Agent now includes cross-browser testing as an integral part of the platform's quality assurance workflow:
+
+```javascript
+// Enhanced Test Manager Flow
+async runFullTestSuite() {
+  // ... existing tests ...
+  
+  // 6. Cross-browser compatibility tests
+  await this.testCrossBrowserCompatibility();
+  
+  // Automated testing across Chrome, Firefox, Safari
+  // Performance benchmarking per browser
+  // Visual regression detection
+  // Mobile compatibility verification
+}
+```
+
+### Cross-Browser Test Suite Components
+
+1. **Functional Tests** (`tests/e2e/cross-browser.browser.spec.ts`)
+   - Homepage loading across browsers
+   - Form interactions and validation
+   - API compatibility and response handling
+   - JavaScript feature support verification
+   - Local storage and session storage functionality
+
+2. **Visual Regression Tests** (`tests/e2e/visual-regression.visual.spec.ts`)
+   - UI consistency across browser engines
+   - Typography and font rendering differences
+   - CSS layout and positioning verification
+   - Color accuracy and display consistency
+   - Responsive design behavior validation
+
+3. **API Compatibility Tests** (`tests/e2e/api-compatibility.api.spec.ts`)
+   - Fetch API vs XMLHttpRequest compatibility
+   - CORS handling differences
+   - JSON parsing and stringification
+   - Error response handling consistency
+   - Content-type header processing
+
+4. **Mobile Compatibility Tests** (`tests/e2e/mobile-compatibility.mobile.spec.ts`)
+   - Touch event handling on iOS Safari and Chrome Mobile
+   - Viewport behavior and orientation changes
+   - Mobile-specific form interactions
+   - Performance metrics on mobile devices
+   - Mobile browser-specific API testing
+
+### Live Testing Interface
+
+**URL**: `/cross-browser-test`  
+**Purpose**: Real-time browser compatibility verification
+
+The live testing page provides instant feedback on browser compatibility:
+
+- **Browser Detection**: Automatic identification of current browser, version, and capabilities
+- **Feature Matrix**: Real-time testing of 60+ JavaScript features and 20+ CSS properties
+- **API Testing**: Live verification of all platform endpoints with response time monitoring
+- **Performance Metrics**: Navigation timing, memory usage, and connection information
+- **Compatibility Recommendations**: Browser-specific optimization suggestions
+
+### Browser Optimization Layer
+
+**File**: `src/styles/browser-compatibility.css`
+
+Comprehensive CSS compatibility layer addressing browser-specific issues:
+
+```css
+/* Safari-specific optimizations */
+@supports (-webkit-appearance: none) {
+  /* Webkit prefixes, font smoothing, input styling */
+}
+
+/* Firefox-specific optimizations */
+@-moz-document url-prefix() {
+  /* Scroll styling, font rendering, focus management */
+}
+
+/* Chrome performance enhancements */
+@supports (transform: translateZ(0)) {
+  /* Hardware acceleration, autofill styling */
+}
+```
+
+### Automated Testing Workflow
+
+1. **Continuous Integration**: Tests run automatically on code changes
+2. **Parallel Execution**: Chrome, Firefox, and Safari tests run simultaneously
+3. **Result Aggregation**: Comprehensive reporting with browser-specific metrics
+4. **Failure Handling**: Automatic retry logic and detailed error reporting
+5. **Performance Monitoring**: Benchmark tracking across browser versions
+
+### NPM Script Integration
+
+```bash
+# Complete cross-browser test suite
+npm run test:cross-browser
+
+# Browser-specific testing
+npm run test:browser:chrome
+npm run test:browser:firefox  
+npm run test:browser:safari
+
+# Specialized test categories
+npm run test:browser:mobile
+npm run test:browser:visual
+npm run test:browser:api
+
+# Development and debugging
+npm run test:browser:headed
+npm run test:browser:ui
+npm run test:browser:debug
+```
+
+### Quality Metrics & Success Criteria
+
+- **Test Coverage**: 105 automated tests across 8 browser projects
+- **Browser Support**: Chrome, Firefox, Safari, Edge, Mobile Chrome, Mobile Safari
+- **Performance Benchmarks**: First Contentful Paint <1.5s, Largest Contentful Paint <2.5s
+- **Compatibility Score**: >95% feature compatibility across target browsers
+- **Visual Consistency**: Zero critical visual regressions between browsers
+
+### Browser-Specific Optimizations Applied
+
+1. **Safari**: Webkit prefixes, font smoothing, input zoom prevention, scroll improvements
+2. **Firefox**: Scrollbar styling, font rendering, focus management, performance optimizations
+3. **Chrome**: Hardware acceleration, autofill styling, memory management
+4. **Mobile**: Touch target sizing, viewport fixes, orientation handling, performance tuning
+5. **Accessibility**: High contrast support, reduced motion, keyboard navigation
+6. **Performance**: GPU acceleration, animation optimization, loading state management
+
+This comprehensive cross-browser testing infrastructure ensures the Medical Second Opinion Platform delivers consistent, high-quality user experiences across all supported browsers and devices.
+
 ---
 
-*This architecture documentation provides a comprehensive overview of the Medical Second Opinion Platform's technical design, data flow, and system components.*
+*This architecture documentation provides a comprehensive overview of the Medical Second Opinion Platform's technical design, data flow, system components, and cross-browser compatibility infrastructure.*
 
