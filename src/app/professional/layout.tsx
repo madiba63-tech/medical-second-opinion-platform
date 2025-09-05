@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface ProfessionalData {
   id: string;
@@ -21,22 +20,66 @@ export default function ProfessionalLayout({
   const [professional, setProfessional] = useState<ProfessionalData | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
-    // Skip authentication check for demo purposes
-    setLoading(false);
-    
-    // Set demo data
-    const demoData = {
+    const fetchProfessionalData = async () => {
+      try {
+        // Check if we have a professional token
+        const token = localStorage.getItem('professionalToken');
+        if (!token) {
+          // For demo purposes, create a demo token
+          const demoToken = 'demo-professional-token-2024';
+          localStorage.setItem('professionalToken', demoToken);
+        }
+        
+        setLoading(true);
+
+        // Try to fetch from professional service
+        const response = await fetch('http://localhost:4004/api/v1/professionals/me', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('professionalToken')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data?.professional) {
+            const prof = data.data.professional;
+            setProfessional({
+              id: prof.id,
+              proNumber: prof.licenseNumber || 'PRO-2024-001',
+              email: prof.email,
+              firstName: prof.firstName,
+              lastName: prof.lastName,
+              level: (prof.specialization?.[0] || 'EXPERT') as any
+            });
+          } else {
+            // Fall back to demo data
+            setProfessional(getDemoData());
+          }
+        } else {
+          console.log('Professional API failed, using demo data');
+          setProfessional(getDemoData());
+        }
+      } catch (error) {
+        console.error('Error fetching professional data:', error);
+        setProfessional(getDemoData());
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const getDemoData = () => ({
       id: 'demo-1',
       proNumber: 'PRO-2024-001',
       email: 'demo@example.com',
       firstName: 'Dr. John',
       lastName: 'Smith',
       level: 'EXPERT' as const
-    };
-    setProfessional(demoData);
+    });
+
+    fetchProfessionalData();
   }, []);
 
   const handleLogout = () => {
@@ -47,12 +90,6 @@ export default function ProfessionalLayout({
     router.push('/professional/login');
   };
 
-  const navigation = [
-    { name: 'My Workplace', href: '/professional/workplace', icon: '📂' },
-    { name: 'My Dashboard', href: '/professional/dashboard', icon: '📊' },
-    { name: 'My Account', href: '/professional/account', icon: '💳' },
-    { name: 'My Profile', href: '/professional/profile', icon: '🧑' },
-  ];
 
   // Show loading only briefly
   if (loading) {
@@ -164,38 +201,6 @@ export default function ProfessionalLayout({
         </div>
       </header>
 
-      {/* Navigation */}
-      <nav style={{ 
-        backgroundColor: 'white', 
-        borderBottom: '1px solid #e5e7eb' 
-      }}>
-        <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '0 1rem' }}>
-          <div style={{ display: 'flex', gap: '2rem', overflowX: 'auto' }}>
-            {navigation.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  style={{
-                    padding: '1rem 0.25rem',
-                    borderBottom: '2px solid',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    textDecoration: 'none',
-                    whiteSpace: 'nowrap',
-                    borderColor: isActive ? '#2563eb' : 'transparent',
-                    color: isActive ? '#2563eb' : '#6b7280'
-                  }}
-                >
-                  <span style={{ marginRight: '0.5rem' }}>{item.icon}</span>
-                  {item.name}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </nav>
 
       {/* Main Content */}
       <main style={{ maxWidth: '80rem', margin: '0 auto', padding: '1.5rem 1rem' }}>
