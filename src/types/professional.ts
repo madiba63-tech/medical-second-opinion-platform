@@ -144,3 +144,248 @@ export const CompetencyScore = z.object({
 });
 
 export type CompetencyScore = z.infer<typeof CompetencyScore>;
+
+// Professional Profiling Enums and Types
+export const CancerSubspecialty = z.enum([
+  // Solid Tumors
+  "BREAST_CANCER",
+  "PROSTATE_CANCER", 
+  "LUNG_CANCER",
+  "COLORECTAL_CANCER",
+  "GYNECOLOGIC_CANCER",
+  "HEAD_AND_NECK_CANCER",
+  "SKIN_CANCER",
+  "LIVER_CANCER",
+  "PANCREATIC_CANCER",
+  "KIDNEY_CANCER",
+  "BLADDER_CANCER",
+  "GASTRIC_CANCER",
+  
+  // Hematologic Malignancies
+  "LEUKEMIA",
+  "LYMPHOMA",
+  "MYELOMA",
+  "MYELODYSPLASTIC_SYNDROME",
+  
+  // Rare & Pediatric
+  "SARCOMA",
+  "NEUROBLASTOMA",
+  "PEDIATRIC_LEUKEMIA",
+  "BRAIN_TUMOR",
+  "BONE_CANCER",
+  
+  // Molecular/Genetic
+  "MOLECULAR_ONCOLOGY",
+  "GENETIC_ONCOLOGY",
+  "PRECISION_MEDICINE",
+  "IMMUNOTHERAPY",
+  "TARGETED_THERAPY"
+]);
+
+export const DiagnosticExpertise = z.enum([
+  "RADIOLOGY_FOCUSED",    // MRI, CT, PET/CT interpretation
+  "PATHOLOGY_FOCUSED",    // Histopathology, immunohistochemistry
+  "GENOMICS_SPECIALIST",  // NGS, liquid biopsy, hereditary syndromes
+  "MULTIMODAL_REVIEWER"   // Integrating imaging, pathology, genetics
+]);
+
+export const RegionalLicensing = z.enum([
+  "EU_LICENSED",      // EMA standards, GDPR compliant
+  "US_LICENSED",      // FDA standards, HIPAA compliant
+  "APAC_LICENSED",    // Asia-Pacific region
+  "CROSS_LICENSED"    // Multiple jurisdictions
+]);
+
+export const LanguageCapability = z.enum([
+  "ENGLISH",
+  "GERMAN", 
+  "FRENCH",
+  "SPANISH",
+  "MANDARIN",
+  "HINDI",
+  "ARABIC",
+  "PORTUGUESE",
+  "ITALIAN",
+  "JAPANESE",
+  "DUTCH",
+  "SWEDISH"
+]);
+
+export const AvailabilityTier = z.enum([
+  "RAPID_RESPONSE",   // 24-48h turnaround
+  "STANDARD",         // 3-7 days
+  "COMPLEX_CASE"      // Detailed reviews, longer timeframe
+]);
+
+// Professional Profile Schema
+export const ProfessionalProfile = z.object({
+  // Unique identifier (better than "employee number")
+  professionalId: z.string().min(1), // e.g., "MED-2024-001" 
+  
+  // Clinical Seniority/Expertise Level (existing)
+  expertiseLevel: ProLevel,
+  
+  // Enhanced Cancer Subspecialties
+  primarySpecialties: z.array(CancerSubspecialty).min(1).max(3),
+  secondarySpecialties: z.array(CancerSubspecialty).max(5),
+  
+  // Diagnostic Expertise
+  diagnosticCapabilities: z.array(DiagnosticExpertise).min(1),
+  
+  // Regional/Regulatory Licensing
+  licensingJurisdictions: z.array(RegionalLicensing).min(1),
+  regulatoryCompliance: z.object({
+    gdprCompliant: z.boolean(),
+    hipaaCompliant: z.boolean(),
+    localRegulationsAware: z.array(z.string()), // Country codes
+  }),
+  
+  // Language & Communication Skills
+  languages: z.array(z.object({
+    language: LanguageCapability,
+    proficiencyLevel: z.enum(["BASIC", "INTERMEDIATE", "ADVANCED", "NATIVE"]),
+    medicalTerminology: z.boolean(), // Can handle medical terms in this language
+  })).min(1),
+  
+  // Availability & Workload Management
+  availabilityProfile: z.object({
+    tier: AvailabilityTier,
+    maxConcurrentCases: z.number().min(1).max(20),
+    workingHours: z.object({
+      timezone: z.string(), // e.g., "America/New_York", "Europe/London"
+      weekdays: z.object({
+        start: z.string(), // "09:00"
+        end: z.string(),   // "17:00"
+      }),
+      weekends: z.boolean(),
+      urgentCasesAfterHours: z.boolean(),
+    }),
+    vacationSchedule: z.array(z.object({
+      startDate: z.string(),
+      endDate: z.string(),
+      available: z.boolean(), // Available for urgent cases during vacation
+    })).optional(),
+  }),
+  
+  // Performance Metrics (historical)
+  performanceMetrics: z.object({
+    averageResponseTime: z.number().optional(), // hours
+    customerSatisfactionRating: z.number().min(1).max(5).optional(),
+    caseAccuracyRating: z.number().min(1).max(5).optional(),
+    peerReviewScore: z.number().min(1).max(5).optional(),
+    totalCasesCompleted: z.number().min(0),
+    successfulMatches: z.number().min(0), // Cases completed without reassignment
+    specialtySuccessRates: z.record(CancerSubspecialty, z.number().min(0).max(1)).optional(),
+  }).optional(),
+  
+  // Quality Assurance
+  qualityProfile: z.object({
+    verificationStatus: z.enum(["PENDING", "VERIFIED", "REQUIRES_UPDATE"]),
+    lastVerificationDate: z.string().optional(),
+    competencyAssessmentScore: z.number().min(0).max(100).optional(),
+    peerEndorsements: z.array(z.object({
+      endorserId: z.string(),
+      specialty: CancerSubspecialty,
+      endorsementDate: z.string(),
+      comment: z.string().optional(),
+    })).optional(),
+    continuousEducationCredits: z.number().min(0).optional(),
+    recentTrainingCertificates: z.array(z.object({
+      title: z.string(),
+      provider: z.string(),
+      completionDate: z.string(),
+      creditHours: z.number(),
+    })).optional(),
+  }),
+  
+  // Professional Preferences
+  preferences: z.object({
+    preferredCaseTypes: z.array(z.enum([
+      "DIAGNOSTIC_REVIEW",
+      "TREATMENT_PLANNING", 
+      "SECOND_OPINION",
+      "COMPLEX_CONSULTATION",
+      "MULTIDISCIPLINARY_REVIEW",
+      "GENOMIC_INTERPRETATION"
+    ])).optional(),
+    avoidCaseTypes: z.array(z.string()).optional(), // Cases professional prefers not to handle
+    mentorshipAvailable: z.boolean(), // Available to mentor junior professionals
+    researchInterests: z.array(z.string()).optional(),
+    continuousLearningPreferences: z.array(z.string()).optional(),
+  }).optional(),
+  
+  // Administrative
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  isActive: z.boolean(),
+  profileCompleteness: z.number().min(0).max(100), // Percentage
+});
+
+export type ProfessionalProfile = z.infer<typeof ProfessionalProfile>;
+
+// Case Profiling Schema
+export const CaseComplexity = z.enum([
+  "ROUTINE",      // Standard cases, clear presentation
+  "MODERATE",     // Some complexity, multiple factors
+  "COMPLEX",      // High complexity, rare conditions
+  "EXCEPTIONAL"   // Extremely rare, research-level
+]);
+
+export const CaseUrgency = z.enum([
+  "STANDARD",     // 5-7 days
+  "URGENT",       // 2-3 days (1.5x surcharge)
+  "EMERGENCY"     // 24-48 hours (2x surcharge)
+]);
+
+export const CaseProfile = z.object({
+  caseId: z.string(),
+  caseNumber: z.string(),
+  
+  // Customer Requirements
+  requestedExpertiseLevel: ProLevel,
+  requestedUrgency: CaseUrgency,
+  
+  // Case Characteristics (AI-derived or manually assigned)
+  estimatedComplexity: CaseComplexity,
+  primarySpecialtyRequired: CancerSubspecialty,
+  secondarySpecialtiesRequired: z.array(CancerSubspecialty).optional(),
+  diagnosticExpertiseRequired: z.array(DiagnosticExpertise),
+  
+  // Document Analysis
+  documentTypes: z.array(z.enum([
+    "MEDICAL_IMAGING",
+    "PATHOLOGY_REPORT", 
+    "LAB_RESULTS",
+    "GENOMIC_TESTING",
+    "MEDICAL_HISTORY",
+    "TREATMENT_RECORDS",
+    "RADIOLOGY_IMAGES"
+  ])),
+  
+  // Language Requirements
+  requiredLanguage: LanguageCapability,
+  
+  // Regulatory Requirements  
+  regulatoryJurisdiction: RegionalLicensing,
+  
+  // Matching Constraints
+  excludeProfessionals: z.array(z.string()).optional(), // Professional IDs to exclude
+  preferredProfessionals: z.array(z.string()).optional(), // Professional IDs preferred
+  
+  // Matching Results
+  eligibleProfessionals: z.array(z.object({
+    professionalId: z.string(),
+    matchScore: z.number().min(0).max(1), // 0-1 confidence score
+    matchReasons: z.array(z.string()),
+    estimatedResponseTime: z.number(), // hours
+  })).optional(),
+  
+  assignedProfessional: z.string().optional(),
+  assignmentTimestamp: z.string().optional(),
+  
+  // Metadata
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type CaseProfile = z.infer<typeof CaseProfile>;

@@ -68,19 +68,25 @@ export default function WorkplacePage() {
             </div>
 
             <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
-              <button style={{
-                width: '100%',
-                padding: '0.5rem 1rem',
-                backgroundColor: '#2563eb',
-                color: 'white',
-                border: 'none',
-                borderRadius: '0.375rem',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                cursor: 'pointer'
-              }}>
+              <a 
+                href="/professional/case/1"
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#2563eb',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  textDecoration: 'none'
+                }}
+              >
                 Open Case
-              </button>
+              </a>
             </div>
           </div>
         </div>
@@ -135,19 +141,25 @@ export default function WorkplacePage() {
             </div>
 
             <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
-              <button style={{
-                width: '100%',
-                padding: '0.5rem 1rem',
-                backgroundColor: '#2563eb',
-                color: 'white',
-                border: 'none',
-                borderRadius: '0.375rem',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                cursor: 'pointer'
-              }}>
+              <a 
+                href="/professional/case/1"
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#2563eb',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  textDecoration: 'none'
+                }}
+              >
                 Open Case
-              </button>
+              </a>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "../styles/browser-compatibility.css";
 import RoleNavigation from "@/components/RoleNavigation";
 
 const geistSans = Geist({

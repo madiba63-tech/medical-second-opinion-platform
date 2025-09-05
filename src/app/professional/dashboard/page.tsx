@@ -1,6 +1,130 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
+interface DashboardStats {
+  casesThisQuarter: number;
+  averageRating: number;
+  totalEarnings: number;
+  avgResponseTime: string;
+  recentActivity: Array<{
+    type: string;
+    message: string;
+    amount?: string;
+    time: string;
+  }>;
+}
+
 export default function DashboardPage() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        setLoading(true);
+        
+        // Try to fetch from professional service
+        const response = await fetch('http://localhost:4004/api/v1/professionals/stats', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('professionalToken')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data?.stats) {
+            const apiStats = data.data.stats;
+            setStats({
+              casesThisQuarter: apiStats.performance?.completedCases || 12,
+              averageRating: apiStats.performance?.rating || 4.8,
+              totalEarnings: 15600, // Would come from payment service
+              avgResponseTime: '2.3 days',
+              recentActivity: [
+                {
+                  type: 'completed',
+                  message: 'Case CASE-2024-003 completed',
+                  amount: '+$1,200',
+                  time: '2 hours ago'
+                },
+                {
+                  type: 'assigned',
+                  message: 'New case CASE-2024-004 assigned',
+                  time: '1 day ago'
+                },
+                {
+                  type: 'rating',
+                  message: 'Customer rating received',
+                  amount: '5.0 ⭐',
+                  time: '2 days ago'
+                }
+              ]
+            });
+          } else {
+            setStats(getMockStats());
+          }
+        } else {
+          console.log('Stats API call failed, using mock data');
+          setStats(getMockStats());
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+        setStats(getMockStats());
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardStats();
+  }, []);
+
+  const getMockStats = (): DashboardStats => ({
+    casesThisQuarter: 12,
+    averageRating: 4.8,
+    totalEarnings: 15600,
+    avgResponseTime: '2.3 days',
+    recentActivity: [
+      {
+        type: 'completed',
+        message: 'Case CASE-2024-003 completed',
+        amount: '+$1,200',
+        time: '2 hours ago'
+      },
+      {
+        type: 'assigned',
+        message: 'New case CASE-2024-004 assigned',
+        time: '1 day ago'
+      },
+      {
+        type: 'rating',
+        message: 'Customer rating received',
+        amount: '5.0 ⭐',
+        time: '2 days ago'
+      }
+    ]
+  });
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <div style={{
+          width: '3rem',
+          height: '3rem',
+          border: '2px solid #e5e7eb',
+          borderTop: '2px solid #2563eb',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }}></div>
+        <style jsx>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
   return (
     <div style={{ padding: '2rem' }}>
       <div style={{ marginBottom: '2rem' }}>
@@ -44,7 +168,7 @@ export default function DashboardPage() {
                 Cases This Quarter
               </p>
               <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827', margin: 0 }}>
-                12
+                {stats?.casesThisQuarter || 12}
               </p>
             </div>
           </div>
@@ -75,7 +199,7 @@ export default function DashboardPage() {
                 Average Rating
               </p>
               <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827', margin: 0 }}>
-                4.8/5.0
+                {stats?.averageRating || 4.8}/5.0
               </p>
             </div>
           </div>
@@ -106,7 +230,7 @@ export default function DashboardPage() {
                 Total Earnings
               </p>
               <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827', margin: 0 }}>
-                $15,600
+                ${stats?.totalEarnings?.toLocaleString() || '15,600'}
               </p>
             </div>
           </div>
@@ -156,86 +280,65 @@ export default function DashboardPage() {
           Recent Activity
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            padding: '0.75rem', 
-            backgroundColor: '#dcfce7', 
-            borderRadius: '0.5rem' 
-          }}>
-            <div style={{ 
-              width: '0.5rem', 
-              height: '0.5rem', 
-              backgroundColor: '#16a34a', 
-              borderRadius: '50%', 
-              marginRight: '0.75rem' 
-            }}></div>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: '0.875rem', fontWeight: '500', color: '#111827', margin: 0 }}>
-                Case CASE-2024-003 completed
-              </p>
-              <p style={{ fontSize: '0.75rem', color: '#6b7280', margin: 0 }}>
-                2 hours ago
-              </p>
-            </div>
-            <span style={{ fontSize: '0.875rem', color: '#16a34a', fontWeight: '500' }}>
-              +$1,200
-            </span>
-          </div>
-          
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            padding: '0.75rem', 
-            backgroundColor: '#dbeafe', 
-            borderRadius: '0.5rem' 
-          }}>
-            <div style={{ 
-              width: '0.5rem', 
-              height: '0.5rem', 
-              backgroundColor: '#2563eb', 
-              borderRadius: '50%', 
-              marginRight: '0.75rem' 
-            }}></div>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: '0.875rem', fontWeight: '500', color: '#111827', margin: 0 }}>
-                New case CASE-2024-004 assigned
-              </p>
-              <p style={{ fontSize: '0.75rem', color: '#6b7280', margin: 0 }}>
-                1 day ago
-              </p>
-            </div>
-            <span style={{ fontSize: '0.875rem', color: '#2563eb', fontWeight: '500' }}>
-              Breast Cancer
-            </span>
-          </div>
-          
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            padding: '0.75rem', 
-            backgroundColor: '#fef3c7', 
-            borderRadius: '0.5rem' 
-          }}>
-            <div style={{ 
-              width: '0.5rem', 
-              height: '0.5rem', 
-              backgroundColor: '#d97706', 
-              borderRadius: '50%', 
-              marginRight: '0.75rem' 
-            }}></div>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: '0.875rem', fontWeight: '500', color: '#111827', margin: 0 }}>
-                Customer rating received
-              </p>
-              <p style={{ fontSize: '0.75rem', color: '#6b7280', margin: 0 }}>
-                2 days ago
-              </p>
-            </div>
-            <span style={{ fontSize: '0.875rem', color: '#d97706', fontWeight: '500' }}>
-              5.0 ⭐
-            </span>
-          </div>
+          {(stats?.recentActivity || []).map((activity, index) => {
+            const getBackgroundColor = (type: string) => {
+              switch (type) {
+                case 'completed': return '#dcfce7';
+                case 'assigned': return '#dbeafe';  
+                case 'rating': return '#fef3c7';
+                default: return '#f3f4f6';
+              }
+            };
+            
+            const getDotColor = (type: string) => {
+              switch (type) {
+                case 'completed': return '#16a34a';
+                case 'assigned': return '#2563eb';
+                case 'rating': return '#d97706';
+                default: return '#6b7280';
+              }
+            };
+            
+            const getTextColor = (type: string) => {
+              switch (type) {
+                case 'completed': return '#16a34a';
+                case 'assigned': return '#2563eb';
+                case 'rating': return '#d97706';
+                default: return '#6b7280';
+              }
+            };
+            
+            return (
+              <div key={index} style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: '0.75rem', 
+                backgroundColor: getBackgroundColor(activity.type),
+                borderRadius: '0.5rem' 
+              }}>
+                <div style={{ 
+                  width: '0.5rem', 
+                  height: '0.5rem', 
+                  backgroundColor: getDotColor(activity.type),
+                  borderRadius: '50%', 
+                  marginRight: '0.75rem' 
+                }}></div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: '0.875rem', fontWeight: '500', color: '#111827', margin: 0 }}>
+                    {activity.message}
+                  </p>
+                  <p style={{ fontSize: '0.75rem', color: '#6b7280', margin: 0 }}>
+                    {activity.time}
+                  </p>
+                </div>
+                {activity.amount && (
+                  <span style={{ fontSize: '0.875rem', color: getTextColor(activity.type), fontWeight: '500' }}>
+                    {activity.amount}
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
